@@ -1,8 +1,8 @@
 // src/pages/Home.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import EntryList from "../../components/EntryList";
+import { getEntries } from "../../services/hygraph";
 
 const HomeContainer = styled.div`
   padding: 1rem;
@@ -24,11 +24,23 @@ const CreateEntryButton = styled(Link)`
 `;
 
 const Home: React.FC = () => {
+  const fetchEntries = async () => {
+    try {
+      const results = await getEntries();
+      console.log("Fetched entries:", results);
+    } catch (error) {
+      console.error("Error fetching entries:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchEntries();
+  }, []);
   return (
     <HomeContainer>
       <h1>My Blog</h1>
-      <CreateEntryButton to="/upload">Create New Entry</CreateEntryButton>
-      <EntryList />
+      {/* <CreateEntryButton to="/upload">Create New Entry</CreateEntryButton> */}
+      {/* <EntryList /> */}
     </HomeContainer>
   );
 };

@@ -1,8 +1,8 @@
 // src/components/blog/EntryForm.tsx
 import React, { useState } from "react";
-import { Form } from "react-router-dom";
 import { uploadImages, createEntry } from "../services/hygraph";
 import {
+  FormContainer, // Changed from Form to FormContainer
   Input,
   TextArea,
   ImagePreviewContainer,
@@ -118,7 +118,7 @@ const EntryForm: React.FC<EntryFormProps> = ({ onSuccess }) => {
     : "Getting location...";
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <FormContainer onSubmit={handleSubmit}>
       <h2>Create New Blog Entry</h2>
 
       <label htmlFor="title">Title</label>
@@ -178,7 +178,7 @@ const EntryForm: React.FC<EntryFormProps> = ({ onSuccess }) => {
       {status && (
         <StatusMessage error={status.error}>{status.message}</StatusMessage>
       )}
-    </Form>
+    </FormContainer>
   );
 };
 

@@ -1,6 +1,8 @@
+// src/components/blog/EntryFormStyles.ts
 import styled from "styled-components";
 
-export const Form = styled.form`
+// Change Form to FormContainer
+export const FormContainer = styled.form`
   display: flex;
   flex-direction: column;
   gap: 1rem;
