@@ -18,8 +18,7 @@ export const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-// Hygraph has a specific way to handle asset uploads
-// The mutation name is typically 'createAsset' rather than 'uploadAsset'
+// Define the mutation for creating an asset in Hygraph
 const CREATE_ASSET = gql`
   mutation CreateAsset($file: Upload!) {
     createAsset(data: { file: $file }) {
@@ -29,23 +28,50 @@ const CREATE_ASSET = gql`
   }
 `;
 
+const PUBLISH_ASSET = gql`
+  mutation PublishAsset($id: ID!) {
+    publishAsset(where: { id: $id }, to: PUBLISHED) {
+      id
+    }
+  }
+`;
+
+// Function to publish an asset after creation
+const publishAsset = async (id: string) => {
+  try {
+    return await client.mutate({
+      mutation: PUBLISH_ASSET,
+      variables: { id },
+    });
+  } catch (error) {
+    console.error("Error publishing asset:", error);
+    throw error;
+  }
+};
+
+// Function to upload multiple images
 export const uploadImages = async (files: File[]) => {
   const uploadPromises = files.map(async (file) => {
     try {
+      // Create a file variable for the mutation
       const result = await client.mutate({
         mutation: CREATE_ASSET,
-        variables: { file }, // Changed from fileUpload to file
+        variables: { file },
         context: {
           hasUpload: true,
         },
       });
 
-      // Also need to publish the asset after creation
-      if (result.data?.createAsset?.id) {
-        await publishAsset(result.data.createAsset.id);
+      if (!result.data?.createAsset?.id) {
+        throw new Error("Failed to get asset ID after upload");
       }
 
-      return result.data.createAsset.id;
+      const assetId = result.data.createAsset.id;
+
+      // Publish the asset after creation
+      await publishAsset(assetId);
+
+      return assetId;
     } catch (error) {
       console.error("Error uploading image:", error);
       throw error;
@@ -55,22 +81,7 @@ export const uploadImages = async (files: File[]) => {
   return Promise.all(uploadPromises);
 };
 
-const PUBLISH_ASSET = gql`
-  mutation PublishAsset($id: ID!) {
-    publishAsset(where: { id: $id }) {
-      id
-    }
-  }
-`;
-
-const publishAsset = async (id: string) => {
-  return client.mutate({
-    mutation: PUBLISH_ASSET,
-    variables: { id },
-  });
-};
-
-// Rest of your code for createEntry and getEntries remains the same
+// Create a blog entry with connected images
 export const createEntry = async (
   title: string,
   content: string,
@@ -85,7 +96,7 @@ export const createEntry = async (
       $content: String!
       $timestamp: DateTime!
       $location: JSON!
-      $images: [AssetWhereUniqueInput!]!
+      $imageConnections: [AssetWhereUniqueInput!]!
     ) {
       createEntry(
         data: {
@@ -93,7 +104,7 @@ export const createEntry = async (
           content: $content
           timestamp: $timestamp
           location: $location
-          images: { connect: $images }
+          images: { connect: $imageConnections }
         }
       ) {
         id
@@ -102,42 +113,53 @@ export const createEntry = async (
     }
   `;
 
-  const imageConnections = imageIds.map((id) => ({ where: { id } }));
+  try {
+    // Create connections for the images
+    const imageConnections = imageIds.map((id) => ({ where: { id } }));
 
-  const result = await client.mutate({
-    mutation: CREATE_ENTRY,
-    variables: {
-      title,
-      content,
-      timestamp,
-      location,
-      images: imageConnections,
-    },
-  });
+    // Create the entry
+    const result = await client.mutate({
+      mutation: CREATE_ENTRY,
+      variables: {
+        title,
+        content,
+        timestamp,
+        location,
+        imageConnections,
+      },
+    });
 
-  // Publish the entry (required in Hygraph)
-  const PUBLISH_ENTRY = gql`
-    mutation PublishEntry($id: ID!) {
-      publishEntry(where: { id: $id }) {
-        id
-      }
+    if (!result.data?.createEntry?.id) {
+      throw new Error("Failed to create entry");
     }
-  `;
 
-  await client.mutate({
-    mutation: PUBLISH_ENTRY,
-    variables: {
-      id: result.data.createEntry.id,
-    },
-  });
+    // Publish the entry
+    const PUBLISH_ENTRY = gql`
+      mutation PublishEntry($id: ID!) {
+        publishEntry(where: { id: $id }, to: PUBLISHED) {
+          id
+        }
+      }
+    `;
 
-  return result.data.createEntry;
+    await client.mutate({
+      mutation: PUBLISH_ENTRY,
+      variables: {
+        id: result.data.createEntry.id,
+      },
+    });
+
+    return result.data.createEntry;
+  } catch (error) {
+    console.error("Error creating entry:", error);
+    throw error;
+  }
 };
 
 export const getEntries = async () => {
   const GET_ALL_ENTRIES = gql`
     query GetAllEntries {
-      entries {
+      entries(orderBy: timestamp_DESC) {
         id
         title
         content
@@ -152,9 +174,15 @@ export const getEntries = async () => {
     }
   `;
 
-  const result = await client.query({
-    query: GET_ALL_ENTRIES,
-  });
+  try {
+    const result = await client.query({
+      query: GET_ALL_ENTRIES,
+      fetchPolicy: "network-only", // Don't use cache for this query
+    });
 
-  return result.data.entries;
+    return result.data.entries;
+  } catch (error) {
+    console.error("Error fetching entries:", error);
+    throw error;
+  }
 };
