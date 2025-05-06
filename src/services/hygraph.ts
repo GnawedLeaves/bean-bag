@@ -39,10 +39,12 @@ const PUBLISH_ASSET = gql`
 // Function to publish an asset after creation
 const publishAsset = async (id: string) => {
   try {
-    return await client.mutate({
+    const response = await client.mutate({
       mutation: PUBLISH_ASSET,
       variables: { id },
     });
+    console.log("publish asset", { response });
+    return response;
   } catch (error) {
     console.error("Error publishing asset:", error);
     throw error;
@@ -158,17 +160,18 @@ export const createEntry = async (
 
 export const getEntries = async () => {
   const GET_ALL_ENTRIES = gql`
-    query GetAllEntries {
-      entries(orderBy: timestamp_DESC) {
-        id
+    query GetAllBlogs {
+      blogEntries {
         title
         content
         timestamp
-        location
         images {
-          id
           url
           fileName
+        }
+        location {
+          latitude
+          longitude
         }
       }
     }
@@ -180,9 +183,35 @@ export const getEntries = async () => {
       fetchPolicy: "network-only", // Don't use cache for this query
     });
 
-    return result.data.entries;
+    return result.data.blogEntries;
   } catch (error) {
     console.error("Error fetching entries:", error);
     throw error;
   }
 };
+
+//backup mutation from hygraph
+// mutation createAsset {
+//   createAsset(data: {}) {
+//     id
+//     url
+//     upload {
+//       status
+//       expiresAt
+//       error {
+//         code
+//         message
+//       }
+//       requestPostData {
+//         url
+//         date
+//         key
+//         signature
+//         algorithm
+//         policy
+//         credential
+//         securityToken
+//       }
+//     }
+//   }
+// }
