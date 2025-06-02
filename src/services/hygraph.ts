@@ -298,14 +298,16 @@ export const createEntry = async (
       },
     });
 
-    if (!result.data?.createEntry?.id) {
+    console.log({ result });
+
+    if (!result.data?.createBlogEntry?.id) {
       throw new Error("Failed to create entry");
     }
 
     // Publish the entry
     const PUBLISH_ENTRY = gql`
       mutation PublishEntry($id: ID!) {
-        publishEntry(where: { id: $id }, to: PUBLISHED) {
+        publishBlogEntry(where: { id: $id }, to: PUBLISHED) {
           id
         }
       }
@@ -314,11 +316,11 @@ export const createEntry = async (
     await client.mutate({
       mutation: PUBLISH_ENTRY,
       variables: {
-        id: result.data.createEntry.id,
+        id: result.data.createBlogEntry.id,
       },
     });
 
-    return result.data.createEntry;
+    return result.data.createBlogEntry;
   } catch (error) {
     console.error("Error creating entry:", error);
     throw error;
