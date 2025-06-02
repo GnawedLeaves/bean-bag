@@ -1,12 +1,10 @@
-// src/services/hygraph.ts
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
-import createUploadLink from "apollo-upload-client/createUploadLink.mjs";
+import { ApolloClient, InMemoryCache, gql, HttpLink } from "@apollo/client";
 
 const API_URL = process.env.REACT_APP_HYGRAPH_API_URL || "";
 const API_KEY = process.env.REACT_APP_HYGRAPH_API_KEY || "";
 
-// Use createUploadLink instead of regular HttpLink to support file uploads
-const uploadLink = createUploadLink({
+// Create a regular HTTP link instead of an upload link
+const httpLink = new HttpLink({
   uri: API_URL,
   headers: {
     Authorization: `Bearer ${API_KEY}`,
@@ -14,16 +12,34 @@ const uploadLink = createUploadLink({
 });
 
 export const client = new ApolloClient({
-  link: uploadLink,
+  link: httpLink,
   cache: new InMemoryCache(),
 });
 
-// Define the mutation for creating an asset in Hygraph
+// Define the mutation for creating an asset in Hygraph using the correct structure
 const CREATE_ASSET = gql`
-  mutation CreateAsset($file: Upload!) {
-    createAsset(data: { file: $file }) {
+  mutation CreateAsset {
+    createAsset(data: {}) {
       id
       url
+      upload {
+        status
+        expiresAt
+        error {
+          code
+          message
+        }
+        requestPostData {
+          url
+          date
+          key
+          signature
+          algorithm
+          policy
+          credential
+          securityToken
+        }
+      }
     }
   }
 `;
@@ -32,6 +48,7 @@ const PUBLISH_ASSET = gql`
   mutation PublishAsset($id: ID!) {
     publishAsset(where: { id: $id }, to: PUBLISHED) {
       id
+      url
     }
   }
 `;
@@ -43,7 +60,7 @@ const publishAsset = async (id: string) => {
       mutation: PUBLISH_ASSET,
       variables: { id },
     });
-    console.log("publish asset", { response });
+    console.log("Asset published:", response);
     return response;
   } catch (error) {
     console.error("Error publishing asset:", error);
@@ -51,29 +68,75 @@ const publishAsset = async (id: string) => {
   }
 };
 
-// Function to upload multiple images
+// Function to upload multiple images using direct upload
 export const uploadImages = async (files: File[]) => {
   const uploadPromises = files.map(async (file) => {
     try {
-      // Create a file variable for the mutation
+      // Step 1: Request upload URL from Hygraph
       const result = await client.mutate({
         mutation: CREATE_ASSET,
-        variables: { file },
-        context: {
-          hasUpload: true,
-        },
+        variables: {},
       });
 
-      if (!result.data?.createAsset?.id) {
-        throw new Error("Failed to get asset ID after upload");
+      if (!result.data?.createAsset) {
+        throw new Error("Failed to get upload URL");
       }
 
-      const assetId = result.data.createAsset.id;
+      const { id, upload } = result.data.createAsset;
 
-      // Publish the asset after creation
-      await publishAsset(assetId);
+      if (upload.status !== "CREATED") {
+        throw new Error(
+          `Upload preparation failed: ${
+            upload.error?.message || "Unknown error"
+          }`
+        );
+      }
 
-      return assetId;
+      const {
+        url,
+        date,
+        key,
+        signature,
+        algorithm,
+        policy,
+        credential,
+        securityToken,
+      } = upload.requestPostData;
+
+      // Step 2: Prepare form data for direct upload
+      const formData = new FormData();
+
+      // Add all required AWS S3 fields
+      if (date) formData.append("x-amz-date", date);
+      if (key) formData.append("key", key);
+      if (signature) formData.append("x-amz-signature", signature);
+      if (algorithm) formData.append("x-amz-algorithm", algorithm);
+      if (policy) formData.append("policy", policy);
+      if (credential) formData.append("x-amz-credential", credential);
+      if (securityToken) formData.append("x-amz-security-token", securityToken);
+
+      // Add content type based on file
+      formData.append("content-type", file.type);
+
+      // Add file as the last field
+      formData.append("file", file);
+
+      // Step 3: Upload file directly to the provider
+      const uploadResponse = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        console.error("Upload response:", errorText);
+        throw new Error(`Upload failed with status: ${uploadResponse.status}`);
+      }
+
+      // Step 4: Publish the asset
+      await publishAsset(id);
+
+      return id;
     } catch (error) {
       console.error("Error uploading image:", error);
       throw error;
