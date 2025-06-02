@@ -79,12 +79,18 @@ const EntryForm: React.FC<EntryFormProps> = ({ onSuccess }) => {
       setStatus({ message: "Uploading images...", error: false });
 
       // Upload images first
+      console.log({ files });
       const imageIds = await uploadImages(files);
 
       setStatus({ message: "Creating entry...", error: false });
 
+      const transformedLocation = {
+        latitude: location.latitude,
+        longitude: location.longitude,
+      };
+
       // Create the entry with uploaded image IDs
-      await createEntry(title, content, location, imageIds);
+      await createEntry(title, content, transformedLocation, imageIds);
 
       setStatus({ message: "Entry created successfully!", error: false });
 
