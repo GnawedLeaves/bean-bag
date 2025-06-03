@@ -101,6 +101,11 @@ const Header: React.FC = () => {
             </NavLink>
           </NavItem>
           <NavItem>
+            <NavLink to="/space" onClick={() => setIsMenuOpen(false)}>
+              Space
+            </NavLink>
+          </NavItem>
+          <NavItem>
             <NavLink to="/entries" onClick={() => setIsMenuOpen(false)}>
               All Entries
             </NavLink>

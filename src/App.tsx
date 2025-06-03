@@ -8,6 +8,7 @@ import { client } from "./services/hygraph";
 import Home from "./pages/home/Home";
 import Upload from "./pages/upload/Upload";
 import Header from "./components/layout/Header";
+import SpacePage from "./pages/space/Space";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -54,6 +55,8 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/upload" element={<Upload />} />
+            <Route path="/space" element={<SpacePage />} />
+
             {/* <Route path="/entries" element={<ViewEntries />} /> */}
           </Routes>
         </main>
