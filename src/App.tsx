@@ -1,7 +1,7 @@
 // src/App.tsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle, ThemeProvider } from "styled-components";
 
 import { ApolloProvider } from "@apollo/client";
 import { client } from "./services/hygraph";
@@ -9,6 +9,7 @@ import Home from "./pages/home/Home";
 import Upload from "./pages/upload/Upload";
 import Header from "./components/layout/Header";
 import SpacePage from "./pages/space/Space";
+import { theme } from "./theme";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -48,20 +49,22 @@ const GlobalStyle = createGlobalStyle`
 const App: React.FC = () => {
   return (
     <ApolloProvider client={client}>
-      <Router>
-        <GlobalStyle />
-        <Header />
-        <main>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/upload" element={<Upload />} />
-            <Route path="/space" element={<SpacePage />} />
+      <ThemeProvider theme={theme}>
+        <Router>
+          <GlobalStyle />
+          <Header />
+          <main>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/upload" element={<Upload />} />
+              <Route path="/space" element={<SpacePage />} />
 
-            {/* <Route path="/entries" element={<ViewEntries />} /> */}
-          </Routes>
-        </main>
-        {/* <Footer /> */}
-      </Router>
+              {/* <Route path="/entries" element={<ViewEntries />} /> */}
+            </Routes>
+          </main>
+          {/* <Footer /> */}
+        </Router>
+      </ThemeProvider>
     </ApolloProvider>
   );
 };

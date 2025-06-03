@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
-import { getAstronomyPictureOfTheDay } from "../../services/nasa";
-import { NasaApodObject } from "../../types/types";
+import {
+  AstroidsParams,
+  getAsteroidsApi,
+  getAstronomyPictureOfTheDay,
+} from "../../services/nasa";
+import { AsteroidApiResponse, NasaApodObject } from "../../types/nasaTypes";
 
 const SpacePage = () => {
   const [apodData, setApodData] = useState<NasaApodObject[]>([]);
+  const [asteroidDataResponse, setAsteroidDataResponse] =
+    useState<AsteroidApiResponse>();
+
   const getAPOD = async () => {
     const today = new Date();
     const formattedDate = today.toISOString().split("T")[0];
@@ -20,11 +27,25 @@ const SpacePage = () => {
     }
   };
 
+  const getAsteroids = async (params: AstroidsParams) => {
+    const response: AsteroidApiResponse = await getAsteroidsApi(params);
+    console.log({ response });
+    setAsteroidDataResponse(response);
+  };
+
   useEffect(() => {
     getAPOD();
+    getAsteroids({});
   }, []);
   return (
     <>
+      <button
+        onClick={() => {
+          getAsteroids({});
+        }}
+      >
+        get astrioids
+      </button>
       <div
         style={{
           display: "flex",
