@@ -11,13 +11,24 @@ import {
   AsteroidObject,
 } from "../../types/nasaTypes";
 import { AsteroidScene } from "../../components/threejs/earth";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../firebase/firebase";
+import { useNavigate } from "react-router-dom";
 
 const SpacePage = () => {
   const [apodData, setApodData] = useState<NasaApodObject[]>([]);
   const [asteroidDataResponse, setAsteroidDataResponse] =
     useState<AsteroidApiResponse>();
   const [showVisualization, setShowVisualization] = useState(false);
-
+  const navigate = useNavigate();
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate("/login");
+      }
+    });
+    return () => unsubscribe();
+  }, []);
   const getAPOD = async () => {
     const today = new Date();
     const formattedDate = today.toISOString().split("T")[0];

@@ -1,7 +1,10 @@
 // src/components/layout/Header.tsx
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { message } from "antd";
+import { signOut } from "firebase/auth";
+import { auth } from "../../firebase/firebase";
 
 const HeaderContainer = styled.header`
   background-color: #333;
@@ -77,11 +80,21 @@ const MenuButton = styled.button`
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const navigate = useNavigate();
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      message.success("Signed out successfully");
+      navigate("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      message.error("Failed to sign out");
+    }
+  };
   return (
     <HeaderContainer>
       <Logo to="/">My Blog</Logo>
@@ -109,6 +122,22 @@ const Header: React.FC = () => {
             <NavLink to="/entries" onClick={() => setIsMenuOpen(false)}>
               All Entries
             </NavLink>
+          </NavItem>
+          <NavItem>
+            <button
+              style={{
+                background: "none",
+                border: "none",
+                color: "white",
+                cursor: "pointer",
+              }}
+              onClick={async () => {
+                await handleSignOut();
+                setIsMenuOpen(false);
+              }}
+            >
+              Sign Out
+            </button>
           </NavItem>
         </NavList>
       </NavContainer>

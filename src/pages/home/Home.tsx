@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { getEntries } from "../../services/hygraph";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../firebase/firebase";
+import { useNavigate } from "react-router-dom";
 
 const HomeContainer = styled.div`
   padding: 1rem;
@@ -20,7 +23,7 @@ const Image = styled.img`
 
 const Home: React.FC = () => {
   const [entries, setEntries] = useState<any[]>([]);
-
+  const navigate = useNavigate();
   const fetchEntries = async () => {
     try {
       const results = await getEntries();
@@ -33,6 +36,15 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     fetchEntries();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate("/login");
+      }
+    });
+    return () => unsubscribe();
   }, []);
 
   return (
