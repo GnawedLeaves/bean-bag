@@ -14,8 +14,8 @@ const UploadPlantsPage = ({}: UploadPlantsPageProps) => {
   const handleSuccess = () => {
     // Navigate to home page after successful submission
     setTimeout(() => {
-      navigate("/");
-    }, 2000);
+      navigate(ROUTES.PLANTS.path);
+    }, 1000);
   };
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {

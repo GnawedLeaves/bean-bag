@@ -67,6 +67,8 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({ onSuccess }) => {
       return;
     }
 
+    console.log({ values });
+
     if (!location) {
       message.error(
         "Location data is required. Please enable location services."

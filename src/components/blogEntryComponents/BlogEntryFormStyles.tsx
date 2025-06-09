@@ -2,7 +2,7 @@
 import styled from "styled-components";
 
 // Change Form to FormContainer
-export const FormContainer = styled.form`
+export const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;

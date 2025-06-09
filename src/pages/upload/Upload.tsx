@@ -17,8 +17,8 @@ const BlogUploadPage: React.FC = () => {
   const handleSuccess = () => {
     // Navigate to home page after successful submission
     setTimeout(() => {
-      navigate("/");
-    }, 2000);
+      navigate(ROUTES.BLOGS.path);
+    }, 1000);
   };
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
