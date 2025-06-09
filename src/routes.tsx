@@ -36,4 +36,8 @@ export const ROUTES: Record<string, RouteConfig> = {
     path: "/blogs",
     name: "Blogs",
   },
+  SPOTIFY: {
+    path: "/spotify",
+    name: "Spotify",
+  },
 } as const;

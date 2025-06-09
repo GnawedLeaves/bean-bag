@@ -8,6 +8,7 @@ import {
   ExperimentOutlined,
   SettingOutlined,
   SunOutlined,
+  SpotifyOutlined,
 } from "@ant-design/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
@@ -50,6 +51,12 @@ const Header: React.FC = () => {
       icon: <SunOutlined />,
       label: "Plants",
       path: ROUTES.PLANTS?.path || "/plants",
+    },
+    {
+      key: ROUTES.SPOTIFY?.path || "/spotify",
+      icon: <SpotifyOutlined />,
+      label: "Spotify",
+      path: ROUTES.SPOTIFY?.path || "/spotify",
     },
     {
       key: ROUTES.SPACE?.path || "/space",

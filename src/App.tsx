@@ -16,6 +16,8 @@ import { ROUTES } from "./routes";
 import { SettingsPage } from "./pages/settings/Settings";
 import BlogPage from "./pages/blog/Blogs";
 import { appTheme } from "./theme";
+import SpotifyPage from "./pages/spotify/Spotify";
+import { UserProvider } from "./contexts/UserContext";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -56,26 +58,29 @@ const App: React.FC = () => {
   return (
     <ApolloProvider client={client}>
       <ThemeProvider theme={appTheme}>
-        <Router>
-          <GlobalStyle />
-          <Header />
-          <main>
-            <Routes>
-              <Route path={ROUTES.HOME.path} element={<Home />} />
-              <Route path="/*" element={<Home />} />
-              <Route path={ROUTES.UPLOAD.path} element={<BlogUploadPage />} />
-              <Route path={ROUTES.SPACE.path} element={<SpacePage />} />
-              <Route path={ROUTES.LOGIN.path} element={<LoginPage />} />
-              <Route path={ROUTES.PLANTS.path} element={<PlantsPage />} />
-              <Route
-                path={ROUTES.PLANTS_UPLOAD.path}
-                element={<UploadPlantsPage />}
-              />
-              <Route path={ROUTES.SETTINGS.path} element={<SettingsPage />} />
-              <Route path={ROUTES.BLOGS.path} element={<BlogPage />} />
-            </Routes>
-          </main>
-        </Router>
+        <UserProvider>
+          <Router>
+            <GlobalStyle />
+            <Header />
+            <main>
+              <Routes>
+                <Route path={ROUTES.HOME.path} element={<Home />} />
+                <Route path="/*" element={<Home />} />
+                <Route path={ROUTES.UPLOAD.path} element={<BlogUploadPage />} />
+                <Route path={ROUTES.SPACE.path} element={<SpacePage />} />
+                <Route path={ROUTES.LOGIN.path} element={<LoginPage />} />
+                <Route path={ROUTES.PLANTS.path} element={<PlantsPage />} />
+                <Route
+                  path={ROUTES.PLANTS_UPLOAD.path}
+                  element={<UploadPlantsPage />}
+                />
+                <Route path={ROUTES.SETTINGS.path} element={<SettingsPage />} />
+                <Route path={ROUTES.BLOGS.path} element={<BlogPage />} />
+                <Route path={ROUTES.SPOTIFY.path} element={<SpotifyPage />} />
+              </Routes>
+            </main>
+          </Router>
+        </UserProvider>
       </ThemeProvider>
     </ApolloProvider>
   );
