@@ -135,7 +135,7 @@ const Header: React.FC = () => {
             textDecoration: "none",
           }}
         >
-          My Blog
+          Anni App
         </Link>
 
         <Menu
@@ -195,7 +195,7 @@ const Header: React.FC = () => {
             textDecoration: "none",
           }}
         >
-          My Blog
+          Anni App
         </Link>
 
         <Button

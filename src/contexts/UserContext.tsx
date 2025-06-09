@@ -37,7 +37,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setLoading(true);
       if (firebaseUser) {
-        console.log(firebaseUser.uid);
         try {
           const q = query(
             collection(db, "anniAppUsers"),

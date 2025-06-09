@@ -18,6 +18,8 @@ import BlogPage from "./pages/blog/Blogs";
 import { appTheme } from "./theme";
 import SpotifyPage from "./pages/spotify/Spotify";
 import { UserProvider } from "./contexts/UserContext";
+import SpotifyArtistDetailsPage from "./pages/spotify/SpotifyArtist";
+import SpotifyTrackPage from "./pages/spotify/SpotifyTrack";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -77,6 +79,14 @@ const App: React.FC = () => {
                 <Route path={ROUTES.SETTINGS.path} element={<SettingsPage />} />
                 <Route path={ROUTES.BLOGS.path} element={<BlogPage />} />
                 <Route path={ROUTES.SPOTIFY.path} element={<SpotifyPage />} />
+                <Route
+                  path={ROUTES.SPOTIFY_ARTIST.path}
+                  element={<SpotifyArtistDetailsPage />}
+                />
+                <Route
+                  path={ROUTES.SPOTIFY_TRACK.path}
+                  element={<SpotifyTrackPage />}
+                />
               </Routes>
             </main>
           </Router>
