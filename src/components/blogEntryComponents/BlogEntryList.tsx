@@ -2,7 +2,7 @@
 import React from "react";
 import styled from "styled-components";
 import { gql, useQuery } from "@apollo/client";
-import EntryCard from "./EntryCard";
+import EntryCard from "./BlogEntryCard";
 
 const ListContainer = styled.div`
   display: flex;

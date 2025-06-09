@@ -4,6 +4,7 @@ import { getEntries } from "../../services/hygraph";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../routes";
 
 const HomeContainer = styled.div`
   padding: 1rem;
@@ -41,7 +42,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        navigate("/login");
+        navigate(ROUTES.LOGIN.path);
       }
     });
     return () => unsubscribe();

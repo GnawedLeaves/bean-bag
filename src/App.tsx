@@ -6,11 +6,14 @@ import { createGlobalStyle, ThemeProvider } from "styled-components";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "./services/hygraph";
 import Home from "./pages/home/Home";
-import Upload from "./pages/upload/Upload";
+import BlogUploadPage from "./pages/upload/Upload";
 import Header from "./components/layout/Header";
 import SpacePage from "./pages/space/Space";
 import { theme } from "./theme";
 import LoginPage from "./pages/login/Login";
+import { PlantsPage } from "./pages/plant/Plants";
+import { UploadPlantsPage } from "./pages/plant/UploadPlants";
+import { ROUTES } from "./routes";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -56,16 +59,18 @@ const App: React.FC = () => {
           <Header />
           <main>
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path={ROUTES.HOME.path} element={<Home />} />
               <Route path="/*" element={<Home />} />
-              <Route path="/upload" element={<Upload />} />
-              <Route path="/space" element={<SpacePage />} />
-              <Route path="/login" element={<LoginPage />} />
-
-              {/* <Route path="/entries" element={<ViewEntries />} /> */}
+              <Route path={ROUTES.UPLOAD.path} element={<BlogUploadPage />} />
+              <Route path={ROUTES.SPACE.path} element={<SpacePage />} />
+              <Route path={ROUTES.LOGIN.path} element={<LoginPage />} />
+              <Route path={ROUTES.PLANTS.path} element={<PlantsPage />} />
+              <Route
+                path={ROUTES.PLANTS_UPLOAD.path}
+                element={<UploadPlantsPage />}
+              />
             </Routes>
           </main>
-          {/* <Footer /> */}
         </Router>
       </ThemeProvider>
     </ApolloProvider>

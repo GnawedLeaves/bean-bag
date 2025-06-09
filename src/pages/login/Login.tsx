@@ -2,6 +2,7 @@ import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../routes";
 
 const LoginPage = () => {
   const [inputPassword, setInputPassword] = useState<string>("");
@@ -71,7 +72,7 @@ const LoginPage = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        navigate("/home");
+        navigate(ROUTES.HOME.path);
       }
     });
     return () => unsubscribe();

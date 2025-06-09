@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { message } from "antd";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
+import { ROUTES } from "../../routes";
 
 const HeaderContainer = styled.header`
   background-color: #333;
@@ -81,48 +82,41 @@ const MenuButton = styled.button`
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
 
   const handleSignOut = async () => {
     try {
       await signOut(auth);
       message.success("Signed out successfully");
-      navigate("/login");
+      navigate(ROUTES.LOGIN.path);
     } catch (error) {
       console.error("Error signing out:", error);
       message.error("Failed to sign out");
     }
   };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
     <HeaderContainer>
-      <Logo to="/">My Blog</Logo>
+      <Logo to={ROUTES.HOME.path}>My Blog</Logo>
 
       <MenuButton onClick={toggleMenu}>{isMenuOpen ? "✕" : "☰"}</MenuButton>
 
       <NavContainer isOpen={isMenuOpen}>
         <NavList>
-          <NavItem>
-            <NavLink to="/" onClick={() => setIsMenuOpen(false)}>
-              Home
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to="/upload" onClick={() => setIsMenuOpen(false)}>
-              New Entry
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to="/space" onClick={() => setIsMenuOpen(false)}>
-              Space
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to="/entries" onClick={() => setIsMenuOpen(false)}>
-              All Entries
-            </NavLink>
-          </NavItem>
+          {Object.values(ROUTES).map(
+            (route) =>
+              // Skip login route in navigation
+              route.path !== ROUTES.LOGIN.path && (
+                <NavItem key={route.path}>
+                  <NavLink to={route.path} onClick={() => setIsMenuOpen(false)}>
+                    {route.name}
+                  </NavLink>
+                </NavItem>
+              )
+          )}
           <NavItem>
             <button
               style={{

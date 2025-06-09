@@ -1,6 +1,6 @@
 // src/components/blog/EntryForm.tsx
 import React, { useState } from "react";
-import { uploadImages, createEntry } from "../services/hygraph";
+
 import {
   FormContainer, // Changed from Form to FormContainer
   Input,
@@ -10,14 +10,15 @@ import {
   RemoveButton,
   Button,
   StatusMessage,
-} from "./EntryFormStyles";
-import { useLocationHook } from "../hooks/useLocation";
+} from "./PlantEntryFormStyles";
+import { useLocationHook } from "../../hooks/useLocation";
+import { uploadImages, createEntry } from "../../services/hygraph";
 
-interface EntryFormProps {
+interface PlantEntryFormProps {
   onSuccess?: () => void;
 }
 
-const EntryForm: React.FC<EntryFormProps> = ({ onSuccess }) => {
+const PlantEntryForm: React.FC<PlantEntryFormProps> = ({ onSuccess }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -188,4 +189,4 @@ const EntryForm: React.FC<EntryFormProps> = ({ onSuccess }) => {
   );
 };
 
-export default EntryForm;
+export default PlantEntryForm;

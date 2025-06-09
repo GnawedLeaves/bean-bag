@@ -1,17 +1,14 @@
-// src/pages/Upload.tsx
-import React, { useEffect } from "react";
-import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { auth } from "../../firebase/firebase";
+import { UploadPlantsContainer } from "./PlantStyles";
 import { ROUTES } from "../../routes";
 import BlogEntryForm from "../../components/blogEntryComponents/BlogEntryForm";
 
-const UploadContainer = styled.div`
-  padding: 1rem;
-`;
+interface UploadPlantsPageProps {}
 
-const BlogUploadPage: React.FC = () => {
+const UploadPlantsPage = ({}: UploadPlantsPageProps) => {
   const navigate = useNavigate();
 
   const handleSuccess = () => {
@@ -28,11 +25,13 @@ const BlogUploadPage: React.FC = () => {
     });
     return () => unsubscribe();
   }, []);
+
   return (
-    <UploadContainer>
+    <UploadPlantsContainer>
       <BlogEntryForm onSuccess={handleSuccess} />
-    </UploadContainer>
+    </UploadPlantsContainer>
   );
 };
 
-export default BlogUploadPage;
+export { UploadPlantsPage };
+export type { UploadPlantsPageProps };

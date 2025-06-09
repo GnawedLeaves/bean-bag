@@ -14,6 +14,7 @@ import { AsteroidScene } from "../../components/threejs/earth";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../routes";
 
 const SpacePage = () => {
   const [apodData, setApodData] = useState<NasaApodObject[]>([]);
@@ -24,7 +25,7 @@ const SpacePage = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        navigate("/login");
+        navigate(ROUTES.LOGIN.path);
       }
     });
     return () => unsubscribe();
