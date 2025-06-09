@@ -9,11 +9,13 @@ import Home from "./pages/home/Home";
 import BlogUploadPage from "./pages/upload/Upload";
 import Header from "./components/layout/Header";
 import SpacePage from "./pages/space/Space";
-import { theme } from "./theme";
 import LoginPage from "./pages/login/Login";
 import { PlantsPage } from "./pages/plant/Plants";
 import { UploadPlantsPage } from "./pages/plant/UploadPlants";
 import { ROUTES } from "./routes";
+import { SettingsPage } from "./pages/settings/Settings";
+import BlogPage from "./pages/blog/Blogs";
+import { appTheme } from "./theme";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -53,7 +55,7 @@ const GlobalStyle = createGlobalStyle`
 const App: React.FC = () => {
   return (
     <ApolloProvider client={client}>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={appTheme}>
         <Router>
           <GlobalStyle />
           <Header />
@@ -69,6 +71,8 @@ const App: React.FC = () => {
                 path={ROUTES.PLANTS_UPLOAD.path}
                 element={<UploadPlantsPage />}
               />
+              <Route path={ROUTES.SETTINGS.path} element={<SettingsPage />} />
+              <Route path={ROUTES.BLOGS.path} element={<BlogPage />} />
             </Routes>
           </main>
         </Router>

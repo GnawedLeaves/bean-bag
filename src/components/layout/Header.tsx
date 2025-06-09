@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Layout, Menu, Button, Drawer, message } from "antd";
-import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
+import {
+  MenuOutlined,
+  HomeOutlined,
+  BookOutlined,
+  ExperimentOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
@@ -24,103 +30,287 @@ const Header: React.FC = () => {
     }
   };
 
-  const menuItems = Object.values(ROUTES)
-    .filter((route) => route.path !== ROUTES.LOGIN.path)
-    .map((route) => ({
-      key: route.path,
-      label: (
-        <Link to={route.path} onClick={() => setIsMenuOpen(false)}>
-          {route.name}
-        </Link>
-      ),
-    }));
+  // Define navigation items in specific order: Home, Blog, Plants, Feedback
+  const navigationItems = [
+    {
+      key: ROUTES.HOME.path,
+      icon: <HomeOutlined />,
+      label: "Home",
+      path: ROUTES.HOME.path,
+    },
+    {
+      key: ROUTES.BLOG?.path || "/blogs",
+      icon: <BookOutlined />,
+      label: "Blog",
+      path: ROUTES.BLOG?.path || "/blogs",
+    },
+    {
+      key: ROUTES.PLANTS?.path || "/plants",
+      icon: <ExperimentOutlined />,
+      label: "Plants",
+      path: ROUTES.PLANTS?.path || "/plants",
+    },
+    {
+      key: ROUTES.SETTINGS?.path || "/settings",
+      icon: <SettingOutlined />,
+      label: "Settings",
+      path: ROUTES.SETTINGS?.path || "/feedback",
+    },
+  ];
 
-  // Add sign out as the last item
-  menuItems.push({
-    key: "signout",
+  // Mobile bottom navigation items
+  const mobileMenuItems = navigationItems.map((item) => ({
+    key: item.key,
+    icon: item.icon,
     label: (
-      <Button
-        type="link"
-        danger
-        onClick={async () => {
-          await handleSignOut();
-          setIsMenuOpen(false);
-        }}
+      <Link
+        to={item.path}
+        onClick={() => setIsMenuOpen(false)}
+        style={{ color: "inherit", textDecoration: "none" }}
       >
-        Sign Out
-      </Button>
+        {item.label}
+      </Link>
     ),
-  });
+  }));
+
+  // Desktop menu items (includes sign out)
+  const desktopMenuItems = [
+    ...mobileMenuItems,
+    {
+      key: "signout",
+      label: (
+        <Button
+          type="link"
+          danger
+          onClick={async () => {
+            await handleSignOut();
+            setIsMenuOpen(false);
+          }}
+          style={{ color: "#ff4d4f" }}
+        >
+          Sign Out
+        </Button>
+      ),
+    },
+  ];
 
   return (
-    <AntHeader
-      style={{
-        background: "#333",
-        color: "white",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "0 1rem",
-      }}
-    >
-      <Link
-        to={ROUTES.HOME.path}
-        style={{ color: "white", fontSize: "1.5rem", fontWeight: "bold" }}
+    <>
+      {/* Desktop Header */}
+      <AntHeader
+        className="desktop-header"
+        style={{
+          background: "#001529",
+          color: "white",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "0 2rem",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        }}
       >
-        My Blog
-      </Link>
+        <Link
+          to={ROUTES.HOME.path}
+          style={{
+            color: "white",
+            fontSize: "1.8rem",
+            fontWeight: "bold",
+            textDecoration: "none",
+          }}
+        >
+          My Blog
+        </Link>
 
-      {/* Desktop Menu */}
-      <div className="desktop-menu" style={{ display: "none" }}>
         <Menu
           theme="dark"
           mode="horizontal"
           selectedKeys={[location.pathname]}
-          items={menuItems}
-          style={{ background: "#333" }}
+          items={desktopMenuItems}
+          style={{
+            background: "transparent",
+            border: "none",
+            flex: 1,
+            justifyContent: "flex-end",
+          }}
         />
+      </AntHeader>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="mobile-bottom-nav">
+        <div className="nav-container">
+          {navigationItems.map((item) => (
+            <Link
+              key={item.key}
+              to={item.path}
+              className={`nav-item ${
+                location.pathname === item.path ? "active" : ""
+              }`}
+            >
+              <div className="nav-icon">{item.icon}</div>
+              <span className="nav-label">{item.label}</span>
+            </Link>
+          ))}
+        </div>
       </div>
 
-      {/* Mobile Menu Button */}
-      <Button
-        type="text"
-        icon={isMenuOpen ? <CloseOutlined /> : <MenuOutlined />}
-        style={{ color: "white", fontSize: "1.5rem", display: "block" }}
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className="mobile-menu-button"
-      />
+      {/* Mobile Top Header (minimal) */}
+      <AntHeader
+        className="mobile-header"
+        style={{
+          background: "#001529",
+          color: "white",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "0 1rem",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+          height: "56px",
+        }}
+      >
+        <Link
+          to={ROUTES.HOME.path}
+          style={{
+            color: "white",
+            fontSize: "1.4rem",
+            fontWeight: "bold",
+            textDecoration: "none",
+          }}
+        >
+          My Blog
+        </Link>
 
-      {/* Mobile Drawer */}
+        <Button
+          type="text"
+          icon={<MenuOutlined />}
+          style={{ color: "white", fontSize: "1.2rem" }}
+          onClick={() => setIsMenuOpen(true)}
+        />
+      </AntHeader>
+
+      {/* Mobile Drawer for additional options */}
       <Drawer
-        placement="top"
-        closable={false}
+        title="Menu"
+        placement="right"
+        closable={true}
         onClose={() => setIsMenuOpen(false)}
         open={isMenuOpen}
-        bodyStyle={{ padding: 0 }}
-        height="auto"
+        bodyStyle={{ padding: "1rem" }}
+        className="mobile-drawer"
       >
-        <Menu
-          theme="dark"
-          mode="vertical"
-          selectedKeys={[location.pathname]}
-          items={menuItems}
-        />
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <Button
+            type="primary"
+            danger
+            onClick={async () => {
+              await handleSignOut();
+              setIsMenuOpen(false);
+            }}
+            style={{ width: "100%" }}
+          >
+            Sign Out
+          </Button>
+        </div>
       </Drawer>
 
       {/* Responsive CSS */}
       <style>
         {`
+          /* Desktop styles */
           @media (min-width: 769px) {
-            .desktop-menu {
-              display: block !important;
+            .desktop-header {
+              display: flex !important;
             }
-            .mobile-menu-button {
+            .mobile-header,
+            .mobile-bottom-nav {
+              display: none !important;
+            }
+          }
+
+          /* Mobile styles */
+          @media (max-width: 768px) {
+            .desktop-header {
+              display: none !important;
+            }
+            
+            .mobile-header {
+              display: flex !important;
+            }
+
+            .mobile-bottom-nav {
+              display: block !important;
+              position: fixed;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              background: #001529;
+              border-top: 1px solid #434343;
+              z-index: 1000;
+              padding: 8px 0;
+            }
+
+            .nav-container {
+              display: flex;
+              justify-content: space-around;
+              align-items: center;
+              max-width: 100%;
+              margin: 0 auto;
+            }
+
+            .nav-item {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              text-decoration: none;
+              color: rgba(255, 255, 255, 0.65);
+              transition: color 0.3s ease;
+              padding: 4px 8px;
+              border-radius: 8px;
+              min-width: 60px;
+            }
+
+            .nav-item:hover,
+            .nav-item.active {
+              color: #1890ff;
+              background: rgba(24, 144, 255, 0.1);
+            }
+
+            .nav-icon {
+              font-size: 20px;
+              margin-bottom: 2px;
+            }
+
+            .nav-label {
+              font-size: 11px;
+              font-weight: 500;
+              text-align: center;
+            }
+
+            /* Add bottom padding to main content to account for fixed nav */
+            body {
+              padding-bottom: 70px;
+            }
+
+            /* Ensure main content doesn't overlap with bottom nav */
+            .ant-layout-content {
+              margin-bottom: 70px;
+            }
+          }
+
+          /* Hide mobile elements on desktop */
+          @media (min-width: 769px) {
+            .mobile-bottom-nav,
+            .mobile-header {
               display: none !important;
             }
           }
         `}
       </style>
-    </AntHeader>
+    </>
   );
 };
 

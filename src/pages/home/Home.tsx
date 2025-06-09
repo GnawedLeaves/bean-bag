@@ -1,78 +1,414 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+import {
+  Card,
+  Typography,
+  Row,
+  Col,
+  Button,
+  Space,
+  Statistic,
+  Avatar,
+  Timeline,
+} from "antd";
+import {
+  HeartOutlined,
+  BookOutlined,
+  ExperimentOutlined,
+  RocketOutlined,
+  CalendarOutlined,
+  CameraOutlined,
+  StarOutlined,
+  GiftOutlined,
+} from "@ant-design/icons";
 import { getBlogEntries } from "../../services/hygraph";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes";
+import { appTheme } from "../../theme";
 
-const HomeContainer = styled.div`
-  padding: 1rem;
-`;
+const { Title, Paragraph, Text } = Typography;
 
-const EntryCard = styled.div`
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-`;
-
-const Image = styled.img`
-  max-width: 100px;
-  margin-right: 0.5rem;
-`;
+// Your theme colors
 
 const Home: React.FC = () => {
-  const [entries, setEntries] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
+  const [recentEntries, setRecentEntries] = useState<any[]>([]);
+  const [daysTogetherCount, setDaysTogetherCount] = useState(0);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const fetchEntries = async () => {
+
+  // Calculate days together (you can adjust this anniversary date)
+  const anniversaryDate = new Date("2023-01-01"); // Replace with your actual anniversary date
+
+  const fetchRecentEntries = async () => {
     try {
       const results = await getBlogEntries();
-      console.log("Fetched entries:", results);
-      setEntries(results);
+      // Get the 3 most recent entries
+      setRecentEntries(results.slice(0, 3));
     } catch (error) {
       console.error("Error fetching entries:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const calculateDaysTogether = () => {
+    const today = new Date();
+    const timeDifference = today.getTime() - anniversaryDate.getTime();
+    const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
+    setDaysTogetherCount(daysDifference);
+  };
+
   useEffect(() => {
-    fetchEntries();
+    fetchRecentEntries();
+    calculateDaysTogether();
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
         navigate(ROUTES.LOGIN.path);
+      } else {
+        setUser(currentUser);
+        setLoading(false);
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
+
+  const navigationCards = [
+    {
+      title: "Our Memories",
+      description: "Share and relive our special moments together",
+      icon: <BookOutlined style={{ fontSize: "2rem" }} />,
+      color: appTheme.colorBgPink,
+      route: ROUTES.BLOG?.path || "/blog",
+      action: "View Memories",
+    },
+    {
+      title: "Our Plants",
+      description: "Track and share our growing plant family",
+      icon: <ExperimentOutlined style={{ fontSize: "2rem" }} />,
+      color: appTheme.colorBgGreen,
+      route: ROUTES.PLANTS?.path || "/plants",
+      action: "See Plants",
+    },
+    {
+      title: "Space Together",
+      description: "Explore the cosmos and NASA's daily discoveries",
+      icon: <RocketOutlined style={{ fontSize: "2rem" }} />,
+      color: appTheme.colorBgVoilet,
+      route: ROUTES.SPACE?.path || "/space",
+      action: "Explore Space",
+    },
+  ];
+
+  const quickStats = [
+    {
+      title: "Days Together",
+      value: daysTogetherCount,
+      suffix: "days",
+      icon: <HeartOutlined style={{ color: appTheme.colorBgRed }} />,
+      color: appTheme.colorBgLightYellow,
+    },
+    {
+      title: "Memories Shared",
+      value: recentEntries.length,
+      suffix: "posts",
+      icon: <CameraOutlined style={{ color: appTheme.colorBgRed }} />,
+      color: appTheme.colorBgPink,
+    },
+    {
+      title: "Love Level",
+      value: 100,
+      suffix: "%",
+      icon: <StarOutlined style={{ color: appTheme.colorBgRed }} />,
+      color: appTheme.colorBgGreen,
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          padding: "2rem",
+          backgroundColor: appTheme.colorBg,
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Space direction="vertical" align="center">
+          <HeartOutlined
+            style={{ fontSize: "3rem", color: appTheme.colorBgRed }}
+            spin
+          />
+          <Text style={{ color: appTheme.text }}>
+            Loading our special space...
+          </Text>
+        </Space>
+      </div>
+    );
+  }
 
   return (
-    <HomeContainer>
-      <h1>My Blog</h1>
-      {entries.map((entry, index) => (
-        <EntryCard key={index}>
-          <h2>{entry.title}</h2>
-          <p>{entry.content}</p>
-          <p>
-            <strong>Posted on:</strong>{" "}
-            {new Date(entry.timestamp).toLocaleString()}
-          </p>
-          {entry.location && (
-            <p>
-              <strong>Location:</strong> {entry.location.latitude},{" "}
-              {entry.location.longitude}
-            </p>
-          )}
-          <div style={{ display: "flex", flexWrap: "wrap" }}>
-            {entry.images?.map((img: any, i: number) => (
-              <Image key={i} src={img.url} alt={img.fileName} />
-            ))}
-          </div>
-        </EntryCard>
-      ))}
-    </HomeContainer>
+    <div
+      style={{
+        padding: "2rem",
+        backgroundColor: appTheme.colorBg,
+        minHeight: "100vh",
+      }}
+    >
+      {/* Welcome Header */}
+      <div
+        style={{
+          textAlign: "center",
+          marginBottom: "3rem",
+          padding: "2rem",
+          background: `linear-gradient(135deg, ${appTheme.colorBgPink}, ${appTheme.colorBgLightYellow})`,
+          borderRadius: "16px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+        }}
+      >
+        <Avatar
+          size={80}
+          icon={<HeartOutlined />}
+          style={{
+            backgroundColor: appTheme.colorBgRed,
+            marginBottom: "1rem",
+          }}
+        />
+        <Title
+          level={1}
+          style={{
+            color: appTheme.text,
+            marginBottom: "0.5rem",
+            fontWeight: "bold",
+          }}
+        >
+          Welcome to Our Anniversary App
+        </Title>
+        <Paragraph
+          style={{
+            fontSize: "1.2rem",
+            color: appTheme.text,
+            margin: 0,
+          }}
+        >
+          A special place to celebrate our journey together ❤️
+        </Paragraph>
+      </div>
+
+      {/* Quick Stats */}
+      <Row gutter={[24, 24]} style={{ marginBottom: "3rem" }}>
+        {quickStats.map((stat, index) => (
+          <Col xs={24} sm={8} key={index}>
+            <Card
+              hoverable
+              style={{
+                backgroundColor: stat.color,
+                border: "none",
+                borderRadius: "12px",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
+              }}
+              bodyStyle={{ textAlign: "center", padding: "2rem 1rem" }}
+            >
+              <Space direction="vertical" size="small">
+                {stat.icon}
+                <Statistic
+                  title={
+                    <Text style={{ color: appTheme.text, fontWeight: "600" }}>
+                      {stat.title}
+                    </Text>
+                  }
+                  value={stat.value}
+                  suffix={stat.suffix}
+                  valueStyle={{
+                    color: appTheme.text,
+                    fontSize: "2rem",
+                    fontWeight: "bold",
+                  }}
+                />
+              </Space>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+
+      {/* Navigation Cards */}
+      <Title
+        level={2}
+        style={{
+          color: appTheme.text,
+          marginBottom: "2rem",
+          textAlign: "center",
+        }}
+      >
+        Explore Our World
+      </Title>
+
+      <Row gutter={[24, 24]} style={{ marginBottom: "3rem" }}>
+        {navigationCards.map((card, index) => (
+          <Col xs={24} md={8} key={index}>
+            <Card
+              hoverable
+              style={{
+                height: "100%",
+                backgroundColor: card.color,
+                border: "none",
+                borderRadius: "16px",
+                boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+                transition: "all 0.3s ease",
+              }}
+              bodyStyle={{
+                padding: "2rem",
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+              }}
+              actions={[
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={() => navigate(card.route)}
+                  style={{
+                    backgroundColor: appTheme.colorBgRed,
+                    borderColor: appTheme.colorBgRed,
+                    fontWeight: "600",
+                  }}
+                >
+                  {card.action}
+                </Button>,
+              ]}
+            >
+              <Space
+                direction="vertical"
+                size="large"
+                style={{ textAlign: "center", flex: 1 }}
+              >
+                <div style={{ color: appTheme.text }}>{card.icon}</div>
+                <div>
+                  <Title
+                    level={3}
+                    style={{
+                      color: appTheme.text,
+                      marginBottom: "0.5rem",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {card.title}
+                  </Title>
+                  <Paragraph
+                    style={{
+                      color: appTheme.text,
+                      fontSize: "1rem",
+                      margin: 0,
+                    }}
+                  >
+                    {card.description}
+                  </Paragraph>
+                </div>
+              </Space>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+
+      {/* Recent Memories Preview */}
+      {recentEntries.length > 0 && (
+        <Card
+          title={
+            <Title level={3} style={{ color: appTheme.text, margin: 0 }}>
+              <GiftOutlined
+                style={{ marginRight: "0.5rem", color: appTheme.colorBgRed }}
+              />
+              Recent Memories
+            </Title>
+          }
+          extra={
+            <Button
+              type="link"
+              onClick={() => navigate(ROUTES.BLOG?.path || "/blog")}
+              style={{ color: appTheme.colorBgRed, fontWeight: "600" }}
+            >
+              View All
+            </Button>
+          }
+          style={{
+            backgroundColor: "white",
+            borderRadius: "16px",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+            border: "none",
+          }}
+          bodyStyle={{ padding: "2rem" }}
+        >
+          <Timeline
+            items={recentEntries.map((entry, index) => ({
+              dot: <CalendarOutlined style={{ color: appTheme.colorBgRed }} />,
+              children: (
+                <div key={index}>
+                  <Text
+                    strong
+                    style={{ color: appTheme.text, fontSize: "1.1rem" }}
+                  >
+                    {entry.title}
+                  </Text>
+                  <br />
+                  <Text type="secondary" style={{ color: appTheme.text }}>
+                    {new Date(entry.timestamp).toLocaleDateString()}
+                  </Text>
+                  {entry.content && (
+                    <>
+                      <br />
+                      <Text style={{ color: appTheme.text }}>
+                        {entry.content.substring(0, 100)}
+                        {entry.content.length > 100 ? "..." : ""}
+                      </Text>
+                    </>
+                  )}
+                </div>
+              ),
+            }))}
+          />
+        </Card>
+      )}
+
+      {/* Anniversary Message */}
+      <Card
+        style={{
+          marginTop: "2rem",
+          background: `linear-gradient(135deg, ${appTheme.colorBgYellow}, ${appTheme.colorBgLightYellow})`,
+          border: "none",
+          borderRadius: "16px",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+        }}
+        bodyStyle={{ padding: "2rem", textAlign: "center" }}
+      >
+        <Space direction="vertical" size="large">
+          <HeartOutlined
+            style={{ fontSize: "3rem", color: appTheme.colorBgRed }}
+          />
+          <Title level={2} style={{ color: appTheme.text, margin: 0 }}>
+            Every Day is a Gift with You
+          </Title>
+          <Paragraph
+            style={{
+              fontSize: "1.1rem",
+              color: appTheme.text,
+              fontStyle: "italic",
+              margin: 0,
+              maxWidth: "600px",
+            }}
+          >
+            This app is our digital scrapbook - a place to capture the moments
+            that make our love story unique. From our shared memories to the
+            plants we nurture together, and even the stars we dream under.
+          </Paragraph>
+        </Space>
+      </Card>
+    </div>
   );
 };
 

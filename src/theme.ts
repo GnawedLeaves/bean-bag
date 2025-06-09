@@ -1,4 +1,4 @@
-export const theme = {
+export const appTheme = {
   text: "#261D18",
   colorBgRed: "#FF552E",
   colorBgYellow: "#F2A815",
