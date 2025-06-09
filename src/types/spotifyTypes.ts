@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface SpotifyAuthToken {
   accessToken: string;
   expiresIn: number;
@@ -195,4 +197,20 @@ export interface SpotifyAlbum {
   genres: string[];
   label: string;
   popularity: number;
+}
+
+export interface SpotifyReview {
+  id?: string;
+  rating: number;
+  spotifyId: string;
+  userId: string;
+  dateAdded: Timestamp;
+}
+
+export interface SpotifyComment {
+  id?: string;
+  content: string;
+  spotifyId: string;
+  userId: string;
+  dateAdded: Timestamp;
 }

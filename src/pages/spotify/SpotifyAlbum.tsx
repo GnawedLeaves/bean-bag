@@ -28,7 +28,9 @@ const SpotifyAlbumPage = () => {
 
       <img style={{ width: "100%" }} src={albumDetails?.images[0].url} />
       <button>
-        <a href={albumDetails?.external_urls.spotify}>Click to play</a>
+        <a target="_blank" href={albumDetails?.external_urls.spotify}>
+          Click to play
+        </a>
       </button>
       <div>{albumDetails?.release_date}</div>
       <div>{albumDetails?.artists[0].name}</div>

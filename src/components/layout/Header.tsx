@@ -171,7 +171,7 @@ const Header: React.FC = () => {
       </div>
 
       {/* Mobile Top Header (minimal) */}
-      <AntHeader
+      {/* <AntHeader
         className="mobile-header"
         style={{
           background: "#001529",
@@ -204,7 +204,7 @@ const Header: React.FC = () => {
           style={{ color: "white", fontSize: "1.2rem" }}
           onClick={() => setIsMenuOpen(true)}
         />
-      </AntHeader>
+      </AntHeader> */}
 
       {/* Mobile Drawer for additional options */}
       <Drawer

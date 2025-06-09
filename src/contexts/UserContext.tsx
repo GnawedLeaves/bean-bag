@@ -1,6 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { auth, db } from "../firebase/firebase";
 import { SpotifyAuthToken } from "../types/spotifyTypes";
 import { getSpotifyAuthToken } from "../services/spotify/authSpotify";
@@ -9,19 +16,20 @@ interface UserData {
   id: string;
   name: string;
   email: string;
-  partnerAuthId: string;
-
-  // Add other fields from anniAppUsers
+  partnerId: string;
+  displayPicture: string;
 }
 
 interface UserContextType {
   user: UserData | null;
+  userPartner: UserData | null;
   spotifyToken: SpotifyAuthToken | null;
   loading: boolean;
 }
 
 const UserContext = createContext<UserContextType>({
   user: null,
+  userPartner: null,
   spotifyToken: null,
   loading: true,
 });
@@ -51,16 +59,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
             const userData = userDoc.data();
             setUser({ id: userDoc.id, ...userData } as UserData);
 
-            try {
-              const q = query(
-                collection(db, "anniAppUsers"),
-                where("authId", "==", userData.partnerAuthId)
+            //get partner
+            const userDocRef = doc(db, "anniAppUsers", userData.partnerId);
+            const userDocSnap = await getDoc(userDocRef);
+
+            if (userDocSnap.exists()) {
+              setUserPartner({
+                id: userDocSnap.id,
+                ...userDocSnap.data(),
+              } as UserData);
+            } else {
+              console.error(
+                "No such document with partnerId:",
+                userData.partnerId
               );
-              const querySnapshot = await getDocs(q);
-              const userDoc = querySnapshot.docs[0];
-              setUserPartner({ id: userDoc.id, ...userDoc.data() } as UserData);
-            } catch (err) {
-              console.error("Failed to fetch partner data");
             }
           }
         } catch (err) {
@@ -84,7 +96,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, spotifyToken, loading }}>
+    <UserContext.Provider value={{ user, userPartner, spotifyToken, loading }}>
       {children}
     </UserContext.Provider>
   );
