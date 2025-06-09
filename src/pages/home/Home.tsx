@@ -7,7 +7,6 @@ import {
   Button,
   Space,
   Statistic,
-  Avatar,
   Timeline,
 } from "antd";
 import {
@@ -39,7 +38,7 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
 
   // Calculate days together (you can adjust this anniversary date)
-  const anniversaryDate = new Date("2023-01-01"); // Replace with your actual anniversary date
+  const anniversaryDate = new Date("2024-06-14"); // Replace with your actual anniversary date
 
   const fetchRecentEntries = async () => {
     try {
@@ -161,46 +160,6 @@ const Home: React.FC = () => {
         minHeight: "100vh",
       }}
     >
-      {/* Welcome Header */}
-      <div
-        style={{
-          textAlign: "center",
-          marginBottom: "3rem",
-          padding: "2rem",
-          background: `linear-gradient(135deg, ${appTheme.colorBgPink}, ${appTheme.colorBgLightYellow})`,
-          borderRadius: "16px",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-        }}
-      >
-        <Avatar
-          size={80}
-          icon={<HeartOutlined />}
-          style={{
-            backgroundColor: appTheme.colorBgRed,
-            marginBottom: "1rem",
-          }}
-        />
-        <Title
-          level={1}
-          style={{
-            color: appTheme.text,
-            marginBottom: "0.5rem",
-            fontWeight: "bold",
-          }}
-        >
-          Welcome to Our Anniversary App
-        </Title>
-        <Paragraph
-          style={{
-            fontSize: "1.2rem",
-            color: appTheme.text,
-            margin: 0,
-          }}
-        >
-          A special place to celebrate our journey together ❤️
-        </Paragraph>
-      </div>
-
       {/* Quick Stats */}
       <Row gutter={[24, 24]} style={{ marginBottom: "3rem" }}>
         {quickStats.map((stat, index) => (

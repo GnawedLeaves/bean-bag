@@ -25,6 +25,8 @@ import {
 } from "@ant-design/icons";
 import { gql } from "@apollo/client";
 import { client } from "../../services/hygraph";
+import { ROUTES } from "../../routes";
+import { useNavigate } from "react-router-dom";
 
 const { Search } = Input;
 const { Title, Text, Paragraph } = Typography;
@@ -95,7 +97,7 @@ const PlantsPage = ({}: PlantsPageProps) => {
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "mostLiked">(
     "newest"
   );
-
+  const navigate = useNavigate();
   // Load plant entries
   useEffect(() => {
     const loadPlants = async () => {
@@ -218,6 +220,14 @@ const PlantsPage = ({}: PlantsPageProps) => {
       <Title level={2} style={{ marginBottom: "24px" }}>
         Plant Collection ({plants.length} entries)
       </Title>
+
+      <Button
+        onClick={() => {
+          navigate(ROUTES.PLANTS_UPLOAD.path);
+        }}
+      >
+        Add Plant
+      </Button>
 
       {/* Filters */}
       <Card style={{ marginBottom: "24px" }}>

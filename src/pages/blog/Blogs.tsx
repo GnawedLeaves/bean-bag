@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Card, Typography, Image, Space, Row, Col, Spin, Alert } from "antd";
+import {
+  Card,
+  Typography,
+  Image,
+  Space,
+  Row,
+  Col,
+  Spin,
+  Alert,
+  Button,
+} from "antd";
 import { CalendarOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { getBlogEntries } from "../../services/hygraph";
 import { onAuthStateChanged } from "firebase/auth";
@@ -70,6 +80,14 @@ const BlogPage: React.FC = () => {
       <Title level={1} style={{ marginBottom: "2rem" }}>
         My Blog
       </Title>
+
+      <Button
+        onClick={() => {
+          navigate(ROUTES.UPLOAD.path);
+        }}
+      >
+        Add Entry
+      </Button>
 
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {entries.map((entry, index) => (
