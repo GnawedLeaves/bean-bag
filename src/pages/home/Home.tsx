@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { getEntries } from "../../services/hygraph";
+import { getBlogEntries } from "../../services/hygraph";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +27,7 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
   const fetchEntries = async () => {
     try {
-      const results = await getEntries();
+      const results = await getBlogEntries();
       console.log("Fetched entries:", results);
       setEntries(results);
     } catch (error) {

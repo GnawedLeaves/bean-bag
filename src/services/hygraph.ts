@@ -251,7 +251,7 @@ export const uploadImages = async (files: File[]): Promise<string[]> => {
 };
 
 // Your existing createEntry function (unchanged)
-export const createEntry = async (
+export const createBlogEntry = async (
   title: string,
   content: string,
   location: any,
@@ -328,7 +328,7 @@ export const createEntry = async (
 };
 
 // Your existing getEntries function (unchanged)
-export const getEntries = async () => {
+export const getBlogEntries = async () => {
   const GET_ALL_ENTRIES = gql`
     query GetAllBlogs {
       blogEntries {
@@ -354,6 +354,119 @@ export const getEntries = async () => {
     });
 
     return result.data.blogEntries;
+  } catch (error) {
+    console.error("Error fetching entries:", error);
+    throw error;
+  }
+};
+
+export const createPlantEntry = async (
+  title: string,
+  content: string,
+  plantName: string,
+  location: any,
+  imageIds: string[]
+) => {
+  const timestamp = new Date().toISOString();
+
+  const CREATE_ENTRY = gql`
+    mutation CreateEntry(
+      $title: String!
+      $content: String!
+      $plantName: String!
+      $timestamp: DateTime!
+      $location: LocationInput!
+      $imageConnections: [AssetWhereUniqueInput!]!
+    ) {
+      createPlantEntry(
+        data: {
+          title: $title
+          content: $content
+          plantName: $plantName
+          timestamp: $timestamp
+          location: $location
+          images: { connect: $imageConnections }
+        }
+      ) {
+        id
+        title
+      }
+    }
+  `;
+
+  try {
+    // Create connections for the images
+    const imageConnections = imageIds.map((id) => ({ id }));
+
+    // Create the entry
+    const result = await client.mutate({
+      mutation: CREATE_ENTRY,
+      variables: {
+        title,
+        content,
+        plantName,
+        timestamp,
+        location,
+        imageConnections,
+      },
+    });
+
+    console.log({ result });
+
+    if (!result.data?.createPlantEntry?.id) {
+      throw new Error("Failed to create entry");
+    }
+
+    // Publish the entry
+    const PUBLISH_ENTRY = gql`
+      mutation PublishEntry($id: ID!) {
+        publishPlantEntry(where: { id: $id }, to: PUBLISHED) {
+          id
+        }
+      }
+    `;
+
+    await client.mutate({
+      mutation: PUBLISH_ENTRY,
+      variables: {
+        id: result.data.createPlantEntry.id,
+      },
+    });
+
+    return result.data.createPlantEntry;
+  } catch (error) {
+    console.error("Error creating plant entry:", error);
+    throw error;
+  }
+};
+
+export const getPlantEntries = async () => {
+  const GET_ALL_ENTRIES = gql`
+    query GetAllPlants {
+      plantEntries {
+        title
+        content
+        plantName
+        timestamp
+        images {
+          url
+          fileName
+        }
+        location {
+          latitude
+          longitude
+        }
+      }
+    }
+  `;
+
+  try {
+    const result = await client.query({
+      query: GET_ALL_ENTRIES,
+      fetchPolicy: "network-only",
+    });
+
+    return result.data.plantEntries;
   } catch (error) {
     console.error("Error fetching entries:", error);
     throw error;

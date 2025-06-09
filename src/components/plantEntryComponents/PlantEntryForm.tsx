@@ -1,26 +1,40 @@
 // src/components/blog/EntryForm.tsx
 import React, { useState } from "react";
+import {
+  Form,
+  Input,
+  Select,
+  Button,
+  message,
+  Typography,
+  Space,
+  Card,
+} from "antd";
 
 import {
-  FormContainer, // Changed from Form to FormContainer
-  Input,
-  TextArea,
   ImagePreviewContainer,
   ImagePreview,
   RemoveButton,
-  Button,
   StatusMessage,
 } from "./PlantEntryFormStyles";
 import { useLocationHook } from "../../hooks/useLocation";
-import { uploadImages, createEntry } from "../../services/hygraph";
+import { uploadImages, createPlantEntry } from "../../services/hygraph";
+
+const { TextArea } = Input;
+const { Title, Text } = Typography;
 
 interface PlantEntryFormProps {
   onSuccess?: () => void;
 }
 
+interface FormValues {
+  title: string;
+  content: string;
+  plantName: string;
+}
+
 const PlantEntryForm: React.FC<PlantEntryFormProps> = ({ onSuccess }) => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [form] = Form.useForm<FormValues>();
   const [files, setFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -56,22 +70,16 @@ const PlantEntryForm: React.FC<PlantEntryFormProps> = ({ onSuccess }) => {
     setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!title || !content || files.length === 0) {
-      setStatus({
-        message: "Please fill out all fields and upload at least one image.",
-        error: true,
-      });
+  const handleSubmit = async (values: FormValues) => {
+    if (files.length === 0) {
+      message.error("Please upload at least one image.");
       return;
     }
 
     if (!location) {
-      setStatus({
-        message: "Location data is required. Please enable location services.",
-        error: true,
-      });
+      message.error(
+        "Location data is required. Please enable location services."
+      );
       return;
     }
 
@@ -91,13 +99,19 @@ const PlantEntryForm: React.FC<PlantEntryFormProps> = ({ onSuccess }) => {
       };
 
       // Create the entry with uploaded image IDs
-      await createEntry(title, content, transformedLocation, imageIds);
+      await createPlantEntry(
+        values.title,
+        values.content,
+        values.plantName,
+        transformedLocation,
+        imageIds
+      );
 
       setStatus({ message: "Entry created successfully!", error: false });
+      message.success("Entry created successfully!");
 
       // Reset form
-      setTitle("");
-      setContent("");
+      form.resetFields();
       setFiles([]);
       setPreviewUrls([]);
 
@@ -106,12 +120,14 @@ const PlantEntryForm: React.FC<PlantEntryFormProps> = ({ onSuccess }) => {
       }
     } catch (error) {
       console.error("Error creating entry:", error);
+      const errorMessage = `Error creating entry: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`;
       setStatus({
-        message: `Error creating entry: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
+        message: errorMessage,
         error: true,
       });
+      message.error(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -124,68 +140,134 @@ const PlantEntryForm: React.FC<PlantEntryFormProps> = ({ onSuccess }) => {
       }`
     : "Getting location...";
 
+  //todo get from database
+  const plantOptions = [
+    {
+      label: "Phillow",
+      value: "Phillow",
+    },
+    {
+      label: "Eggy",
+      value: "Eggy",
+    },
+    {
+      label: "New Plant",
+      value: "New Plant",
+    },
+  ];
+
   return (
-    <FormContainer onSubmit={handleSubmit}>
-      <h2>Create New Blog Entry</h2>
+    <Card>
+      <Title level={2}>Create New Plant Entry</Title>
 
-      <label htmlFor="title">Title</label>
-      <Input
-        id="title"
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Enter title"
-        required
-      />
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        requiredMark={false}
+      >
+        <Form.Item
+          name="title"
+          label="Title"
+          rules={[
+            { required: true, message: "Please enter a title" },
+            { min: 3, message: "Title must be at least 3 characters long" },
+            { max: 100, message: "Title must be less than 100 characters" },
+          ]}
+        >
+          <Input placeholder="Enter title" />
+        </Form.Item>
 
-      <label htmlFor="content">Content</label>
-      <TextArea
-        id="content"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="What's on your mind?"
-        required
-      />
+        <Form.Item
+          name="content"
+          label="Content"
+          rules={[
+            { required: true, message: "Please enter content" },
+            { min: 10, message: "Content must be at least 10 characters long" },
+            { max: 1000, message: "Content must be less than 1000 characters" },
+          ]}
+        >
+          <TextArea
+            rows={4}
+            placeholder="What's on your mind?"
+            showCount
+            maxLength={1000}
+          />
+        </Form.Item>
 
-      <label htmlFor="images">Images</label>
-      <Input
-        id="images"
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleFileChange}
-      />
+        <Form.Item
+          name="plantName"
+          label="Plant Name"
+          rules={[{ required: true, message: "Please select a plant name" }]}
+        >
+          <Select
+            placeholder="Select a plant"
+            options={plantOptions}
+            allowClear
+          />
+        </Form.Item>
 
-      {previewUrls.length > 0 && (
-        <ImagePreviewContainer>
-          {previewUrls.map((url, index) => (
-            <ImagePreview
-              key={index}
-              style={{ backgroundImage: `url(${url})` }}
-            >
-              <RemoveButton onClick={() => removeImage(index)}>×</RemoveButton>
-            </ImagePreview>
-          ))}
-        </ImagePreviewContainer>
-      )}
+        <Form.Item
+          label="Images"
+          required
+          help="Please upload at least one image"
+        >
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleFileChange}
+            style={{ marginBottom: 16 }}
+          />
 
-      <div>
-        <strong>Location:</strong>{" "}
-        {locationError ? "Error getting location" : locationDisplay}
-      </div>
+          {previewUrls.length > 0 && (
+            <ImagePreviewContainer>
+              {previewUrls.map((url, index) => (
+                <ImagePreview
+                  key={index}
+                  style={{ backgroundImage: `url(${url})` }}
+                >
+                  <RemoveButton onClick={() => removeImage(index)}>
+                    ×
+                  </RemoveButton>
+                </ImagePreview>
+              ))}
+            </ImagePreviewContainer>
+          )}
+        </Form.Item>
 
-      <div>
-        <strong>Timestamp:</strong> {new Date().toLocaleString()}
-      </div>
+        <Space direction="vertical" style={{ width: "100%", marginBottom: 16 }}>
+          <div>
+            <Text strong>Location: </Text>
+            <Text type={locationError ? "danger" : "secondary"}>
+              {locationError ? "Error getting location" : locationDisplay}
+            </Text>
+          </div>
 
-      <Button type="submit" disabled={submitting || locationLoading}>
-        {submitting ? "Submitting..." : "Create Entry"}
-      </Button>
+          <div>
+            <Text strong>Timestamp: </Text>
+            <Text type="secondary">{new Date().toLocaleString()}</Text>
+          </div>
+        </Space>
+
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={submitting}
+            disabled={locationLoading}
+            size="large"
+            block
+          >
+            {submitting ? "Creating Entry..." : "Create Entry"}
+          </Button>
+        </Form.Item>
+      </Form>
 
       {status && (
         <StatusMessage error={status.error}>{status.message}</StatusMessage>
       )}
-    </FormContainer>
+    </Card>
   );
 };
 

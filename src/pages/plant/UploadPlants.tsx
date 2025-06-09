@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../../firebase/firebase";
 import { UploadPlantsContainer } from "./PlantStyles";
 import { ROUTES } from "../../routes";
-import BlogEntryForm from "../../components/blogEntryComponents/BlogEntryForm";
+import PlantEntryForm from "../../components/plantEntryComponents/PlantEntryForm";
 
 interface UploadPlantsPageProps {}
 
@@ -28,7 +28,7 @@ const UploadPlantsPage = ({}: UploadPlantsPageProps) => {
 
   return (
     <UploadPlantsContainer>
-      <BlogEntryForm onSuccess={handleSuccess} />
+      <PlantEntryForm onSuccess={handleSuccess} />
     </UploadPlantsContainer>
   );
 };
