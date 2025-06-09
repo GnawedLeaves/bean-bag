@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes";
 import {
   getSpotifyAlbum,
+  getSpotifyArtist,
   getSpotifyTrack,
 } from "../../services/spotify/spotify";
 import { SpotifyLinkInfo } from "../../types/spotifyTypes";
@@ -28,7 +29,7 @@ const SpotifyPage = () => {
 
       const [type, id] = parts;
 
-      if ((type === "track" || type === "album") && id) {
+      if ((type === "track" || type === "album" || type === "artist") && id) {
         return {
           id,
           type,
@@ -73,6 +74,20 @@ const SpotifyPage = () => {
         setIsTrackLoading(false);
         setErrorMessage("Unable to find album");
       }
+    } else if (linkObj?.type === "artist" && spotifyToken) {
+      // setInputAlbumId(linkObj?.id);
+      setIsTrackLoading(true);
+      const response = await getSpotifyArtist(
+        linkObj.id,
+        spotifyToken.accessToken
+      );
+      if (response) {
+        setIsTrackLoading(false);
+        navigate(ROUTES.SPOTIFY_ARTIST.path.replace(":artistId", linkObj.id));
+      } else {
+        setIsTrackLoading(false);
+        setErrorMessage("Unable to find album");
+      }
     } else {
       setErrorMessage("Invalid URL");
     }
@@ -86,7 +101,7 @@ const SpotifyPage = () => {
       <Flex>
         <Input
           disabled={isTrackLoading}
-          placeholder="Album or Track Link"
+          placeholder="Album or Track or Artist Link"
           onChange={(e) => {
             setErrorMessage("");
             setInputTrackLink(e.target.value);
@@ -97,25 +112,12 @@ const SpotifyPage = () => {
             handleGoToTrackDetails();
           }}
         >
-          {isTrackLoading ? <Spin size="default" /> : "Find Track"}
+          {isTrackLoading ? <Spin size="default" /> : "Find "}
         </Button>
       </Flex>
       {errorMessage !== "" && (
         <div style={{ color: appTheme.colorBgRed }}>{errorMessage}</div>
       )}
-
-      <Button
-        onClick={() => {
-          navigate(
-            ROUTES.SPOTIFY_ARTIST.path.replace(
-              ":artistId",
-              "4Z8W4fKeB5YxbusRsdQVPb"
-            )
-          );
-        }}
-      >
-        Radiohead
-      </Button>
 
       <div>Recent Tracks (10)</div>
     </ThemeProvider>

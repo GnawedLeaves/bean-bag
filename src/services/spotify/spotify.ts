@@ -7,14 +7,18 @@ import {
 
 export const getSpotifyArtist = async (
   artistId: string,
-  token: string
+  token: string,
+  fullUrl?: string
 ): Promise<SpotifyArtist> => {
   if (!token) throw new Error("Authentication token is required");
-  const res = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const res = await fetch(
+    fullUrl || `https://api.spotify.com/v1/artists/${artistId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
   if (!res.ok) {
     throw new Error(`Failed to fetch artist: ${res.statusText}`);
@@ -26,14 +30,18 @@ export const getSpotifyArtist = async (
 
 export const getSpotifyTrack = async (
   trackId: string,
-  token: string
+  token: string,
+  fullUrl?: string
 ): Promise<SpotifyTrack> => {
   if (!token) throw new Error("Authentication token is required");
-  const res = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const res = await fetch(
+    fullUrl || `https://api.spotify.com/v1/tracks/${trackId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
   if (!res.ok) {
     throw new Error(`Failed to fetch track: ${res.statusText}`);
@@ -45,7 +53,8 @@ export const getSpotifyTrack = async (
 
 export const getMultipleSpotifyTracks = async (
   trackIds: string[],
-  token: string
+  token: string,
+  fullUrl?: string
 ): Promise<SpotifyTrack[]> => {
   if (!trackIds.length) return [];
 
@@ -65,14 +74,18 @@ export const getMultipleSpotifyTracks = async (
 
 export const getSpotifyAlbum = async (
   albumId: string,
-  token: string
+  token: string,
+  fullUrl?: string
 ): Promise<SpotifyAlbum> => {
   if (!token) throw new Error("Authentication token is required");
-  const res = await fetch(`https://api.spotify.com/v1/albums/${albumId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const res = await fetch(
+    fullUrl || `https://api.spotify.com/v1/albums/${albumId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
   if (!res.ok) {
     throw new Error(`Failed to fetch album: ${res.statusText}`);

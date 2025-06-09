@@ -99,7 +99,7 @@ export interface SpotifyTrack {
 
 export type SpotifyLinkInfo = {
   id: string;
-  type: "track" | "album";
+  type: "track" | "album" | "artist";
   link: string;
 } | null;
 
