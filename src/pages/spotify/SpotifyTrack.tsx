@@ -16,7 +16,9 @@ const SpotifyTrackPage = () => {
   };
 
   useEffect(() => {
-    handleGetTrackDetails();
+    if (!loading) {
+      handleGetTrackDetails();
+    }
   }, [loading]);
   return (
     <>

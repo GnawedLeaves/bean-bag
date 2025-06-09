@@ -48,4 +48,8 @@ export const ROUTES: Record<string, RouteConfig> = {
     path: "/spotify/track/:trackId",
     name: "Spotify Track",
   },
+  SPOTIFY_ALBUM: {
+    path: "/spotify/album/:albumId",
+    name: "Spotify Track",
+  },
 } as const;

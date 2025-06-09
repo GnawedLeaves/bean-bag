@@ -5,40 +5,73 @@ import { appTheme } from "../../theme";
 import { Button, Flex, Input, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes";
-import { getSpotifyTrack } from "../../services/spotify/spotify";
+import {
+  getSpotifyAlbum,
+  getSpotifyTrack,
+} from "../../services/spotify/spotify";
+import { SpotifyLinkInfo } from "../../types/spotifyTypes";
 
 const SpotifyPage = () => {
   const { user, spotifyToken, loading } = useUser();
   const navigate = useNavigate();
   const [inputTrackLink, setInputTrackLink] = useState<string>("");
   const [inputTrackId, setInputTrackId] = useState<string | null>("");
+  const [inputAlbumId, setInputAlbumId] = useState<string | null>("");
+
   const [isTrackLoading, setIsTrackLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const extractTrackId = (url: string): string | null => {
+  const extractSpotifyLinkInfo = (url: string): SpotifyLinkInfo => {
     try {
-      const pathname = new URL(url).pathname;
-      const parts = pathname.split("/");
-      return parts[1] === "track" ? parts[2] : null;
+      const parsedUrl = new URL(url);
+      const parts = parsedUrl.pathname.split("/").filter(Boolean);
+
+      const [type, id] = parts;
+
+      if ((type === "track" || type === "album") && id) {
+        return {
+          id,
+          type,
+          link: url,
+        };
+      }
+
+      return null;
     } catch {
       return null;
     }
   };
 
   const handleGoToTrackDetails = async () => {
-    const trackId = extractTrackId(inputTrackLink);
-    setInputTrackId(trackId);
-
-    if (trackId && spotifyToken) {
+    const linkObj = extractSpotifyLinkInfo(inputTrackLink);
+    if (linkObj?.type === "track" && spotifyToken) {
+      setInputTrackId(linkObj?.id);
       setIsTrackLoading(true);
-      const response = await getSpotifyTrack(trackId, spotifyToken.accessToken);
+      const response = await getSpotifyTrack(
+        linkObj.id,
+        spotifyToken.accessToken
+      );
 
       if (response) {
         setIsTrackLoading(false);
-        navigate(ROUTES.SPOTIFY_TRACK.path.replace(":trackId", trackId));
+        navigate(ROUTES.SPOTIFY_TRACK.path.replace(":trackId", linkObj.id));
       } else {
         setIsTrackLoading(false);
         setErrorMessage("Unable to find track");
+      }
+    } else if (linkObj?.type === "album" && spotifyToken) {
+      setInputAlbumId(linkObj?.id);
+      setIsTrackLoading(true);
+      const response = await getSpotifyAlbum(
+        linkObj.id,
+        spotifyToken.accessToken
+      );
+      if (response) {
+        setIsTrackLoading(false);
+        navigate(ROUTES.SPOTIFY_ALBUM.path.replace(":albumId", linkObj.id));
+      } else {
+        setIsTrackLoading(false);
+        setErrorMessage("Unable to find album");
       }
     } else {
       setErrorMessage("Invalid URL");
@@ -53,7 +86,7 @@ const SpotifyPage = () => {
       <Flex>
         <Input
           disabled={isTrackLoading}
-          placeholder="Track Link"
+          placeholder="Album or Track Link"
           onChange={(e) => {
             setErrorMessage("");
             setInputTrackLink(e.target.value);
@@ -83,18 +116,8 @@ const SpotifyPage = () => {
       >
         Radiohead
       </Button>
-      <Button
-        onClick={() => {
-          navigate(
-            ROUTES.SPOTIFY_TRACK.path.replace(
-              ":trackId",
-              "11dFghVXANMlKmJXsNCbNl"
-            )
-          );
-        }}
-      >
-        Go to track
-      </Button>
+
+      <div>Recent Tracks (10)</div>
     </ThemeProvider>
   );
 };

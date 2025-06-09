@@ -9,6 +9,8 @@ interface UserData {
   id: string;
   name: string;
   email: string;
+  partnerAuthId: string;
+
   // Add other fields from anniAppUsers
 }
 
@@ -28,6 +30,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<UserData | null>(null);
+  const [userPartner, setUserPartner] = useState<UserData | null>(null);
   const [spotifyToken, setSpotifyToken] = useState<SpotifyAuthToken | null>(
     null
   );
@@ -45,7 +48,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           const querySnapshot = await getDocs(q);
           if (!querySnapshot.empty) {
             const userDoc = querySnapshot.docs[0];
-            setUser({ id: userDoc.id, ...userDoc.data() } as UserData);
+            const userData = userDoc.data();
+            setUser({ id: userDoc.id, ...userData } as UserData);
+
+            try {
+              const q = query(
+                collection(db, "anniAppUsers"),
+                where("authId", "==", userData.partnerAuthId)
+              );
+              const querySnapshot = await getDocs(q);
+              const userDoc = querySnapshot.docs[0];
+              setUserPartner({ id: userDoc.id, ...userDoc.data() } as UserData);
+            } catch (err) {
+              console.error("Failed to fetch partner data");
+            }
           }
         } catch (err) {
           console.error("Failed to fetch user or Spotify token:", err);

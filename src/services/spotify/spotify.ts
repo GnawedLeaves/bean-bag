@@ -1,4 +1,9 @@
-import { SpotifyArtist, SpotifyTrack } from "../../types/spotifyTypes";
+import axios from "axios";
+import {
+  SpotifyAlbum,
+  SpotifyArtist,
+  SpotifyTrack,
+} from "../../types/spotifyTypes";
 
 export const getSpotifyArtist = async (
   artistId: string,
@@ -32,6 +37,45 @@ export const getSpotifyTrack = async (
 
   if (!res.ok) {
     throw new Error(`Failed to fetch track: ${res.statusText}`);
+  }
+
+  const data = await res.json();
+  return data;
+};
+
+export const getMultipleSpotifyTracks = async (
+  trackIds: string[],
+  token: string
+): Promise<SpotifyTrack[]> => {
+  if (!trackIds.length) return [];
+
+  const idsParam = trackIds.join(",");
+  const url = `https://api.spotify.com/v1/tracks?ids=${encodeURIComponent(
+    idsParam
+  )}`;
+
+  const response = await axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data.tracks;
+};
+
+export const getSpotifyAlbum = async (
+  albumId: string,
+  token: string
+): Promise<SpotifyAlbum> => {
+  if (!token) throw new Error("Authentication token is required");
+  const res = await fetch(`https://api.spotify.com/v1/albums/${albumId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch album: ${res.statusText}`);
   }
 
   const data = await res.json();
