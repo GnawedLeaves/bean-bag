@@ -14,6 +14,7 @@ export interface AppTheme {
   fontSizeSmall: number;
   fontSizeMed: number;
   fontSizeLg: number;
+  fontSizeLgg: number;
   paddingSmall: number;
   paddingMed: number;
   paddingLg: number;
@@ -36,6 +37,7 @@ export const appTheme = {
   fontSizeSmall: 12,
   fontSizeMed: 14,
   fontSizeLg: 18,
+  fontSizeLgg: 24,
   fontSizeHuge: 36,
   paddingSmall: 8,
   paddingMed: 16,

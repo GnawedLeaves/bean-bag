@@ -164,3 +164,45 @@ export const getSpotifyArtistTopTracks = async (
   const data = await res.json();
   return data.tracks;
 };
+
+export const getMultipleSpotifyArtists = async (
+  artistIds: string[],
+  token: string,
+  fullUrl?: string
+): Promise<SpotifyArtist[]> => {
+  if (!artistIds.length) return [];
+
+  const idsParam = artistIds.join(",");
+  const url = `https://api.spotify.com/v1/artists?ids=${encodeURIComponent(
+    idsParam
+  )}`;
+
+  const response = await axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data.artists;
+};
+
+export const getMultipleSpotifyAlbums = async (
+  albumIds: string[],
+  token: string,
+  fullUrl?: string
+): Promise<SpotifyAlbum[]> => {
+  if (!albumIds.length) return [];
+
+  const idsParam = albumIds.join(",");
+  const url = `https://api.spotify.com/v1/albums?ids=${encodeURIComponent(
+    idsParam
+  )}`;
+
+  const response = await axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data.albums;
+};

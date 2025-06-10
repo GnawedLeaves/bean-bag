@@ -266,7 +266,35 @@ export const SpotifyAlbumPicture = styled.img`
 `;
 
 export const SpotifyMain = styled.div`
-  padding: ${(props) => props.theme.paddingLg}px;
+  // padding: ${(props) => props.theme.paddingLg}px;
+  background: ${(props) => props.theme.colorBgTeal};
+  min-height: 100vh;
+`;
+
+export const SpotifyHeroContainer = styled.div`
+  height: 200px;
+  padding: ${(props) => props.theme.paddingMed}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: ${(props) => props.theme.fontSizeHuge}px;
+  font-weight: bold;
+`;
+
+export const SpotifyMainBodyContainer = styled.div`
+  background: ${(props) => props.theme.colorBg};
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  min-height: 100vh;
+  border-bottom: none;
+  padding: ${(props) => props.theme.paddingMed}px;
+  background: ${(props) => props.theme.colorBg};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding-top: ${(props) => props.theme.paddingLg}px;
 `;
 
 export const SpotifySearchContainer = styled.div`
@@ -281,4 +309,48 @@ export const SpotifySearchTitle = styled.div`
 export const SpotifySearchSubtitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeSmall}px;
   color: ${(props) => props.theme.textSecondary};
+`;
+
+export const SpotifySearchButton = styled.button`
+  border: none;
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  font-size: ${(props) => props.theme.fontSizeMed}px;
+  padding: 8px 16px;
+  background: ${(props) => props.theme.colorBgTeal};
+  align-items: center;
+  justify-content: center;
+  display: flex;
+`;
+
+interface StatsCardProps {
+  background?: string;
+}
+
+export const StatsCard = styled.div<StatsCardProps>`
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  padding: ${(props) => props.theme.paddingLg}px;
+  background: ${(props) => props.background || props.theme.colorBg};
+  max-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+export const StatsCardNumber = styled.div`
+  font-size: 28px;
+`;
+
+export const StatsCardDescription = styled.div``;
+
+export const RecentReviewedContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+`;
+
+export const RecentReviewedTitle = styled.div`
+  font-size: ${(props) => props.theme.fontSizeLg}px;
+  font-weight: bold;
 `;
