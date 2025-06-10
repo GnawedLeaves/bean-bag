@@ -4,7 +4,7 @@ export interface AppTheme {
   colorBgRed: string;
   colorBgYellow: string;
   colorBgLightYellow: string;
-  colorBgVoilet: string;
+  colorBgVoliet: string;
   colorBgPink: string;
   colorBgGreen: string;
   colorBgTeal: string;
@@ -25,7 +25,7 @@ export const appTheme = {
   colorBgRed: "#FF552E",
   colorBgYellow: "#F2A815",
   colorBgLightYellow: "#FED170",
-  colorBgVoilet: "#B6ACE",
+  colorBgVoliet: "#B6ACE4",
   colorBgPink: "#FFC1C6",
   colorBgGreen: "#ABCF82",
   colorBgTeal: "#ADD6B8",

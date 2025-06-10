@@ -36,3 +36,8 @@ export const formatMilliseconds = (ms?: number): string => {
     return `${minutes}:${String(seconds).padStart(2, "0")}`;
   }
 };
+
+export const convertMsToSeconds = (ms?: number): number => {
+  if (!ms) return 1;
+  return Math.floor(ms / 1000);
+};

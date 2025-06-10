@@ -97,7 +97,7 @@ const Home: React.FC = () => {
       title: "Space Together",
       description: "Explore the cosmos and NASA's daily discoveries",
       icon: <RocketOutlined style={{ fontSize: "2rem" }} />,
-      color: appTheme.colorBgVoilet,
+      color: appTheme.colorBgVoliet,
       route: ROUTES.SPACE?.path || "/space",
       action: "Explore Space",
     },

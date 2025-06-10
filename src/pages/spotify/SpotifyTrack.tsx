@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeftOutlined, CommentOutlined } from "@ant-design/icons";
+import {
+  ArrowLeftOutlined,
+  CommentOutlined,
+  ShareAltOutlined,
+} from "@ant-design/icons";
 import {
   SpotifyComment,
   SpotifyReview,
@@ -18,8 +22,9 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
-import { Flex, Input, Rate } from "antd";
+import { Flex, Input, message, Rate } from "antd";
 import {
+  BarBigContainer,
   CommentButton,
   CommentCard,
   CommentCardContent,
@@ -29,6 +34,9 @@ import {
   SpoitfyTrackSubTitle,
   SpoitfyTrackTitle,
   SpotifyBackButton,
+  SpotifyBarContainer,
+  SpotifyBarInnerContainer,
+  SpotifyBarInnerContainerText,
   SpotifyBigContainer,
   SpotifyBodyContainer,
   SpotifyFeaturedContainer,
@@ -36,14 +44,18 @@ import {
   SpotifyRatingContainer,
   SpotifyRatingDisplay,
   SpotifyRatingNumber,
+  SpotifyShareButton,
   SpotifyTrackPlayButton,
 } from "./SpotifyStyles";
-import { formatFirebaseDate, formatMilliseconds } from "../../utils/utils";
+import {
+  convertMsToSeconds,
+  formatFirebaseDate,
+  formatMilliseconds,
+} from "../../utils/utils";
 import { ThemeProvider } from "styled-components";
 import { appTheme } from "../../theme";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay } from "@fortawesome/free-solid-svg-icons";
-import { Token } from "graphql";
 
 interface ReviewObj extends SpotifyReview {
   username: string;
@@ -224,6 +236,18 @@ const SpotifyTrackPage = () => {
     }
   };
 
+  const handleCopyToClipboard = () => {
+    navigator.clipboard
+      .writeText(window.location.href)
+      .then(() => {
+        message.success("Link copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy URL: ", err);
+        message.error("Failed to copy link");
+      });
+  };
+
   useEffect(() => {
     if (!loading && trackId) {
       handleGetTrackDetails();
@@ -242,14 +266,37 @@ const SpotifyTrackPage = () => {
           >
             <ArrowLeftOutlined />
           </SpotifyBackButton>
+          <SpotifyShareButton
+            onClick={() => {
+              handleCopyToClipboard();
+            }}
+          >
+            <ShareAltOutlined />
+          </SpotifyShareButton>
           <SpoitfyTrackTitle> {trackDetails?.name}</SpoitfyTrackTitle>
           <SpoitfyTrackSubTitle>
             {trackDetails?.artists.map((artist, index) => {
               return index === 0 ? artist.name : "," + artist.name;
             })}
           </SpoitfyTrackSubTitle>
-          <span>{formatMilliseconds(trackDetails?.duration_ms)}</span>
+
           <SpotifyFeaturedImg src={trackDetails?.album.images[0].url} />
+          <BarBigContainer>
+            <Flex justify="space-between">
+              <SpotifyBarInnerContainerText>0:00</SpotifyBarInnerContainerText>
+              <SpotifyBarInnerContainerText>
+                {formatMilliseconds(trackDetails?.duration_ms)}
+              </SpotifyBarInnerContainerText>
+            </Flex>
+
+            <SpotifyBarContainer>
+              <SpotifyBarInnerContainer
+                trackDuration={
+                  convertMsToSeconds(trackDetails?.duration_ms) || 60
+                }
+              />
+            </SpotifyBarContainer>
+          </BarBigContainer>
 
           <SpotifyTrackPlayButton>
             <a target="_blank" href={trackDetails?.external_urls.spotify}>
@@ -296,7 +343,7 @@ const SpotifyTrackPage = () => {
                 ) : (
                   <Flex vertical gap={4} style={{ width: "100%" }}>
                     <div style={{ textAlign: "center" }}>
-                      Your partner has not rated yet
+                      {userPartner.name} has not rated yet
                     </div>
                   </Flex>
                 )}

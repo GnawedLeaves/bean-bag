@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { AppTheme } from "../../theme";
 declare module "styled-components" {
   export interface DefaultTheme extends AppTheme {}
@@ -63,7 +63,7 @@ export const SpotifyFeaturedImg = styled.img`
   height: auto;
   object-fit: cover;
   // border: 1px solid ${(props) => props.theme.borderColor};
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); // subtle 3D effect
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
   margin-top: ${(props) => props.theme.paddingMed}px;
   margin-bottom: ${(props) => props.theme.paddingMed}px;
 `;
@@ -99,16 +99,30 @@ export const SpotifyBackButton = styled.button`
   background: ${(props) => props.theme.colorBg};
 `;
 
+export const SpotifyShareButton = styled.button`
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  border: none;
+  // border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: 100%;
+  display: flex;
+  padding: ${(props) => props.theme.paddingSmall}px;
+  // background: ${(props) => props.theme.colorBg};
+  background: transparent;
+  font-size: ${(props) => props.theme.fontSizeLg}px;
+`;
+
 export const SpoitfyTrackTitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeHuge}px;
   font-weight: bold;
   text-align: center;
-  // line-height: 48px;
+  color: ${(props) => props.theme.text};
 `;
 
 export const SpoitfyTrackSubTitle = styled.div`
   font-size: 18px;
-  font-weight: bold;
+  color: ${(props) => props.theme.text};
 `;
 
 export const SpotifyTrackPlayButton = styled.button`
@@ -121,6 +135,8 @@ export const SpotifyTrackPlayButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+  background: ${(props) => props.theme.colorBg};
+  // box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 `;
 
 export const SpotifyRatingContainer = styled.div`
@@ -130,6 +146,7 @@ export const SpotifyRatingContainer = styled.div`
   align-items: center;
   border: 2px solid ${(props) => props.theme.borderColor};
   border-radius: ${(props) => props.theme.borderRadius}px;
+  background: ${(props) => props.theme.colorBg};
 `;
 export const SpotifyRatingNumber = styled.div``;
 export const SpotifyRatingDisplay = styled.img`
@@ -137,4 +154,70 @@ export const SpotifyRatingDisplay = styled.img`
   height: 50px;
   border: 1px solid ${(props) => props.theme.borderColor};
   border-radius: 100%;
+`;
+
+export const BarBigContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+export const SpotifyBarContainer = styled.div`
+  width: 100%;
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: 20px;
+  height: 40px;
+  background: ${(props) => props.theme.colorBg};
+  display: flex;
+  padding: 3px;
+  gap: 12px;
+  align-items: center;
+`;
+const widthAnimation = keyframes`
+  0% {
+    width: 10%;
+  }
+  // 50% {
+  //   width: 100%;
+  // }
+  95% {
+    width: 100%;
+  }
+    100%{
+     width: 10%;
+    }
+`;
+const gradientAnimation = keyframes`
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+`;
+
+export const SpotifyBarInnerContainer = styled.div<{ trackDuration: number }>`
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  background: linear-gradient(
+    90deg,
+    ${(props) => props.theme.colorBgTeal} 0%,
+    ${(props) => props.theme.colorBgGreen} 25%,
+    ${(props) => props.theme.colorBgLightYellow} 50%,
+    ${(props) => props.theme.colorBgVoliet} 75%,
+    ${(props) => props.theme.colorBgTeal} 100%
+  );
+  background-size: 200% 100%;
+  height: 30px;
+  width: 10%;
+  animation: ${widthAnimation} ${(props) => props.trackDuration}s ease-in-out
+      infinite,
+    ${gradientAnimation} 5s ease-in-out infinite;
+`;
+export const SpotifyBarInnerContainerText = styled.span`
+  color: ${(props) => props.theme.textSecondary};
 `;
