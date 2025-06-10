@@ -36,7 +36,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
-import { formatFirebaseDate } from "../../utils/utils";
+import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
 interface SearchHistoryItem {
   id: string;
   userId: string;
@@ -232,6 +232,7 @@ const SpotifyPage = () => {
   useEffect(() => {
     if (!loading && user) {
       handleGetSearchHistory();
+      scrollToTop();
     }
   }, [loading, user]);
 
