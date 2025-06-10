@@ -80,6 +80,7 @@ export const SpotifyBodyContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  padding-top: ${(props) => props.theme.paddingLg}px;
 `;
 
 export const SpotifyBigContainer = styled.div`

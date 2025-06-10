@@ -1,29 +1,185 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  ArrowLeftOutlined,
+  CommentOutlined,
+  ShareAltOutlined,
+} from "@ant-design/icons";
+import {
+  SpotifyComment,
+  SpotifyPlaylist,
+  SpotifyReview,
+} from "../../types/spotifyTypes";
+import { useUser } from "../../contexts/UserContext";
 import {
   getSpotifyArtist,
   getSpotifyPlaylist,
 } from "../../services/spotify/spotify";
-import { useUser } from "../../contexts/UserContext";
-import { SpotifyArtist, SpotifyPlaylist } from "../../types/spotifyTypes";
-import { Typography, Tag, Button, Card, Space, Image, Spin } from "antd";
+import {
+  query,
+  collection,
+  where,
+  getDocs,
+  Timestamp,
+  addDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "../../firebase/firebase";
+import { Flex, Input, message, Rate, Spin } from "antd";
+import {
+  CommentButton,
+  CommentCard,
+  CommentCardContent,
+  CommentCardDate,
+  CommentCardDisplayPic,
+  CommentCardName,
+  SpoitfyTrackSubTitle,
+  SpoitfyTrackTitle,
+  SpotifyBackButton,
+  SpotifyBigContainer,
+  SpotifyBodyContainer,
+  SpotifyFeaturedContainer,
+  SpotifyFeaturedImg,
+  SpotifyRatingContainer,
+  SpotifyRatingDisplay,
+  SpotifyShareButton,
+} from "./SpotifyStyles";
+import { formatFirebaseDate, formatMilliseconds } from "../../utils/utils";
+import { ThemeProvider } from "styled-components";
+import { appTheme } from "../../theme";
+import { ROUTES } from "../../routes";
+import SpotifyDropdownComponent from "../../components/spotifyDropdown/SpotifyDropdown";
+import { BaseOptionType } from "antd/es/select";
+import styled from "styled-components";
 
-const { Title, Text, Paragraph } = Typography;
+// Additional styled components for playlist page
+const PlaylistInfoContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+`;
+
+const PlaylistInfoText = styled.div`
+  font-size: ${(props) => props.theme.fontSizeMed}px;
+  color: ${(props) => props.theme.textSecondary};
+  text-align: center;
+`;
+
+const PlaylistDescription = styled.div`
+  font-size: ${(props) => props.theme.fontSizeSmall}px;
+  color: ${(props) => props.theme.textSecondary};
+  text-align: center;
+  max-width: 300px;
+  margin-bottom: 8px;
+`;
+
+const TrackListContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+`;
+
+const TrackItem = styled.div`
+  border: 1px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  padding: ${(props) => props.theme.paddingMed}px;
+  background: ${(props) => props.theme.colorBg};
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${(props) => props.theme.colorBgTeal};
+    transform: translateY(-1px);
+  }
+`;
+
+const TrackItemContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const TrackAlbumArt = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid ${(props) => props.theme.borderColor};
+`;
+
+const TrackInfo = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const TrackName = styled.div`
+  color: ${(props) => props.theme.text};
+  font-size: ${(props) => props.theme.fontSizeMed}px;
+  font-weight: 500;
+`;
+
+const TrackArtist = styled.div`
+  color: ${(props) => props.theme.textSecondary};
+  font-size: ${(props) => props.theme.fontSizeSmall}px;
+`;
+
+const TrackDuration = styled.span`
+  color: ${(props) => props.theme.textSecondary};
+  font-size: ${(props) => props.theme.fontSizeSmall}px;
+  align-self: flex-start;
+`;
+
+const TrackListHeader = styled.div`
+  font-size: ${(props) => props.theme.fontSizeLg}px;
+  font-weight: bold;
+  color: ${(props) => props.theme.text};
+  margin-bottom: 12px;
+  text-align: center;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+`;
+
+interface ReviewObj extends SpotifyReview {
+  username: string;
+  displayPicture: string;
+  dateAddedJs: string;
+}
+
+interface CommentObj extends SpotifyComment {
+  username: string;
+  displayPicture: string;
+  dateAddedJs: string;
+}
 
 const SpotifyPlaylistDetailsPage = () => {
-  const { user, spotifyToken, loading } = useUser();
   const { playlistId } = useParams();
-  const [spotifyPlaylist, setSpotifyPlaylist] = useState<SpotifyPlaylist>();
+  const { user, userPartner, spotifyToken, loading } = useUser();
+  const navigate = useNavigate();
+  const [playlistDetails, setPlaylistDetails] = useState<SpotifyPlaylist>();
+  const [reviews, setReviews] = useState<ReviewObj[]>([]);
+  const [comments, setComments] = useState<CommentObj[]>([]);
+  const [newComment, setNewComment] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
 
-  const handleGetPlaylist = async () => {
+  const handleGetPlaylistDetails = async () => {
     if (!playlistId || !spotifyToken?.accessToken) return;
     try {
       const response = await getSpotifyPlaylist(
         playlistId,
         spotifyToken?.accessToken
       );
-      setSpotifyPlaylist(response);
+      setPlaylistDetails(response);
     } catch (error) {
       console.error("Failed to fetch playlist", error);
     } finally {
@@ -31,60 +187,391 @@ const SpotifyPlaylistDetailsPage = () => {
     }
   };
 
-  useEffect(() => {
-    if (!loading && spotifyToken) {
-      handleGetPlaylist();
-    }
-  }, [spotifyToken, loading]);
+  const handleGetReviewsAndComments = async (spotifyId: string) => {
+    try {
+      const reviewQuery = query(
+        collection(db, "anniAppSpotifyReview"),
+        where("spotifyId", "==", spotifyId)
+      );
+      const reviewSnapshot = await getDocs(reviewQuery);
+      const reviews = reviewSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as SpotifyReview[];
 
-  if (isLoading || !spotifyPlaylist) {
+      const commentQuery = query(
+        collection(db, "anniAppSpotifyReviewComment"),
+        where("spotifyId", "==", spotifyId)
+      );
+      const commentSnapshot = await getDocs(commentQuery);
+      const comments = commentSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as SpotifyComment[];
+
+      // Construct the review and comment objects
+      const reviewsObjs = reviews.map((review) => {
+        const date =
+          formatFirebaseDate(review.dateAdded) ||
+          new Date().toLocaleDateString();
+        if (review.userId === user?.id) {
+          return {
+            ...review,
+            dateAddedJs: date,
+            username: "Me",
+            displayPicture: user.displayPicture,
+          };
+        } else if (review.userId === userPartner?.id) {
+          return {
+            ...review,
+            dateAddedJs: date,
+            username: userPartner.name,
+            displayPicture: userPartner.displayPicture,
+          };
+        } else {
+          return {
+            ...review,
+            dateAddedJs: date,
+            username: "Anon",
+            displayPicture: "",
+          };
+        }
+      });
+
+      const commentsObj = comments.map((comment) => {
+        const date =
+          formatFirebaseDate(comment.dateAdded) ||
+          new Date().toLocaleDateString();
+        if (comment.userId === user?.id) {
+          return {
+            ...comment,
+            dateAddedJs: date,
+            username: "Me",
+            displayPicture: user.displayPicture,
+          };
+        } else if (comment.userId === userPartner?.id) {
+          return {
+            ...comment,
+            dateAddedJs: date,
+            username: userPartner.name,
+            displayPicture: userPartner.displayPicture,
+          };
+        } else {
+          return {
+            ...comment,
+            dateAddedJs: date,
+            username: "Anon",
+            displayPicture: "",
+          };
+        }
+      });
+
+      // Sort by date
+      const sortedReviewObjs = [...reviewsObjs].sort(
+        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
+      );
+
+      const sortedCommentObjs = [...commentsObj].sort(
+        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
+      );
+
+      setReviews(sortedReviewObjs);
+      setComments(sortedCommentObjs);
+
+      return { reviews, comments };
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      return { reviews: [], comments: [] };
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (!newComment.trim() || !playlistId || !user?.id) return;
+
+    const commentData: SpotifyComment = {
+      content: newComment.trim(),
+      userId: user.id,
+      spotifyId: playlistId,
+      dateAdded: Timestamp.now(),
+    };
+
+    try {
+      await addDoc(collection(db, "anniAppSpotifyReviewComment"), commentData);
+      setNewComment("");
+      handleGetReviewsAndComments(playlistId);
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+    }
+  };
+
+  const handleAddReview = async (rating: number) => {
+    if (!playlistId || !user?.id) return;
+
+    try {
+      const reviewQuery = query(
+        collection(db, "anniAppSpotifyReview"),
+        where("spotifyId", "==", playlistId),
+        where("userId", "==", user.id)
+      );
+
+      const querySnapshot = await getDocs(reviewQuery);
+
+      const reviewData: SpotifyReview = {
+        rating: rating,
+        userId: user.id,
+        spotifyId: playlistId,
+        dateAdded: Timestamp.now(),
+      };
+
+      if (querySnapshot.empty) {
+        await addDoc(collection(db, "anniAppSpotifyReview"), reviewData);
+      } else {
+        const docRef = querySnapshot.docs[0].ref;
+        await updateDoc(docRef, {
+          rating: rating,
+          dateAdded: Timestamp.now(),
+        });
+      }
+
+      handleGetReviewsAndComments(playlistId);
+    } catch (error) {
+      console.error("Failed to add/update review:", error);
+    }
+  };
+
+  const handleCopyToClipboard = () => {
+    navigator.clipboard
+      .writeText(window.location.href)
+      .then(() => {
+        message.success("Link copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy URL: ", err);
+        message.error("Failed to copy link");
+      });
+  };
+
+  const handleGoToArtist = async (artistId: string) => {
+    if (!spotifyToken || !artistId) return;
+    const response = await getSpotifyArtist(artistId, spotifyToken.accessToken);
+    if (response) {
+      navigate(ROUTES.SPOTIFY_ARTIST.path.replace(":artistId", artistId));
+    } else {
+      console.log("error going to artist", artistId);
+    }
+  };
+
+  const handleGoToTrack = (trackId: string) => {
+    navigate(ROUTES.SPOTIFY_TRACK.path.replace(":trackId", trackId));
+  };
+
+  // Get unique artists from all tracks for dropdown
+  const createArtistOptions = (): BaseOptionType[] => {
+    if (!playlistDetails?.tracks?.items) return [];
+
+    const artistsMap = new Map();
+    playlistDetails.tracks.items.forEach((item) => {
+      item.track.artists.forEach((artist) => {
+        artistsMap.set(artist.id, {
+          label: artist.name,
+          value: artist.id,
+        });
+      });
+    });
+
+    return Array.from(artistsMap.values());
+  };
+
+  useEffect(() => {
+    if (!loading && playlistId) {
+      handleGetPlaylistDetails();
+      handleGetReviewsAndComments(playlistId);
+    }
+  }, [loading]);
+
+  if (isLoading) {
     return (
-      <div style={{ textAlign: "center", marginTop: 100 }}>
-        <Spin size="large" />
-      </div>
+      <ThemeProvider theme={appTheme}>
+        <SpotifyBigContainer>
+          <LoadingContainer>
+            <Spin size="large" />
+          </LoadingContainer>
+        </SpotifyBigContainer>
+      </ThemeProvider>
     );
   }
 
   return (
-    <div style={{ padding: "16px", maxWidth: 600, margin: "0 auto" }}>
-      <Card
-        cover={
-          <Image
-            alt="Playlist"
-            src={spotifyPlaylist.images?.[0]?.url}
-            preview={false}
-            style={{ borderRadius: "8px 8px 0 0", objectFit: "cover" }}
-          />
-        }
-        style={{ borderRadius: 8 }}
-      >
-        <Title level={3}>{spotifyPlaylist.name}</Title>
-        <Text>{spotifyPlaylist.description}</Text>
-        <Text>Made by: {spotifyPlaylist.owner.display_name}</Text>
+    <ThemeProvider theme={appTheme}>
+      <SpotifyBigContainer>
+        <SpotifyFeaturedContainer>
+          <SpotifyBackButton
+            onClick={() => {
+              navigate(-1);
+            }}
+          >
+            <ArrowLeftOutlined />
+          </SpotifyBackButton>
+          <SpotifyShareButton
+            onClick={() => {
+              handleCopyToClipboard();
+            }}
+          >
+            <ShareAltOutlined />
+          </SpotifyShareButton>
 
-        <br />
-        <Paragraph style={{ marginTop: 16 }}>
-          <Text strong>Tracks:</Text>
-          <br />
-          <Space wrap>
-            {spotifyPlaylist.tracks.items.map((track, index) => (
-              <Tag key={index} color="green">
-                {track.track.name}
-              </Tag>
+          <SpoitfyTrackTitle>{playlistDetails?.name}</SpoitfyTrackTitle>
+          <SpoitfyTrackSubTitle>
+            by {playlistDetails?.owner.display_name}
+          </SpoitfyTrackSubTitle>
+
+          {playlistDetails?.description && (
+            <PlaylistDescription>
+              {playlistDetails.description}
+            </PlaylistDescription>
+          )}
+
+          <SpotifyFeaturedImg src={playlistDetails?.images?.[0]?.url} />
+
+          <PlaylistInfoContainer>
+            <PlaylistInfoText>
+              {playlistDetails?.tracks.total} tracks
+            </PlaylistInfoText>
+            {/* {createArtistOptions().length > 0 && (
+              <SpotifyDropdownComponent
+                onItemClick={(option) => handleGoToArtist(option.value)}
+                dropdownOptions={createArtistOptions()}
+              />
+            )} */}
+          </PlaylistInfoContainer>
+
+          <Flex gap={8} vertical style={{ marginTop: 16 }}>
+            <SpotifyRatingContainer>
+              <SpotifyRatingDisplay src={user?.displayPicture} />
+              <Flex vertical gap={4}>
+                Me
+                <Rate
+                  onChange={handleAddReview}
+                  value={
+                    reviews.find((r) => r.userId === user?.id)?.rating || 0
+                  }
+                  style={{ color: appTheme.text }}
+                />
+              </Flex>
+            </SpotifyRatingContainer>
+
+            {userPartner && (
+              <SpotifyRatingContainer>
+                {reviews.some((r) => r.userId === userPartner.id) ? (
+                  <>
+                    <SpotifyRatingDisplay src={userPartner.displayPicture} />
+                    <Flex vertical gap={4}>
+                      {userPartner.name}
+                      <Rate
+                        disabled
+                        value={
+                          reviews.find((r) => r.userId === userPartner.id)
+                            ?.rating || 0
+                        }
+                        style={{ color: appTheme.text }}
+                      />
+                    </Flex>
+                  </>
+                ) : (
+                  <Flex vertical gap={4} style={{ width: "100%" }}>
+                    <div style={{ textAlign: "center" }}>
+                      {userPartner.name} has not rated yet
+                    </div>
+                  </Flex>
+                )}
+              </SpotifyRatingContainer>
+            )}
+          </Flex>
+          <TrackListContainer>
+            <TrackListHeader>Tracks</TrackListHeader>
+            {playlistDetails?.tracks?.items?.map((item, index) => (
+              <TrackItem
+                key={item.track.id}
+                onClick={() => handleGoToTrack(item.track.id)}
+              >
+                <TrackItemContent>
+                  <TrackAlbumArt
+                    src={item.track.album.images?.[0]?.url}
+                    alt={item.track.name}
+                  />
+                  <TrackInfo>
+                    <TrackName>{item.track.name}</TrackName>
+                    <TrackArtist>
+                      {item.track.artists.map((artist, i) =>
+                        i === 0 ? artist.name : ", " + artist.name
+                      )}
+                    </TrackArtist>
+                  </TrackInfo>
+                  <TrackDuration>
+                    {formatMilliseconds(item.track.duration_ms)}
+                  </TrackDuration>
+                </TrackItemContent>
+              </TrackItem>
             ))}
-          </Space>
-        </Paragraph>
-        <Button
-          type="primary"
-          block
-          href={spotifyPlaylist.external_urls.spotify}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          View on Spotify
-        </Button>
-      </Card>
-    </div>
+          </TrackListContainer>
+        </SpotifyFeaturedContainer>
+
+        <SpotifyBodyContainer>
+          <div
+            style={{
+              fontSize: appTheme.fontSizeLg,
+              fontWeight: "bold",
+            }}
+          >
+            Comments
+          </div>
+          <Flex
+            justify="space-between"
+            style={{ padding: appTheme.paddingSmall }}
+            gap={16}
+          >
+            <Input
+              value={newComment}
+              placeholder="Write comment"
+              onChange={(e) => {
+                setNewComment(e.target.value);
+              }}
+              style={{
+                border: `1px solid ${appTheme.borderColor}`,
+                borderRadius: appTheme.borderRadius,
+                background: appTheme.colorBg,
+              }}
+            />
+            <CommentButton
+              onClick={() => {
+                handleAddComment();
+              }}
+            >
+              <CommentOutlined />
+            </CommentButton>
+          </Flex>
+
+          <Flex vertical gap={16} style={{ padding: 8, width: "100%" }}>
+            {comments.length > 0 ? (
+              comments.map((comment, index) => {
+                return (
+                  <CommentCard key={index}>
+                    <CommentCardDisplayPic src={comment.displayPicture} />
+                    <Flex vertical>
+                      <CommentCardName>{comment.username}</CommentCardName>
+                      <CommentCardContent>{comment.content}</CommentCardContent>
+                    </Flex>
+                    <CommentCardDate>{comment.dateAddedJs}</CommentCardDate>
+                  </CommentCard>
+                );
+              })
+            ) : (
+              <div style={{ textAlign: "center" }}>~No comments yet~</div>
+            )}
+          </Flex>
+        </SpotifyBodyContainer>
+      </SpotifyBigContainer>
+    </ThemeProvider>
   );
 };
 

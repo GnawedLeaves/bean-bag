@@ -117,3 +117,50 @@ export const getSpotifyPlaylist = async (
   const data = await res.json();
   return data;
 };
+
+export const getSpotifyArtistAlbums = async (
+  artistId: string,
+  token: string,
+  fullUrl?: string
+): Promise<SpotifyAlbum[]> => {
+  if (!token) throw new Error("Authentication token is required");
+  const res = await fetch(
+    fullUrl || `https://api.spotify.com/v1/artists/${artistId}/albums`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch artist albums: ${res.statusText}`);
+  }
+
+  const data = await res.json();
+  return data.items;
+};
+
+export const getSpotifyArtistTopTracks = async (
+  artistId: string,
+  token: string,
+  fullUrl?: string
+): Promise<SpotifyTrack[]> => {
+  if (!token) throw new Error("Authentication token is required");
+  const res = await fetch(
+    fullUrl ||
+      `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch artist top tracks: ${res.statusText}`);
+  }
+
+  const data = await res.json();
+  return data.tracks;
+};

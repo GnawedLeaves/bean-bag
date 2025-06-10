@@ -413,7 +413,14 @@ const SpotifyTrackPage = () => {
           </Flex>
         </SpotifyFeaturedContainer>
         <SpotifyBodyContainer>
-          <div>Comments</div>
+          <div
+            style={{
+              fontSize: appTheme.fontSizeLg,
+              fontWeight: "bold",
+            }}
+          >
+            Comments
+          </div>
           <Flex
             justify="space-between"
             style={{ padding: appTheme.paddingSmall }}
