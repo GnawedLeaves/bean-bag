@@ -50,6 +50,10 @@ export const ROUTES: Record<string, RouteConfig> = {
   },
   SPOTIFY_ALBUM: {
     path: "/spotify/album/:albumId",
-    name: "Spotify Track",
+    name: "Spotify Album",
+  },
+  SPOTIFY_PLAYLIST: {
+    path: "/spotify/playlist/:playlistId",
+    name: "Spotify Playlist",
   },
 } as const;

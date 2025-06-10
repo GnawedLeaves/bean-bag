@@ -50,12 +50,16 @@ const SpacePage = () => {
     const today = new Date();
     const formattedDate = today.toISOString().split("T")[0];
 
-    const response = await getAstronomyPictureOfTheDay({
-      thumbs: true,
-      date: formattedDate,
-    });
+    try {
+      const response = await getAstronomyPictureOfTheDay({
+        thumbs: true,
+        date: formattedDate,
+      });
 
-    setApodData(Array.isArray(response) ? response : [response]);
+      setApodData(Array.isArray(response) ? response : [response]);
+    } catch (e) {
+      console.error("Error getting apod", e);
+    }
   };
 
   const getAsteroids = async (params: AstroidsParams) => {

@@ -8,6 +8,7 @@ import { ROUTES } from "../../routes";
 import {
   getSpotifyAlbum,
   getSpotifyArtist,
+  getSpotifyPlaylist,
   getSpotifyTrack,
 } from "../../services/spotify/spotify";
 import { SpotifyLinkInfo } from "../../types/spotifyTypes";
@@ -29,7 +30,13 @@ const SpotifyPage = () => {
 
       const [type, id] = parts;
 
-      if ((type === "track" || type === "album" || type === "artist") && id) {
+      if (
+        (type === "track" ||
+          type === "album" ||
+          type === "artist" ||
+          type === "playlist") &&
+        id
+      ) {
         return {
           id,
           type,
@@ -88,6 +95,22 @@ const SpotifyPage = () => {
         setIsTrackLoading(false);
         setErrorMessage("Unable to find album");
       }
+    } else if (linkObj?.type === "playlist" && spotifyToken) {
+      // setInputAlbumId(linkObj?.id);
+      setIsTrackLoading(true);
+      const response = await getSpotifyPlaylist(
+        linkObj.id,
+        spotifyToken.accessToken
+      );
+      if (response) {
+        setIsTrackLoading(false);
+        navigate(
+          ROUTES.SPOTIFY_PLAYLIST.path.replace(":playlistId", linkObj.id)
+        );
+      } else {
+        setIsTrackLoading(false);
+        setErrorMessage("Unable to find album");
+      }
     } else {
       setErrorMessage("Invalid URL");
     }
@@ -98,7 +121,7 @@ const SpotifyPage = () => {
   }, [loading]);
   return (
     <ThemeProvider theme={appTheme}>
-      <Flex>
+      <Flex wrap="wrap">
         <Input
           disabled={isTrackLoading}
           placeholder="Album or Track or Artist Link"

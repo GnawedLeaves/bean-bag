@@ -101,7 +101,7 @@ export interface SpotifyTrack {
 
 export type SpotifyLinkInfo = {
   id: string;
-  type: "track" | "album" | "artist";
+  type: "track" | "album" | "artist" | "playlist";
   link: string;
 } | null;
 
@@ -213,4 +213,58 @@ export interface SpotifyComment {
   spotifyId: string;
   userId: string;
   dateAdded: Timestamp;
+}
+
+export interface SpotifyPlaylist {
+  collaborative: boolean;
+  description: string;
+  external_urls: {
+    spotify: string;
+  };
+  href: string;
+  id: string;
+  images: {
+    url: string;
+    height: number;
+    width: number;
+  }[];
+  name: string;
+  owner: {
+    external_urls: {
+      spotify: string;
+    };
+    href: string;
+    id: string;
+    type: "user";
+    uri: string;
+    display_name: string;
+  };
+  public: boolean;
+  snapshot_id: string;
+  tracks: {
+    href: string;
+    limit: number;
+    next: string | null;
+    offset: number;
+    previous: string | null;
+    total: number;
+    items: SpotifyPlaylistTrack[];
+  };
+  type: string;
+  uri: string;
+}
+
+export interface SpotifyPlaylistTrack {
+  added_at: string;
+  added_by: {
+    external_urls: {
+      spotify: string;
+    };
+    href: string;
+    id: string;
+    type: "user";
+    uri: string;
+  };
+  is_local: boolean;
+  track: SpotifyTrack;
 }

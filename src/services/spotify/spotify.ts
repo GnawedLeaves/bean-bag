@@ -2,6 +2,7 @@ import axios from "axios";
 import {
   SpotifyAlbum,
   SpotifyArtist,
+  SpotifyPlaylist,
   SpotifyTrack,
 } from "../../types/spotifyTypes";
 
@@ -89,6 +90,28 @@ export const getSpotifyAlbum = async (
 
   if (!res.ok) {
     throw new Error(`Failed to fetch album: ${res.statusText}`);
+  }
+
+  const data = await res.json();
+  return data;
+};
+export const getSpotifyPlaylist = async (
+  playlistId: string,
+  token: string,
+  fullUrl?: string
+): Promise<SpotifyPlaylist> => {
+  if (!token) throw new Error("Authentication token is required");
+  const res = await fetch(
+    fullUrl || `https://api.spotify.com/v1/playlists/${playlistId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch playlist: ${res.statusText}`);
   }
 
   const data = await res.json();

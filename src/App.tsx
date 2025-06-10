@@ -21,6 +21,7 @@ import { UserProvider } from "./contexts/UserContext";
 import SpotifyArtistDetailsPage from "./pages/spotify/SpotifyArtist";
 import SpotifyTrackPage from "./pages/spotify/SpotifyTrack";
 import SpotifyAlbumPage from "./pages/spotify/SpotifyAlbum";
+import SpotifyPlaylistDetailsPage from "./pages/spotify/SpotifyPlaylist";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -91,6 +92,10 @@ const App: React.FC = () => {
                 <Route
                   path={ROUTES.SPOTIFY_ALBUM.path}
                   element={<SpotifyAlbumPage />}
+                />
+                <Route
+                  path={ROUTES.SPOTIFY_PLAYLIST.path}
+                  element={<SpotifyPlaylistDetailsPage />}
                 />
               </Routes>
             </main>
