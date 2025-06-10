@@ -38,6 +38,8 @@ import {
   CommentCardName,
   SpoitfyTrackSubTitle,
   SpoitfyTrackTitle,
+  SpotifyAlbumContainer,
+  SpotifyAlbumPicture,
   SpotifyBackButton,
   SpotifyBigContainer,
   SpotifyBodyContainer,
@@ -52,6 +54,7 @@ import { ThemeProvider } from "styled-components";
 import { appTheme } from "../../theme";
 import { ROUTES } from "../../routes";
 import styled from "styled-components";
+import { TrackListHeader } from "./SpotifyPlaylist";
 
 // Additional styled components for artist page
 const ScrollableSection = styled.div`
@@ -64,7 +67,7 @@ const ScrollableSection = styled.div`
   padding: ${(props) => props.theme.paddingMed}px;
 `;
 
-const ItemCard = styled.div`
+export const ItemCard = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
@@ -74,7 +77,6 @@ const ItemCard = styled.div`
   background: ${(props) => props.theme.colorBg};
   cursor: pointer;
   transition: background-color 0.2s;
-  margin-bottom: 8px;
 
   &:hover {
     background: ${(props) => props.theme.colorBgTeal};
@@ -85,28 +87,28 @@ const ItemCard = styled.div`
   }
 `;
 
-const ItemImage = styled.img`
+export const ItemImage = styled.img`
   width: 60px;
   height: 60px;
-  border-radius: ${(props) => props.theme.borderRadius}px;
+  border-radius: 100%;
   object-fit: cover;
   border: 1px solid ${(props) => props.theme.borderColor};
 `;
 
-const ItemInfo = styled.div`
+export const ItemInfo = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
 `;
 
-const ItemTitle = styled.div`
+export const ItemTitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeMed}px;
   font-weight: bold;
   color: ${(props) => props.theme.text};
 `;
 
-const ItemSubtitle = styled.div`
+export const ItemSubtitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeSmall}px;
   color: ${(props) => props.theme.textSecondary};
 `;
@@ -115,7 +117,7 @@ const SectionTitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeLg}px;
   font-weight: bold;
   color: ${(props) => props.theme.text};
-  margin-bottom: 16px;
+  margin-top: 16px;
   text-align: center;
 `;
 
@@ -379,28 +381,30 @@ const SpotifyArtistPage = () => {
 
           <SpotifyFeaturedImg src={artistDetails?.images?.[0]?.url} />
 
-          {/* Albums Section */}
           <SectionTitle>Albums</SectionTitle>
-          <ScrollableSection>
-            {artistAlbums.map((album) => (
-              <ItemCard
+          <Flex style={{ width: "100%" }} gap={16} wrap="wrap" justify="center">
+            {artistAlbums.map((album, index) => (
+              <SpotifyAlbumContainer
                 key={album.id}
                 onClick={() => handleGoToAlbum(album.id)}
               >
-                <ItemImage src={album.images?.[0]?.url} alt={album.name} />
+                <SpotifyAlbumPicture
+                  src={album.images?.[0]?.url}
+                  alt={album.name}
+                />
                 <ItemInfo>
                   <ItemTitle>{album.name}</ItemTitle>
                   <ItemSubtitle>
                     {album.release_date} • {album.total_tracks} tracks
                   </ItemSubtitle>
                 </ItemInfo>
-              </ItemCard>
+              </SpotifyAlbumContainer>
             ))}
-          </ScrollableSection>
+          </Flex>
 
           {/* Top Tracks Section */}
           <SectionTitle>Top Tracks</SectionTitle>
-          <ScrollableSection>
+          <Flex vertical gap={8}>
             {artistTopTracks.map((track) => (
               <ItemCard
                 key={track.id}
@@ -422,10 +426,11 @@ const SpotifyArtistPage = () => {
                 </ItemInfo>
               </ItemCard>
             ))}
-          </ScrollableSection>
+          </Flex>
 
           {/* Rating Section */}
           <Flex gap={8} vertical style={{ marginTop: 16 }}>
+            <TrackListHeader>Rating</TrackListHeader>
             <SpotifyRatingContainer>
               <SpotifyRatingDisplay src={user?.displayPicture} />
               <Flex vertical gap={4}>
@@ -470,7 +475,14 @@ const SpotifyArtistPage = () => {
         </SpotifyFeaturedContainer>
 
         <SpotifyBodyContainer>
-          <div>Comments</div>
+          <div
+            style={{
+              fontSize: appTheme.fontSizeLg,
+              fontWeight: "bold",
+            }}
+          >
+            Comments
+          </div>
           <Flex
             justify="space-between"
             style={{ padding: appTheme.paddingSmall }}

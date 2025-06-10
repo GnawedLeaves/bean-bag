@@ -4,6 +4,7 @@ import {
   ArrowLeftOutlined,
   CommentOutlined,
   ShareAltOutlined,
+  SmileOutlined,
 } from "@ant-design/icons";
 import {
   SpotifyAlbum,
@@ -38,19 +39,26 @@ import {
   SpotifyBackButton,
   SpotifyBigContainer,
   SpotifyBodyContainer,
+  SpotifyButtonSmall,
+  SpotifyButtonSmallText,
   SpotifyFeaturedContainer,
   SpotifyFeaturedImg,
   SpotifyRatingContainer,
   SpotifyRatingDisplay,
   SpotifyShareButton,
 } from "./SpotifyStyles";
-import { formatFirebaseDate, formatMilliseconds } from "../../utils/utils";
+import {
+  formatFirebaseDate,
+  formatMilliseconds,
+  formatReleaseDate,
+} from "../../utils/utils";
 import { ThemeProvider } from "styled-components";
 import { appTheme } from "../../theme";
 import { ROUTES } from "../../routes";
-import SpotifyDropdownComponent from "../../components/spotifyDropdown/SpotifyDropdown";
 import { BaseOptionType } from "antd/es/select";
 import styled from "styled-components";
+import { faCompactDisc } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 // Additional styled components for album page
 const AlbumInfoContainer = styled.div`
@@ -306,7 +314,7 @@ const SpotifyAlbumPage = () => {
       });
   };
 
-  const handleGoToArtist = async (artistId: string) => {
+  const handleGoToArtist = async (artistId?: string) => {
     if (!spotifyToken || !artistId) return;
     const response = await getSpotifyArtist(artistId, spotifyToken.accessToken);
     if (response) {
@@ -318,20 +326,6 @@ const SpotifyAlbumPage = () => {
 
   const handleGoToTrack = (trackId: string) => {
     navigate(ROUTES.SPOTIFY_TRACK.path.replace(":trackId", trackId));
-  };
-
-  const createArtistOptions = (): BaseOptionType[] => {
-    if (albumDetails?.artists) {
-      const options = albumDetails?.artists.map((artist) => {
-        return {
-          label: artist.name,
-          value: artist.id,
-        };
-      });
-      return options;
-    } else {
-      return [];
-    }
   };
 
   useEffect(() => {
@@ -359,28 +353,52 @@ const SpotifyAlbumPage = () => {
           >
             <ShareAltOutlined />
           </SpotifyShareButton>
-
           <SpoitfyTrackTitle>{albumDetails?.name}</SpoitfyTrackTitle>
           <SpoitfyTrackSubTitle>
             {albumDetails?.artists.map((artist, index) => {
               return index === 0 ? artist.name : ", " + artist.name;
             })}
           </SpoitfyTrackSubTitle>
-
           <SpotifyFeaturedImg src={albumDetails?.images[0]?.url} />
-
           <AlbumInfoContainer>
             <AlbumInfoText>
               {albumDetails?.total_tracks} tracks • Released{" "}
-              {albumDetails?.release_date}
+              {albumDetails?.release_date &&
+                formatReleaseDate(albumDetails.release_date)}
             </AlbumInfoText>
-            {/* <SpotifyDropdownComponent
-              onItemClick={(option) => handleGoToArtist(option.value)}
-              dropdownOptions={createArtistOptions() || []}
-            /> */}
           </AlbumInfoContainer>
+          <Flex vertical gap={8} align="center">
+            <SpotifyButtonSmall
+              onClick={() => {
+                handleGoToArtist(albumDetails?.artists[0].id);
+              }}
+            >
+              <SmileOutlined />
+            </SpotifyButtonSmall>
+            <SpotifyButtonSmallText>Go to artist</SpotifyButtonSmallText>
+          </Flex>
+          <TrackListContainer>
+            <TrackListHeader>Tracks</TrackListHeader>
+            {albumDetails?.tracks?.items?.map((track, index) => (
+              <TrackItem
+                key={track.id}
+                onClick={() => handleGoToTrack(track.id)}
+              >
+                <Flex align="center" justify="space-between">
+                  <Flex align="center">
+                    <TrackNumber>{track.track_number}</TrackNumber>
+                    <TrackName>{track.name}</TrackName>
+                  </Flex>
+                  <TrackDuration>
+                    {formatMilliseconds(track.duration_ms)}
+                  </TrackDuration>
+                </Flex>
+              </TrackItem>
+            ))}
+          </TrackListContainer>
 
           <Flex gap={8} vertical style={{ marginTop: 16 }}>
+            <TrackListHeader>Rating</TrackListHeader>
             <SpotifyRatingContainer>
               <SpotifyRatingDisplay src={user?.displayPicture} />
               <Flex vertical gap={4}>
@@ -425,29 +443,8 @@ const SpotifyAlbumPage = () => {
         </SpotifyFeaturedContainer>
 
         <SpotifyBodyContainer>
-          <TrackListContainer>
-            <TrackListHeader>Tracks</TrackListHeader>
-            {albumDetails?.tracks?.items?.map((track, index) => (
-              <TrackItem
-                key={track.id}
-                onClick={() => handleGoToTrack(track.id)}
-              >
-                <Flex align="center" justify="space-between">
-                  <Flex align="center">
-                    <TrackNumber>{track.track_number}</TrackNumber>
-                    <TrackName>{track.name}</TrackName>
-                  </Flex>
-                  <TrackDuration>
-                    {formatMilliseconds(track.duration_ms)}
-                  </TrackDuration>
-                </Flex>
-              </TrackItem>
-            ))}
-          </TrackListContainer>
-
           <div
             style={{
-              marginTop: 32,
               fontSize: appTheme.fontSizeLg,
               fontWeight: "bold",
             }}

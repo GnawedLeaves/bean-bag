@@ -50,7 +50,7 @@ export const CommentButton = styled.button`
 `;
 
 export const SpotifyFeaturedContainer = styled.div`
-  padding: 32px;
+  padding: 16px;
   padding-top: 64px;
   position: relative;
   display: flex;
@@ -144,6 +144,10 @@ export const SpotifyButtonSmall = styled.button`
   align-items: center;
   justify-content: center;
   background: ${(props) => props.theme.colorBg};
+`;
+
+export const SpotifyButtonSmallText = styled.div`
+  // color: ${(props) => props.theme.textSecondary};
 `;
 
 export const SpotifyTrackPlayButton = styled.button`
@@ -241,4 +245,22 @@ export const SpotifyBarInnerContainer = styled.div<{ trackDuration: number }>`
 `;
 export const SpotifyBarInnerContainerText = styled.span`
   color: ${(props) => props.theme.textSecondary};
+`;
+
+export const SpotifyAlbumContainer = styled.div`
+  display: flex;
+  width: 150px;
+  align-items: center;
+  gap: 12px;
+  padding: ${(props) => props.theme.paddingSmall}px;
+  border: 2px solid ${(props) => props.theme.borderColor};
+  background: ${(props) => props.theme.colorBg};
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex-direction: column;
+`;
+
+export const SpotifyAlbumPicture = styled.img`
+  width: 100%;
+  object-fit: cover;
 `;

@@ -45,6 +45,7 @@ import {
   SpotifyBodyContainer,
   SpotifyButtonsContainer,
   SpotifyButtonSmall,
+  SpotifyButtonSmallText,
   SpotifyFeaturedContainer,
   SpotifyFeaturedImg,
   SpotifyRatingContainer,
@@ -65,6 +66,7 @@ import { faCompactDisc, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { ROUTES } from "../../routes";
 import SpotifyDropdownComponent from "../../components/spotifyDropdown/SpotifyDropdown";
 import { BaseOptionType } from "antd/es/select";
+import { TrackListHeader } from "./SpotifyPlaylist";
 
 interface ReviewObj extends SpotifyReview {
   username: string;
@@ -353,6 +355,7 @@ const SpotifyTrackPage = () => {
             >
               <FontAwesomeIcon icon={faCompactDisc} color={appTheme.text} />
             </SpotifyButtonSmall>
+
             <SpotifyTrackPlayButton>
               <a target="_blank" href={trackDetails?.external_urls.spotify}>
                 <FontAwesomeIcon
@@ -370,6 +373,7 @@ const SpotifyTrackPage = () => {
           </SpotifyButtonsContainer>
 
           <Flex gap={8} vertical style={{ marginTop: 16 }}>
+            <TrackListHeader>Rating</TrackListHeader>
             <SpotifyRatingContainer>
               <SpotifyRatingDisplay src={user?.displayPicture} />
               <Flex vertical gap={4}>

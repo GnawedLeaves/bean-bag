@@ -35,6 +35,8 @@ import {
   CommentCardName,
   SpoitfyTrackSubTitle,
   SpoitfyTrackTitle,
+  SpotifyAlbumContainer,
+  SpotifyAlbumPicture,
   SpotifyBackButton,
   SpotifyBigContainer,
   SpotifyBodyContainer,
@@ -51,6 +53,13 @@ import { ROUTES } from "../../routes";
 import SpotifyDropdownComponent from "../../components/spotifyDropdown/SpotifyDropdown";
 import { BaseOptionType } from "antd/es/select";
 import styled from "styled-components";
+import {
+  ItemInfo,
+  ItemTitle,
+  ItemSubtitle,
+  ItemCard,
+  ItemImage,
+} from "./SpotifyArtist";
 
 // Additional styled components for playlist page
 const PlaylistInfoContainer = styled.div`
@@ -75,7 +84,7 @@ const PlaylistDescription = styled.div`
   margin-bottom: 8px;
 `;
 
-const TrackListContainer = styled.div`
+export const TrackListContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -83,7 +92,7 @@ const TrackListContainer = styled.div`
   margin-top: 16px;
 `;
 
-const TrackItem = styled.div`
+export const TrackItem = styled.div`
   border: 1px solid ${(props) => props.theme.borderColor};
   border-radius: ${(props) => props.theme.borderRadius}px;
   padding: ${(props) => props.theme.paddingMed}px;
@@ -97,13 +106,13 @@ const TrackItem = styled.div`
   }
 `;
 
-const TrackItemContent = styled.div`
+export const TrackItemContent = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
 `;
 
-const TrackAlbumArt = styled.img`
+export const TrackAlbumArt = styled.img`
   width: 40px;
   height: 40px;
   border-radius: 4px;
@@ -111,31 +120,31 @@ const TrackAlbumArt = styled.img`
   border: 1px solid ${(props) => props.theme.borderColor};
 `;
 
-const TrackInfo = styled.div`
+export const TrackInfo = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
 `;
 
-const TrackName = styled.div`
+export const TrackName = styled.div`
   color: ${(props) => props.theme.text};
   font-size: ${(props) => props.theme.fontSizeMed}px;
   font-weight: 500;
 `;
 
-const TrackArtist = styled.div`
+export const TrackArtist = styled.div`
   color: ${(props) => props.theme.textSecondary};
   font-size: ${(props) => props.theme.fontSizeSmall}px;
 `;
 
-const TrackDuration = styled.span`
+export const TrackDuration = styled.span`
   color: ${(props) => props.theme.textSecondary};
   font-size: ${(props) => props.theme.fontSizeSmall}px;
   align-self: flex-start;
 `;
 
-const TrackListHeader = styled.div`
+export const TrackListHeader = styled.div`
   font-size: ${(props) => props.theme.fontSizeLg}px;
   font-weight: bold;
   color: ${(props) => props.theme.text};
@@ -437,15 +446,10 @@ const SpotifyPlaylistDetailsPage = () => {
             <PlaylistInfoText>
               {playlistDetails?.tracks.total} tracks
             </PlaylistInfoText>
-            {/* {createArtistOptions().length > 0 && (
-              <SpotifyDropdownComponent
-                onItemClick={(option) => handleGoToArtist(option.value)}
-                dropdownOptions={createArtistOptions()}
-              />
-            )} */}
           </PlaylistInfoContainer>
 
           <Flex gap={8} vertical style={{ marginTop: 16 }}>
+            <TrackListHeader>Rating</TrackListHeader>
             <SpotifyRatingContainer>
               <SpotifyRatingDisplay src={user?.displayPicture} />
               <Flex vertical gap={4}>
@@ -489,7 +493,29 @@ const SpotifyPlaylistDetailsPage = () => {
           </Flex>
           <TrackListContainer>
             <TrackListHeader>Tracks</TrackListHeader>
-            {playlistDetails?.tracks?.items?.map((item, index) => (
+            <Flex vertical gap={8} style={{ padding: 8 }}>
+              {playlistDetails?.tracks?.items?.map((item) => (
+                <ItemCard
+                  key={item.track.id}
+                  onClick={() => handleGoToTrack(item.track.id)}
+                >
+                  <ItemImage
+                    src={item.track.album.images?.[0]?.url}
+                    alt={item.track.name}
+                  />
+                  <ItemInfo>
+                    <ItemTitle>{item.track.name}</ItemTitle>
+                    <ItemSubtitle>
+                      {item.track.artists.map((artist, i) =>
+                        i === 0 ? artist.name : ", " + artist.name
+                      )}{" "}
+                      • {formatMilliseconds(item.track.duration_ms)}
+                    </ItemSubtitle>
+                  </ItemInfo>
+                </ItemCard>
+              ))}
+            </Flex>
+            {/* {playlistDetails?.tracks?.items?.map((item, index) => (
               <TrackItem
                 key={item.track.id}
                 onClick={() => handleGoToTrack(item.track.id)}
@@ -512,7 +538,7 @@ const SpotifyPlaylistDetailsPage = () => {
                   </TrackDuration>
                 </TrackItemContent>
               </TrackItem>
-            ))}
+            ))} */}
           </TrackListContainer>
         </SpotifyFeaturedContainer>
 
@@ -534,6 +560,7 @@ const SpotifyPlaylistDetailsPage = () => {
               value={newComment}
               placeholder="Write comment"
               onChange={(e) => {
+                console.log(e.target.value);
                 setNewComment(e.target.value);
               }}
               style={{

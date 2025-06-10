@@ -3,6 +3,7 @@ import { appTheme } from "../../theme";
 import { useEffect, useRef, useState } from "react";
 import { SmileOutlined } from "@ant-design/icons";
 import { BaseOptionType } from "antd/es/select";
+import { SpotifyButtonSmallText } from "../../pages/spotify/SpotifyStyles";
 
 interface SpotifyDropdownProps {
   onItemClick: (option: BaseOptionType) => void;

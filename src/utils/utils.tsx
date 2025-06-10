@@ -41,3 +41,12 @@ export const convertMsToSeconds = (ms?: number): number => {
   if (!ms) return 1;
   return Math.floor(ms / 1000);
 };
+
+export const formatReleaseDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
