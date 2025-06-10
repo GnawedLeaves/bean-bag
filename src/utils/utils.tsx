@@ -50,3 +50,10 @@ export const formatReleaseDate = (dateString: string): string => {
     year: "numeric",
   });
 };
+
+export const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};

@@ -51,6 +51,7 @@ import {
   formatFirebaseDate,
   formatMilliseconds,
   formatReleaseDate,
+  scrollToTop,
 } from "../../utils/utils";
 import { ThemeProvider } from "styled-components";
 import { appTheme } from "../../theme";
@@ -334,6 +335,7 @@ const SpotifyAlbumPage = () => {
     if (!loading && albumId) {
       handleGetAlbumDetails();
       handleGetReviewsAndComments(albumId);
+      scrollToTop();
     }
   }, [loading]);
 

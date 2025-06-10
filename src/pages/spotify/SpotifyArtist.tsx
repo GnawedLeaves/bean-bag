@@ -49,7 +49,7 @@ import {
   SpotifyRatingDisplay,
   SpotifyShareButton,
 } from "./SpotifyStyles";
-import { formatFirebaseDate } from "../../utils/utils";
+import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
 import { ThemeProvider } from "styled-components";
 import { appTheme } from "../../theme";
 import { ROUTES } from "../../routes";
@@ -355,6 +355,7 @@ const SpotifyArtistPage = () => {
       handleGetArtistAlbums();
       handleGetArtistTopTracks();
       handleGetReviewsAndComments(artistId);
+      scrollToTop();
     }
   }, [loading]);
 

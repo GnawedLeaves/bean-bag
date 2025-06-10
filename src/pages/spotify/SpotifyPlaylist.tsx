@@ -46,7 +46,11 @@ import {
   SpotifyRatingDisplay,
   SpotifyShareButton,
 } from "./SpotifyStyles";
-import { formatFirebaseDate, formatMilliseconds } from "../../utils/utils";
+import {
+  formatFirebaseDate,
+  formatMilliseconds,
+  scrollToTop,
+} from "../../utils/utils";
 import { ThemeProvider } from "styled-components";
 import { appTheme } from "../../theme";
 import { ROUTES } from "../../routes";
@@ -397,6 +401,7 @@ const SpotifyPlaylistDetailsPage = () => {
     if (!loading && playlistId) {
       handleGetPlaylistDetails();
       handleGetReviewsAndComments(playlistId);
+      scrollToTop();
     }
   }, [loading]);
 

@@ -58,6 +58,7 @@ import {
   convertMsToSeconds,
   formatFirebaseDate,
   formatMilliseconds,
+  scrollToTop,
 } from "../../utils/utils";
 import { ThemeProvider } from "styled-components";
 import { appTheme } from "../../theme";
@@ -304,6 +305,7 @@ const SpotifyTrackPage = () => {
     if (!loading && trackId) {
       handleGetTrackDetails();
       handleGetReviewsAndComments(trackId);
+      scrollToTop();
     }
   }, [loading]);
 
