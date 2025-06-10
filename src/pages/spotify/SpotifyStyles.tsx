@@ -47,15 +47,21 @@ export const CommentButton = styled.button`
 
 export const SpotifyFeaturedContainer = styled.div`
   padding: 32px;
-  padding-top: 128px;
+  padding-top: 64px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 `;
 export const SpotifyFeaturedImg = styled.img`
   width: 100%;
   height: auto;
   object-fit: cover;
-  border: 1px solid ${(props) => props.theme.borderColor};
+  // border: 1px solid ${(props) => props.theme.borderColor};
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); // subtle 3D effect
+  margin-top: ${(props) => props.theme.paddingMed}px;
+  margin-bottom: ${(props) => props.theme.paddingMed}px;
 `;
 
 export const SpotifyBodyContainer = styled.div`
@@ -83,4 +89,26 @@ export const SpotifyBackButton = styled.button`
   display: flex;
   padding: ${(props) => props.theme.paddingSmall}px;
   background: ${(props) => props.theme.colorBg};
+`;
+
+export const SpoitfyTrackTitle = styled.div`
+  font-size: ${(props) => props.theme.fontSizeHuge}px;
+  font-weight: bold;
+`;
+
+export const SpoitfyTrackSubTitle = styled.div`
+  font-size: 24px;
+  font-weight: bold;
+`;
+
+export const SpotifyTrackPlayButton = styled.button`
+  border: none;
+  border: 3px solid ${(props) => props.theme.borderColor};
+  border-radius: 100%;
+  width: 100px;
+  height: 100px;
+  background: ${(props) => props.theme.colorBgTeal};
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;

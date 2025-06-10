@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, PlayCircleOutlined } from "@ant-design/icons";
 import {
   SpotifyComment,
   SpotifyReview,
@@ -17,7 +17,7 @@ import {
   addDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
-import { Flex, Input } from "antd";
+import { Flex, Input, Rate } from "antd";
 import {
   CommentButton,
   CommentCard,
@@ -25,15 +25,20 @@ import {
   CommentCardDate,
   CommentCardDisplayPic,
   CommentCardName,
+  SpoitfyTrackSubTitle,
+  SpoitfyTrackTitle,
   SpotifyBackButton,
   SpotifyBigContainer,
   SpotifyBodyContainer,
   SpotifyFeaturedContainer,
   SpotifyFeaturedImg,
+  SpotifyTrackPlayButton,
 } from "./SpotifyStyles";
-import { firebaseDateToJS, formatFirebaseDate } from "../../utils/utils";
+import { formatFirebaseDate } from "../../utils/utils";
 import { ThemeProvider } from "styled-components";
 import { appTheme } from "../../theme";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlay, faThumbsUp } from "@fortawesome/free-solid-svg-icons";
 
 interface ReviewObj extends SpotifyReview {
   username: string;
@@ -55,6 +60,7 @@ const SpotifyTrackPage = () => {
   const [reviews, setReviews] = useState<ReviewObj[]>([]);
   const [comments, setComments] = useState<CommentObj[]>([]);
   const [newComment, setNewComment] = useState<string>("");
+  const [rating, setRating] = useState<number>(0);
 
   const handleGetTrackDetails = async () => {
     if (!trackId || !spotifyToken?.accessToken) return;
@@ -199,11 +205,30 @@ const SpotifyTrackPage = () => {
           >
             <ArrowLeftOutlined />
           </SpotifyBackButton>
+          <SpoitfyTrackTitle> {trackDetails?.name}</SpoitfyTrackTitle>
+          <SpoitfyTrackSubTitle>
+            {trackDetails?.artists.map((artist, index) => {
+              return index === 0 ? artist.name : "," + artist.name;
+            })}
+          </SpoitfyTrackSubTitle>
           <SpotifyFeaturedImg src={trackDetails?.album.images[0].url} />
+
+          <SpotifyTrackPlayButton>
+            <a target="_blank" href={trackDetails?.external_urls.spotify}>
+              <FontAwesomeIcon
+                icon={faPlay}
+                color={appTheme.borderColor}
+                fontSize={32}
+              />
+            </a>
+          </SpotifyTrackPlayButton>
         </SpotifyFeaturedContainer>
         <SpotifyBodyContainer>
-          {trackDetails?.name}
-
+          <Rate
+            onChange={(rating) => {
+              setRating(rating);
+            }}
+          />
           {trackDetails?.duration_ms}
 
           <button>
