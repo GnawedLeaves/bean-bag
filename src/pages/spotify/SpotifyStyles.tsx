@@ -125,6 +125,26 @@ export const SpoitfyTrackSubTitle = styled.div`
   color: ${(props) => props.theme.text};
 `;
 
+export const SpotifyButtonsContainer = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-around;
+`;
+
+export const SpotifyButtonSmall = styled.button`
+  border: none;
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: 100%;
+  width: 50px;
+  height: 50px;
+  background: ${(props) => props.theme.colorBgTeal};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${(props) => props.theme.colorBg};
+`;
+
 export const SpotifyTrackPlayButton = styled.button`
   border: none;
   border: 3px solid ${(props) => props.theme.borderColor};

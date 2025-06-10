@@ -11,7 +11,11 @@ import {
   SpotifyTrack,
 } from "../../types/spotifyTypes";
 import { useUser } from "../../contexts/UserContext";
-import { getSpotifyTrack } from "../../services/spotify/spotify";
+import {
+  getSpotifyAlbum,
+  getSpotifyArtist,
+  getSpotifyTrack,
+} from "../../services/spotify/spotify";
 import {
   query,
   collection,
@@ -39,6 +43,8 @@ import {
   SpotifyBarInnerContainerText,
   SpotifyBigContainer,
   SpotifyBodyContainer,
+  SpotifyButtonsContainer,
+  SpotifyButtonSmall,
   SpotifyFeaturedContainer,
   SpotifyFeaturedImg,
   SpotifyRatingContainer,
@@ -55,7 +61,10 @@ import {
 import { ThemeProvider } from "styled-components";
 import { appTheme } from "../../theme";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlay } from "@fortawesome/free-solid-svg-icons";
+import { faCompactDisc, faPlay } from "@fortawesome/free-solid-svg-icons";
+import { ROUTES } from "../../routes";
+import SpotifyDropdownComponent from "../../components/spotifyDropdown/SpotifyDropdown";
+import { BaseOptionType } from "antd/es/select";
 
 interface ReviewObj extends SpotifyReview {
   username: string;
@@ -248,6 +257,45 @@ const SpotifyTrackPage = () => {
       });
   };
 
+  const handleGoToAlbum = async () => {
+    if (!spotifyToken || !trackDetails?.album.id) return;
+    const response = await getSpotifyAlbum(
+      trackDetails?.album.id,
+      spotifyToken.accessToken
+    );
+    if (response) {
+      navigate(
+        ROUTES.SPOTIFY_ALBUM.path.replace(":albumId", trackDetails?.album.id)
+      );
+    } else {
+      console.log("error going to album");
+    }
+  };
+
+  const handleGoToArtist = async (artistId: string) => {
+    if (!spotifyToken || !artistId) return;
+    const response = await getSpotifyArtist(artistId, spotifyToken.accessToken);
+    if (response) {
+      navigate(ROUTES.SPOTIFY_ARTIST.path.replace(":artistId", artistId));
+    } else {
+      console.log("error going to artist", artistId);
+    }
+  };
+
+  const createArtistOptions = (): BaseOptionType[] => {
+    if (trackDetails?.artists) {
+      const options = trackDetails?.artists.map((artist) => {
+        return {
+          label: artist.name,
+          value: artist.id,
+        };
+      });
+      return options;
+    } else {
+      return [];
+    }
+  };
+
   useEffect(() => {
     if (!loading && trackId) {
       handleGetTrackDetails();
@@ -297,16 +345,29 @@ const SpotifyTrackPage = () => {
               />
             </SpotifyBarContainer>
           </BarBigContainer>
+          <SpotifyButtonsContainer>
+            <SpotifyButtonSmall
+              onClick={() => {
+                handleGoToAlbum();
+              }}
+            >
+              <FontAwesomeIcon icon={faCompactDisc} color={appTheme.text} />
+            </SpotifyButtonSmall>
+            <SpotifyTrackPlayButton>
+              <a target="_blank" href={trackDetails?.external_urls.spotify}>
+                <FontAwesomeIcon
+                  icon={faPlay}
+                  color={appTheme.borderColor}
+                  fontSize={32}
+                />
+              </a>
+            </SpotifyTrackPlayButton>
 
-          <SpotifyTrackPlayButton>
-            <a target="_blank" href={trackDetails?.external_urls.spotify}>
-              <FontAwesomeIcon
-                icon={faPlay}
-                color={appTheme.borderColor}
-                fontSize={32}
-              />
-            </a>
-          </SpotifyTrackPlayButton>
+            <SpotifyDropdownComponent
+              onItemClick={(option) => handleGoToArtist(option.value)}
+              dropdownOptions={createArtistOptions() || []}
+            />
+          </SpotifyButtonsContainer>
 
           <Flex gap={8} vertical style={{ marginTop: 16 }}>
             <SpotifyRatingContainer>
