@@ -72,7 +72,7 @@ export const ItemCard = styled.div`
   align-items: center;
   gap: 12px;
   padding: ${(props) => props.theme.paddingSmall}px;
-  border: 1px solid ${(props) => props.theme.borderColor};
+  border: 2px solid ${(props) => props.theme.borderColor};
   border-radius: ${(props) => props.theme.borderRadius}px;
   background: ${(props) => props.theme.colorBg};
   cursor: pointer;
@@ -92,7 +92,7 @@ export const ItemImage = styled.img`
   height: 60px;
   border-radius: 100%;
   object-fit: cover;
-  border: 1px solid ${(props) => props.theme.borderColor};
+  border: 2px solid ${(props) => props.theme.borderColor};
 `;
 
 export const ItemInfo = styled.div`
@@ -281,6 +281,7 @@ const SpotifyArtistPage = () => {
       userId: user.id,
       spotifyId: artistId,
       dateAdded: Timestamp.now(),
+      type: "artist",
     };
 
     try {
@@ -309,6 +310,7 @@ const SpotifyArtistPage = () => {
         userId: user.id,
         spotifyId: artistId,
         dateAdded: Timestamp.now(),
+        type: "artist",
       };
 
       if (querySnapshot.empty) {

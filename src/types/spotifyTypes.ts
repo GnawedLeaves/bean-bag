@@ -205,6 +205,7 @@ export interface SpotifyReview {
   spotifyId: string;
   userId: string;
   dateAdded: Timestamp;
+  type?: string;
 }
 
 export interface SpotifyComment {
@@ -213,6 +214,7 @@ export interface SpotifyComment {
   spotifyId: string;
   userId: string;
   dateAdded: Timestamp;
+  type?: string;
 }
 
 export interface SpotifyPlaylist {

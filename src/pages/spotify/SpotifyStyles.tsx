@@ -264,3 +264,21 @@ export const SpotifyAlbumPicture = styled.img`
   width: 100%;
   object-fit: cover;
 `;
+
+export const SpotifyMain = styled.div`
+  padding: ${(props) => props.theme.paddingLg}px;
+`;
+
+export const SpotifySearchContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+`;
+export const SpotifySearchTitle = styled.div`
+  font-size: ${(props) => props.theme.fontSizeLg}px;
+  font-weight: bold;
+`;
+export const SpotifySearchSubtitle = styled.div`
+  font-size: ${(props) => props.theme.fontSizeSmall}px;
+  color: ${(props) => props.theme.textSecondary};
+`;

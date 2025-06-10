@@ -201,6 +201,7 @@ const SpotifyTrackPage = () => {
       userId: user.id,
       spotifyId: trackId,
       dateAdded: Timestamp.now(),
+      type: "track",
     };
 
     try {
@@ -229,6 +230,7 @@ const SpotifyTrackPage = () => {
         userId: user.id,
         spotifyId: trackId,
         dateAdded: Timestamp.now(),
+        type: "track",
       };
 
       if (querySnapshot.empty) {

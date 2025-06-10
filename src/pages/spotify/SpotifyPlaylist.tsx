@@ -302,6 +302,7 @@ const SpotifyPlaylistDetailsPage = () => {
       userId: user.id,
       spotifyId: playlistId,
       dateAdded: Timestamp.now(),
+      type: "playlist",
     };
 
     try {
@@ -330,6 +331,7 @@ const SpotifyPlaylistDetailsPage = () => {
         userId: user.id,
         spotifyId: playlistId,
         dateAdded: Timestamp.now(),
+        type: "playlist",
       };
 
       if (querySnapshot.empty) {

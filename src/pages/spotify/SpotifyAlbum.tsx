@@ -256,6 +256,7 @@ const SpotifyAlbumPage = () => {
       userId: user.id,
       spotifyId: albumId,
       dateAdded: Timestamp.now(),
+      type: "album",
     };
 
     try {
@@ -284,6 +285,7 @@ const SpotifyAlbumPage = () => {
         userId: user.id,
         spotifyId: albumId,
         dateAdded: Timestamp.now(),
+        type: "album",
       };
 
       if (querySnapshot.empty) {
