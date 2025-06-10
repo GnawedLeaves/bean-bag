@@ -50,7 +50,7 @@ export const CommentButton = styled.button`
 `;
 
 export const SpotifyFeaturedContainer = styled.div`
-  padding: 16px;
+  padding: 32px;
   padding-top: 64px;
   position: relative;
   display: flex;
