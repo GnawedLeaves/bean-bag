@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeftOutlined, PlayCircleOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, CommentOutlined } from "@ant-design/icons";
 import {
   SpotifyComment,
   SpotifyReview,
@@ -15,6 +15,7 @@ import {
   getDocs,
   Timestamp,
   addDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
 import { Flex, Input, Rate } from "antd";
@@ -32,13 +33,17 @@ import {
   SpotifyBodyContainer,
   SpotifyFeaturedContainer,
   SpotifyFeaturedImg,
+  SpotifyRatingContainer,
+  SpotifyRatingDisplay,
+  SpotifyRatingNumber,
   SpotifyTrackPlayButton,
 } from "./SpotifyStyles";
-import { formatFirebaseDate } from "../../utils/utils";
+import { formatFirebaseDate, formatMilliseconds } from "../../utils/utils";
 import { ThemeProvider } from "styled-components";
 import { appTheme } from "../../theme";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlay, faThumbsUp } from "@fortawesome/free-solid-svg-icons";
+import { faPlay } from "@fortawesome/free-solid-svg-icons";
+import { Token } from "graphql";
 
 interface ReviewObj extends SpotifyReview {
   username: string;
@@ -60,7 +65,6 @@ const SpotifyTrackPage = () => {
   const [reviews, setReviews] = useState<ReviewObj[]>([]);
   const [comments, setComments] = useState<CommentObj[]>([]);
   const [newComment, setNewComment] = useState<string>("");
-  const [rating, setRating] = useState<number>(0);
 
   const handleGetTrackDetails = async () => {
     if (!trackId || !spotifyToken?.accessToken) return;
@@ -99,7 +103,7 @@ const SpotifyTrackPage = () => {
           return {
             ...review,
             dateAddedJs: date,
-            username: user.name,
+            username: "Me",
             displayPicture: user.displayPicture,
           };
         } else if (review.userId === userPartner?.id) {
@@ -127,7 +131,7 @@ const SpotifyTrackPage = () => {
           return {
             ...comment,
             dateAddedJs: date,
-            username: user.name,
+            username: "Me",
             displayPicture: user.displayPicture,
           };
         } else if (comment.userId === userPartner?.id) {
@@ -185,7 +189,40 @@ const SpotifyTrackPage = () => {
     }
   };
 
-  const handleAddReview = () => {};
+  const handleAddReview = async (rating: number) => {
+    if (!trackId || !user?.id) return;
+
+    try {
+      const reviewQuery = query(
+        collection(db, "anniAppSpotifyReview"),
+        where("spotifyId", "==", trackId),
+        where("userId", "==", user.id)
+      );
+
+      const querySnapshot = await getDocs(reviewQuery);
+
+      const reviewData: SpotifyReview = {
+        rating: rating,
+        userId: user.id,
+        spotifyId: trackId,
+        dateAdded: Timestamp.now(),
+      };
+
+      if (querySnapshot.empty) {
+        await addDoc(collection(db, "anniAppSpotifyReview"), reviewData);
+      } else {
+        const docRef = querySnapshot.docs[0].ref;
+        await updateDoc(docRef, {
+          rating: rating,
+          dateAdded: Timestamp.now(),
+        });
+      }
+
+      handleGetReviewsAndComments(trackId);
+    } catch (error) {
+      console.error("Failed to add/update review:", error);
+    }
+  };
 
   useEffect(() => {
     if (!loading && trackId) {
@@ -211,6 +248,7 @@ const SpotifyTrackPage = () => {
               return index === 0 ? artist.name : "," + artist.name;
             })}
           </SpoitfyTrackSubTitle>
+          <span>{formatMilliseconds(trackDetails?.duration_ms)}</span>
           <SpotifyFeaturedImg src={trackDetails?.album.images[0].url} />
 
           <SpotifyTrackPlayButton>
@@ -222,30 +260,67 @@ const SpotifyTrackPage = () => {
               />
             </a>
           </SpotifyTrackPlayButton>
+
+          <Flex gap={8} vertical style={{ marginTop: 16 }}>
+            <SpotifyRatingContainer>
+              <SpotifyRatingDisplay src={user?.displayPicture} />
+              <Flex vertical gap={4}>
+                Me
+                <Rate
+                  onChange={handleAddReview}
+                  value={
+                    reviews.find((r) => r.userId === user?.id)?.rating || 0
+                  }
+                  style={{ color: appTheme.text }}
+                />
+              </Flex>
+            </SpotifyRatingContainer>
+
+            {userPartner && (
+              <SpotifyRatingContainer>
+                {reviews.some((r) => r.userId === userPartner.id) ? (
+                  <>
+                    <SpotifyRatingDisplay src={userPartner.displayPicture} />
+                    <Flex vertical gap={4}>
+                      {userPartner.name}
+                      <Rate
+                        disabled
+                        value={
+                          reviews.find((r) => r.userId === userPartner.id)
+                            ?.rating || 0
+                        }
+                        style={{ color: appTheme.text }}
+                      />
+                    </Flex>
+                  </>
+                ) : (
+                  <Flex vertical gap={4} style={{ width: "100%" }}>
+                    <div style={{ textAlign: "center" }}>
+                      Your partner has not rated yet
+                    </div>
+                  </Flex>
+                )}
+              </SpotifyRatingContainer>
+            )}
+          </Flex>
         </SpotifyFeaturedContainer>
         <SpotifyBodyContainer>
-          <Rate
-            onChange={(rating) => {
-              setRating(rating);
-            }}
-          />
-          {trackDetails?.duration_ms}
-
-          <button>
-            <a target="_blank" href={trackDetails?.external_urls.spotify}>
-              Click to play
-            </a>
-          </button>
+          <div>Comments</div>
           <Flex
             justify="space-between"
             style={{ padding: appTheme.paddingSmall }}
+            gap={16}
           >
-            <div>Comments</div>
             <Input
               value={newComment}
-              placeholder="Comment here"
+              placeholder="Write comment"
               onChange={(e) => {
                 setNewComment(e.target.value);
+              }}
+              style={{
+                border: `1px solid ${appTheme.borderColor}`,
+                borderRadius: appTheme.borderRadius,
+                background: appTheme.colorBg,
               }}
             />
             <CommentButton
@@ -253,27 +328,27 @@ const SpotifyTrackPage = () => {
                 handleAddComment();
               }}
             >
-              Add Comment
+              <CommentOutlined />
             </CommentButton>
           </Flex>
 
-          <Flex vertical gap={16} style={{ padding: 8 }}>
-            {comments.length > 0
-              ? comments.map((comment, index) => {
-                  return (
-                    <CommentCard key={index}>
-                      <CommentCardDisplayPic src={comment.displayPicture} />
-                      <Flex vertical>
-                        <CommentCardName>{comment.username}</CommentCardName>
-                        <CommentCardContent>
-                          {comment.content}
-                        </CommentCardContent>
-                      </Flex>
-                      <CommentCardDate>{comment.dateAddedJs}</CommentCardDate>
-                    </CommentCard>
-                  );
-                })
-              : "No comments"}
+          <Flex vertical gap={16} style={{ padding: 8, width: "100%" }}>
+            {comments.length > 0 ? (
+              comments.map((comment, index) => {
+                return (
+                  <CommentCard key={index}>
+                    <CommentCardDisplayPic src={comment.displayPicture} />
+                    <Flex vertical>
+                      <CommentCardName>{comment.username}</CommentCardName>
+                      <CommentCardContent>{comment.content}</CommentCardContent>
+                    </Flex>
+                    <CommentCardDate>{comment.dateAddedJs}</CommentCardDate>
+                  </CommentCard>
+                );
+              })
+            ) : (
+              <div style={{ textAlign: "center" }}>~No comments yet~</div>
+            )}
           </Flex>
         </SpotifyBodyContainer>
       </SpotifyBigContainer>

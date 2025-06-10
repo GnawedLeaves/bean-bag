@@ -7,12 +7,16 @@ export const AlbumContainer = styled.div``;
 
 export const CommentCard = styled.div`
   border: 1px solid ${(props) => props.theme.borderColor};
-  border-radius: ${(props) => props.theme.borderRadius}px;
+  border-top-left-radius: ${(props) => props.theme.borderRadius}px;
+  border-top-right-radius: ${(props) => props.theme.borderRadius}px;
+  border-bottom-right-radius: ${(props) => props.theme.borderRadius}px;
+  border-bottom-left-radius: 0; /* No radius here */
   display: flex;
   align-items: center;
   position: relative;
   padding: ${(props) => props.theme.paddingMed}px;
   gap: 8px;
+  width: 100%;
 `;
 export const CommentCardDisplayPic = styled.img`
   width: 50px;
@@ -72,6 +76,10 @@ export const SpotifyBodyContainer = styled.div`
   border-bottom: none;
   padding: ${(props) => props.theme.paddingMed}px;
   background: ${(props) => props.theme.colorBg};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 `;
 
 export const SpotifyBigContainer = styled.div`
@@ -94,10 +102,12 @@ export const SpotifyBackButton = styled.button`
 export const SpoitfyTrackTitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeHuge}px;
   font-weight: bold;
+  text-align: center;
+  // line-height: 48px;
 `;
 
 export const SpoitfyTrackSubTitle = styled.div`
-  font-size: 24px;
+  font-size: 18px;
   font-weight: bold;
 `;
 
@@ -111,4 +121,20 @@ export const SpotifyTrackPlayButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+export const SpotifyRatingContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  padding: ${(props) => props.theme.paddingMed}px;
+  align-items: center;
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+`;
+export const SpotifyRatingNumber = styled.div``;
+export const SpotifyRatingDisplay = styled.img`
+  width: 50px;
+  height: 50px;
+  border: 1px solid ${(props) => props.theme.borderColor};
+  border-radius: 100%;
 `;

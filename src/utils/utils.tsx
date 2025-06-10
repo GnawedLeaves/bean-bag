@@ -18,3 +18,21 @@ export function formatFirebaseDate(date: Timestamp | null): string {
 
   return `${day} ${month} ${year} ${hours}:${minutes}`;
 }
+
+export const formatMilliseconds = (ms?: number): string => {
+  if (!ms) return "--:--";
+  const totalSeconds = Math.floor(ms / 1000);
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const remainingSeconds = totalSeconds % 3600;
+  const minutes = Math.floor(remainingSeconds / 60);
+  const seconds = remainingSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(
+      seconds
+    ).padStart(2, "0")}`;
+  } else {
+    return `${minutes}:${String(seconds).padStart(2, "0")}`;
+  }
+};

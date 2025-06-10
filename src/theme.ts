@@ -35,7 +35,7 @@ export const appTheme = {
   fontSizeSmall: 12,
   fontSizeMed: 14,
   fontSizeLg: 18,
-  fontSizeHuge: 48,
+  fontSizeHuge: 36,
   paddingSmall: 8,
   paddingMed: 16,
 };
