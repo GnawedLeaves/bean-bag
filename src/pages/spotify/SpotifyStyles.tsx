@@ -58,9 +58,9 @@ export const SpotifyFeaturedContainer = styled.div`
   align-items: center;
   gap: 16px;
 `;
-export const SpotifyFeaturedImg = styled.img`
+export const SpotifyArtistImg = styled.img`
   width: 100%;
-  height: auto;
+  height: 500px;
   object-fit: cover;
   // border: 1px solid ${(props) => props.theme.borderColor};
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);

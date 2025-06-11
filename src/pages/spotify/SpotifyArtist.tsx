@@ -44,7 +44,7 @@ import {
   SpotifyBigContainer,
   SpotifyBodyContainer,
   SpotifyFeaturedContainer,
-  SpotifyFeaturedImg,
+  SpotifyArtistImg,
   SpotifyRatingContainer,
   SpotifyRatingDisplay,
   SpotifyShareButton,
@@ -382,7 +382,7 @@ const SpotifyArtistPage = () => {
             {artistDetails?.followers.total.toLocaleString()} followers
           </SpoitfyTrackSubTitle>
 
-          <SpotifyFeaturedImg src={artistDetails?.images?.[0]?.url} />
+          <SpotifyArtistImg src={artistDetails?.images?.[0]?.url} />
 
           <SectionTitle>Albums</SectionTitle>
           <Flex style={{ width: "100%" }} gap={16} wrap="wrap" justify="center">

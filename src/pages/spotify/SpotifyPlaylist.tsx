@@ -41,10 +41,11 @@ import {
   SpotifyBigContainer,
   SpotifyBodyContainer,
   SpotifyFeaturedContainer,
-  SpotifyFeaturedImg,
+  SpotifyArtistImg,
   SpotifyRatingContainer,
   SpotifyRatingDisplay,
   SpotifyShareButton,
+  SpotifyTrackPlayButton,
 } from "./SpotifyStyles";
 import {
   formatFirebaseDate,
@@ -64,6 +65,9 @@ import {
   ItemCard,
   ItemImage,
 } from "./SpotifyArtist";
+import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
+import { faPlay } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 // Additional styled components for playlist page
 const PlaylistInfoContainer = styled.div`
@@ -447,13 +451,27 @@ const SpotifyPlaylistDetailsPage = () => {
             </PlaylistDescription>
           )}
 
-          <SpotifyFeaturedImg src={playlistDetails?.images?.[0]?.url} />
+          <Draggable3DImage
+            songCount={playlistDetails?.tracks.total}
+            url={playlistDetails?.images?.[0]?.url ?? ""}
+          />
+          {/* <SpotifyFeaturedImg src={playlistDetails?.images?.[0]?.url} /> */}
 
           <PlaylistInfoContainer>
             <PlaylistInfoText>
               {playlistDetails?.tracks.total} tracks
             </PlaylistInfoText>
           </PlaylistInfoContainer>
+
+          <SpotifyTrackPlayButton>
+            <a target="_blank" href={playlistDetails?.external_urls.spotify}>
+              <FontAwesomeIcon
+                icon={faPlay}
+                color={appTheme.borderColor}
+                fontSize={32}
+              />
+            </a>
+          </SpotifyTrackPlayButton>
 
           <Flex gap={8} vertical style={{ marginTop: 16 }}>
             <TrackListHeader>Rating</TrackListHeader>

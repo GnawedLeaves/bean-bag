@@ -47,7 +47,7 @@ import {
   SpotifyButtonSmall,
   SpotifyButtonSmallText,
   SpotifyFeaturedContainer,
-  SpotifyFeaturedImg,
+  SpotifyArtistImg,
   SpotifyRatingContainer,
   SpotifyRatingDisplay,
   SpotifyRatingNumber,
@@ -68,6 +68,7 @@ import { ROUTES } from "../../routes";
 import SpotifyDropdownComponent from "../../components/spotifyDropdown/SpotifyDropdown";
 import { BaseOptionType } from "antd/es/select";
 import { TrackListHeader } from "./SpotifyPlaylist";
+import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
 
 interface ReviewObj extends SpotifyReview {
   username: string;
@@ -334,7 +335,8 @@ const SpotifyTrackPage = () => {
             })}
           </SpoitfyTrackSubTitle>
 
-          <SpotifyFeaturedImg src={trackDetails?.album.images[0].url} />
+          {/* <SpotifyFeaturedImg src={trackDetails?.album.images[0].url} /> */}
+          <Draggable3DImage url={trackDetails?.album.images[0].url ?? ""} />
           <BarBigContainer>
             <Flex justify="space-between">
               <SpotifyBarInnerContainerText>0:00</SpotifyBarInnerContainerText>

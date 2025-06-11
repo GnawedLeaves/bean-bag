@@ -42,10 +42,11 @@ import {
   SpotifyButtonSmall,
   SpotifyButtonSmallText,
   SpotifyFeaturedContainer,
-  SpotifyFeaturedImg,
+  SpotifyArtistImg,
   SpotifyRatingContainer,
   SpotifyRatingDisplay,
   SpotifyShareButton,
+  SpotifyTrackPlayButton,
 } from "./SpotifyStyles";
 import {
   formatFirebaseDate,
@@ -58,8 +59,9 @@ import { appTheme } from "../../theme";
 import { ROUTES } from "../../routes";
 import { BaseOptionType } from "antd/es/select";
 import styled from "styled-components";
-import { faCompactDisc } from "@fortawesome/free-solid-svg-icons";
+import { faCompactDisc, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
 
 // Additional styled components for album page
 const AlbumInfoContainer = styled.div`
@@ -363,7 +365,11 @@ const SpotifyAlbumPage = () => {
               return index === 0 ? artist.name : ", " + artist.name;
             })}
           </SpoitfyTrackSubTitle>
-          <SpotifyFeaturedImg src={albumDetails?.images[0]?.url} />
+          <Draggable3DImage
+            songCount={albumDetails?.total_tracks}
+            url={albumDetails?.images[0]?.url ?? ""}
+          />
+          {/* <SpotifyFeaturedImg src={albumDetails?.images[0]?.url} /> */}
           <AlbumInfoContainer>
             <AlbumInfoText>
               {albumDetails?.total_tracks} tracks • Released{" "}
@@ -371,7 +377,16 @@ const SpotifyAlbumPage = () => {
                 formatReleaseDate(albumDetails.release_date)}
             </AlbumInfoText>
           </AlbumInfoContainer>
-          <Flex vertical gap={8} align="center">
+          <SpotifyTrackPlayButton>
+            <a target="_blank" href={albumDetails?.external_urls.spotify}>
+              <FontAwesomeIcon
+                icon={faPlay}
+                color={appTheme.borderColor}
+                fontSize={32}
+              />
+            </a>
+          </SpotifyTrackPlayButton>
+          <Flex vertical gap={8} align="center" style={{ marginTop: 8 }}>
             <SpotifyButtonSmall
               onClick={() => {
                 handleGoToArtist(albumDetails?.artists[0].id);
