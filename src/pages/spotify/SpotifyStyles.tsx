@@ -20,8 +20,8 @@ export const CommentCard = styled.div`
 `;
 export const CommentCardDisplayPic = styled.img`
   width: 50px;
+  height: 50px;
   border-radius: 100%;
-  height: 100%;
   object-fit: cover;
 `;
 export const CommentCardName = styled.div`
@@ -179,6 +179,7 @@ export const SpotifyRatingDisplay = styled.img`
   height: 50px;
   border: 1px solid ${(props) => props.theme.borderColor};
   border-radius: 100%;
+  object-fit: cover;
 `;
 
 export const BarBigContainer = styled.div`

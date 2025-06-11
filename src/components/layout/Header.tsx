@@ -47,12 +47,12 @@ const Header: React.FC = () => {
       label: "Blog",
       path: ROUTES.BLOG?.path || "/blogs",
     },
-    {
-      key: ROUTES.PLANTS?.path || "/plants",
-      icon: <SunOutlined />,
-      label: "Plants",
-      path: ROUTES.PLANTS?.path || "/plants",
-    },
+    // {
+    //   key: ROUTES.PLANTS?.path || "/plants",
+    //   icon: <SunOutlined />,
+    //   label: "Plants",
+    //   path: ROUTES.PLANTS?.path || "/plants",
+    // },
     {
       key: ROUTES.SPOTIFY?.path || "/spotify",
       icon: <SpotifyOutlined />,

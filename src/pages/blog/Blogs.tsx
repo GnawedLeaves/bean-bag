@@ -25,11 +25,12 @@ import {
 } from "./BlogStyles";
 import BlogCalendar from "../../components/blogCalendarComponent/BlogCalendar";
 import dayjs, { Dayjs } from "dayjs";
+import { BlogEntry } from "../../types/blogTypes";
 
 const { Title, Paragraph, Text } = Typography;
 
 const BlogPage: React.FC = () => {
-  const [entries, setEntries] = useState<any[]>([]);
+  const [entries, setEntries] = useState<BlogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
@@ -101,7 +102,7 @@ const BlogPage: React.FC = () => {
           onDayClick={handleCalendarDayClick}
         />
       </BlogHeroContainer>
-      <BlogBodyPage>hi</BlogBodyPage>
+      <BlogBodyPage></BlogBodyPage>
       <Button
         onClick={() => {
           navigate(ROUTES.UPLOAD.path);

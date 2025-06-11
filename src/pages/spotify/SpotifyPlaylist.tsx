@@ -370,16 +370,6 @@ const SpotifyPlaylistDetailsPage = () => {
       });
   };
 
-  const handleGoToArtist = async (artistId: string) => {
-    if (!spotifyToken || !artistId) return;
-    const response = await getSpotifyArtist(artistId, spotifyToken.accessToken);
-    if (response) {
-      navigate(ROUTES.SPOTIFY_ARTIST.path.replace(":artistId", artistId));
-    } else {
-      console.log("error going to artist", artistId);
-    }
-  };
-
   const handleGoToTrack = (trackId: string) => {
     navigate(ROUTES.SPOTIFY_TRACK.path.replace(":trackId", trackId));
   };
@@ -585,7 +575,6 @@ const SpotifyPlaylistDetailsPage = () => {
               value={newComment}
               placeholder="Write comment"
               onChange={(e) => {
-                console.log(e.target.value);
                 setNewComment(e.target.value);
               }}
               style={{
