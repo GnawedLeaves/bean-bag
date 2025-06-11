@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import { Form, Input, Button, message, Typography, Space } from "antd";
 
-import { useLocationHook } from "../../hooks/useLocation";
-import { uploadImages, createBlogEntry } from "../../services/hygraph";
+import { useLocationHook } from "../../../hooks/useLocation";
+import { uploadImages, createBlogEntry } from "../../../services/hygraph";
 import {
   FormContainer,
   TextArea,

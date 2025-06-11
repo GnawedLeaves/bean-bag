@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
-import BlogEntryForm from "../../components/blogEntryComponents/BlogEntryForm";
+import BlogEntryForm from "../../components/blog/blogEntryComponents/BlogEntryForm";
 
 const UploadContainer = styled.div`
   padding: 1rem;

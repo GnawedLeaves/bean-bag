@@ -57,3 +57,9 @@ export const BlogTopBarSubtitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeMed}px;
   color: ${(props) => props.theme.textSecondary};
 `;
+
+export const BlogEntriesContainer = styled.div`
+  width: 100%;
+`;
+export const BlogEntryContainer = styled.div``;
+export const BlogEntryImagesContainer = styled.div``;

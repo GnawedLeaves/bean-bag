@@ -1,10 +1,10 @@
-interface BlogImage {
+export interface BlogImage {
   __typename: "Asset";
   fileName: string;
   url: string;
 }
 
-interface BlogLocation {
+export interface BlogLocation {
   __typename: "Location";
   latitude: number;
   longitude: number;

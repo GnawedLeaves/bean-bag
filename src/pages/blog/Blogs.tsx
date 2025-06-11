@@ -20,12 +20,14 @@ import { ROUTES } from "../../routes";
 import {
   BlogBodyPage,
   BlogButton,
+  BlogEntriesContainer,
+  BlogEntryContainer,
   BlogHeroContainer,
   BlogMainPage,
   BlogTopBar,
   BlogTopBarSubtitle,
 } from "./BlogStyles";
-import BlogCalendar from "../../components/blogCalendarComponent/BlogCalendar";
+import BlogCalendar from "../../components/blog/blogCalendarComponent/BlogCalendar";
 import dayjs, { Dayjs } from "dayjs";
 import { BlogEntry } from "../../types/blogTypes";
 import { convertISOToDayjs } from "../../utils/utils";
@@ -33,6 +35,7 @@ import {
   getAddressFromCoords,
   getLocationDetails,
 } from "../../services/google";
+import BlogImages from "../../components/blog/blogImagesComponent/BlogImages";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -158,7 +161,13 @@ const BlogPage: React.FC = () => {
       </BlogHeroContainer>
       <BlogBodyPage>
         {dayEntries.length > 0 ? (
-          <></>
+          <BlogEntriesContainer>
+            {dayEntries.map((entry, index) => (
+              <BlogEntryContainer key={index}>
+                <BlogImages images={entry.images} />
+              </BlogEntryContainer>
+            ))}
+          </BlogEntriesContainer>
         ) : (
           <Flex vertical gap={16}>
             No Entry for this date.
