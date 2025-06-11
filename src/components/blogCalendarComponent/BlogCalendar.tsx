@@ -10,11 +10,12 @@ dayjs.extend(weekOfYear);
 interface BlogCalendarProps {
   currentDate: Dayjs;
   onDayClick: (date: Dayjs) => void;
-  blogsDateArray?: Dayjs[];
+  uniqueDates?: Dayjs[];
 }
 
 interface WeekItemDayLabelProps {
   selected?: boolean;
+  hasBlog?: boolean;
 }
 
 interface CalendarArrowProps {
@@ -41,7 +42,7 @@ export const BlogCalendarContainer = styled.div<CalendarBigContainerProps>`
   flex-direction: column;
   gap: 16px;
   padding: 16px ${(props) => props.theme.paddingLg}px;
-  height: ${(props) => (props.weekMode ? "25vh" : "60vh")};
+  height: ${(props) => (props.weekMode ? "250px" : "550px")};
   transition: height 0.5s ease;
   align-items: center;
 `;
@@ -49,20 +50,25 @@ export const BlogCalendarContainer = styled.div<CalendarBigContainerProps>`
 export const BlogCalendarWeekContainer = styled.div`
   display: flex;
   justify-content: center;
+  gap: 4px;
 `;
 
 export const WeekItemContainer = styled.div<WeekItemDayLabelProps>`
   border-radius: 40px;
   border: 2px solid
-    ${(props) => (props.selected ? props.theme.borderColor : "transparent")};
+    ${(props) =>
+      props.selected || props.hasBlog
+        ? props.theme.borderColor
+        : "transparent"};
   padding: 8px 4px 0px 4px;
   display: flex;
   //   gap: 4px;
   flex-direction: column;
   align-items: center;
-  width: 50px;
+  width: 45px;
   height: 80px;
   justify-content: space-around;
+  transition: 0.3s;
   //   margin: 16px 0;
 `;
 export const WeekItemDayLabel = styled.div<WeekItemDayLabelProps>`
@@ -81,6 +87,7 @@ export const WeekItemDayNumber = styled.div<WeekItemDayLabelProps>`
   justify-content: center;
   width: 35px;
   height: 35px;
+  transition: 0.3s;
 `;
 
 export const MonthItemDayNumber = styled(
@@ -88,7 +95,8 @@ export const MonthItemDayNumber = styled(
 )<WeekItemDayLabelProps>`
   background: transparent;
   border: 2px solid
-    ${(props) => (props.selected ? props.theme.text : "transparent")};
+    ${(props) =>
+      props.selected || props.hasBlog ? props.theme.text : "transparent"};
 `;
 
 export const MonthItemDayNumberInner = styled.div<WeekItemDayLabelProps>`
@@ -101,6 +109,7 @@ export const MonthItemDayNumberInner = styled.div<WeekItemDayLabelProps>`
   color: ${(props) =>
     props.selected ? props.theme.colorBg : props.theme.text};
   border-radius: 50%;
+  transition: 0.3s;
 `;
 
 export const CalendarTopBar = styled.div`
@@ -168,7 +177,7 @@ export const CalendarButtonsContainer = styled.div`
 
 const BlogCalendar = ({
   currentDate,
-  blogsDateArray,
+  uniqueDates,
   onDayClick,
 }: BlogCalendarProps) => {
   const [weekMode, setWeekMode] = useState<boolean>(true);
@@ -281,6 +290,9 @@ const BlogCalendar = ({
           <BlogCalendarWeekContainer>
             {weekData.map((day) => (
               <WeekItemContainer
+                hasBlog={uniqueDates?.some((uniqueDate) =>
+                  uniqueDate.isSame(day.date, "day")
+                )}
                 selected={day.date.isSame(currentDate, "day")}
                 key={day.date.toString()}
                 onClick={() => {
@@ -318,6 +330,9 @@ const BlogCalendar = ({
                 >
                   {day.dayNumber !== 0 && (
                     <MonthItemDayNumber
+                      hasBlog={uniqueDates?.some((uniqueDate) =>
+                        uniqueDate.isSame(day.date, "day")
+                      )}
                       selected={day.date.isSame(currentDate, "day")}
                     >
                       <MonthItemDayNumberInner

@@ -9,7 +9,7 @@ export const ROUTES: Record<string, RouteConfig> = {
     name: "Home",
   },
   UPLOAD: {
-    path: "/upload",
+    path: "/upload/:blogDate",
     name: "Upload",
   },
   SPACE: {

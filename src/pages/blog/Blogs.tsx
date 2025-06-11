@@ -9,6 +9,7 @@ import {
   Spin,
   Alert,
   Button,
+  Flex,
 } from "antd";
 import { CalendarOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { getBlogEntries } from "../../services/hygraph";
@@ -18,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes";
 import {
   BlogBodyPage,
+  BlogButton,
   BlogHeroContainer,
   BlogMainPage,
   BlogTopBar,
@@ -26,11 +28,18 @@ import {
 import BlogCalendar from "../../components/blogCalendarComponent/BlogCalendar";
 import dayjs, { Dayjs } from "dayjs";
 import { BlogEntry } from "../../types/blogTypes";
+import { convertISOToDayjs } from "../../utils/utils";
+import {
+  getAddressFromCoords,
+  getLocationDetails,
+} from "../../services/google";
 
 const { Title, Paragraph, Text } = Typography;
 
 const BlogPage: React.FC = () => {
   const [entries, setEntries] = useState<BlogEntry[]>([]);
+  const [dayEntries, setDayEntries] = useState<BlogEntry[]>([]);
+  const [uniqueDates, setUniqueDates] = useState<Dayjs[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
@@ -53,7 +62,14 @@ const BlogPage: React.FC = () => {
 
   useEffect(() => {
     fetchEntries();
+    getStreetLocation(1.3608108, 103.8609839);
   }, []);
+
+  useEffect(() => {
+    if (entries.length > 0) {
+      handleGetAllEntryDates();
+    }
+  }, [entries]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -66,6 +82,43 @@ const BlogPage: React.FC = () => {
 
   const handleCalendarDayClick = (date: Dayjs) => {
     setSelectedDate(date);
+    const filteredEntries = entries.filter((entry) =>
+      convertISOToDayjs(entry.timestamp).isSame(date, "day")
+    );
+    console.log({ filteredEntries });
+
+    setDayEntries(filteredEntries);
+  };
+
+  const handleGoToAddEntry = () => {
+    navigate(
+      ROUTES.UPLOAD.path.replace(":blogDate", selectedDate.format("YYYY-MM-DD"))
+    );
+  };
+
+  const handleGetAllEntryDates = () => {
+    const uniqueDatesMap = new Map();
+
+    entries.forEach((entry) => {
+      const date = convertISOToDayjs(entry.timestamp);
+      const dateKey = date.format("YYYY-MM-DD");
+
+      if (!uniqueDatesMap.has(dateKey)) {
+        uniqueDatesMap.set(dateKey, date);
+      }
+    });
+
+    const dates = Array.from(uniqueDatesMap.values());
+
+    console.log({ dates });
+    setUniqueDates(dates);
+  };
+
+  const getStreetLocation = async (latitude: number, longitude: number) => {
+    const location = await getAddressFromCoords(latitude, longitude);
+    console.log({ location });
+
+    return location;
   };
 
   if (loading) {
@@ -100,9 +153,25 @@ const BlogPage: React.FC = () => {
         <BlogCalendar
           currentDate={selectedDate}
           onDayClick={handleCalendarDayClick}
+          uniqueDates={uniqueDates}
         />
       </BlogHeroContainer>
-      <BlogBodyPage></BlogBodyPage>
+      <BlogBodyPage>
+        {dayEntries.length > 0 ? (
+          <></>
+        ) : (
+          <Flex vertical gap={16}>
+            No Entry for this date.
+            <BlogButton
+              onClick={() => {
+                handleGoToAddEntry();
+              }}
+            >
+              Add Entry
+            </BlogButton>
+          </Flex>
+        )}
+      </BlogBodyPage>
       <Button
         onClick={() => {
           navigate(ROUTES.UPLOAD.path);
@@ -140,8 +209,8 @@ const BlogPage: React.FC = () => {
               {entry.location && (
                 <Text type="secondary">
                   <EnvironmentOutlined style={{ marginRight: "0.5rem" }} />
-                  <strong>Location:</strong> {entry.location.latitude},{" "}
-                  {entry.location.longitude}
+                  <strong>Location:</strong>
+                  {entry.location.latitude}, {entry.location.longitude}
                 </Text>
               )}
             </Space>

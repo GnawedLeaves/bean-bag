@@ -4,16 +4,30 @@ declare module "styled-components" {
   export interface DefaultTheme extends AppTheme {}
 }
 export const BlogMainPage = styled.div`
-  background: ${(props) => props.theme.colorBgVoliet};
+  background: ${(props) => props.theme.colorBgPink};
   min-height: 100vh;
+  color: ${(props) => props.theme.text};
 `;
 
 export const BlogHeroContainer = styled.div`
   //   min-height: 50vh;
 `;
 
+export const BlogButton = styled.button`
+  border: none;
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  font-size: ${(props) => props.theme.fontSizeMed}px;
+  padding: 8px;
+  background: ${(props) => props.theme.colorBgPink};
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  color: ${(props) => props.theme.text};
+`;
 export const BlogBodyPage = styled.div`
   padding: ${(props) => props.theme.paddingMed}px;
+  padding-top: ${(props) => props.theme.paddingLg}px;
   background: ${(props) => props.theme.colorBg};
   border: 2px solid ${(props) => props.theme.borderColor};
   border-top-left-radius: 32px;

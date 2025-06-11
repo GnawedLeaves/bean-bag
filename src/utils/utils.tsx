@@ -1,5 +1,5 @@
 import { Timestamp } from "firebase/firestore";
-
+import dayjs from "dayjs";
 export function firebaseDateToJS(date: Timestamp | null): Date | null {
   if (!date) return null;
   return date.toDate();
@@ -56,4 +56,8 @@ export const scrollToTop = () => {
     top: 0,
     behavior: "smooth",
   });
+};
+
+export const convertISOToDayjs = (isoString: string) => {
+  return dayjs(isoString);
 };
