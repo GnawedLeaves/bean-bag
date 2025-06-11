@@ -13,7 +13,7 @@ import {
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
-import { appTheme } from "../../theme";
+import { token } from "../../theme";
 
 const { Header: AntHeader } = Layout;
 
@@ -156,7 +156,7 @@ const Header: React.FC = () => {
       {/* Mobile Bottom Navigation */}
       <div
         className="mobile-bottom-nav"
-        style={{ background: appTheme.colorBgLightYellow }}
+        style={{ background: token.colorBgLightYellow }}
       >
         <div className="nav-container">
           {navigationItems.map((item) => (
@@ -167,10 +167,10 @@ const Header: React.FC = () => {
                 location.pathname === item.path ? "active" : ""
               }`}
             >
-              <div className="nav-icon" style={{ color: appTheme.text }}>
+              <div className="nav-icon" style={{ color: token.text }}>
                 {item.icon}
               </div>
-              <span className="nav-label" style={{ color: appTheme.text }}>
+              <span className="nav-label" style={{ color: token.text }}>
                 {item.label}
               </span>
             </Link>

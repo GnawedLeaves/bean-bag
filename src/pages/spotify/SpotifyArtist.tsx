@@ -51,7 +51,7 @@ import {
 } from "./SpotifyStyles";
 import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
 import { ThemeProvider } from "styled-components";
-import { appTheme } from "../../theme";
+import { token } from "../../theme";
 import { ROUTES } from "../../routes";
 import styled from "styled-components";
 import { TrackListHeader } from "./SpotifyPlaylist";
@@ -360,7 +360,7 @@ const SpotifyArtistPage = () => {
   }, [loading]);
 
   return (
-    <ThemeProvider theme={appTheme}>
+    <ThemeProvider theme={token}>
       <SpotifyBigContainer>
         <SpotifyFeaturedContainer>
           <SpotifyBackButton
@@ -443,7 +443,7 @@ const SpotifyArtistPage = () => {
                   value={
                     reviews.find((r) => r.userId === user?.id)?.rating || 0
                   }
-                  style={{ color: appTheme.text }}
+                  style={{ color: token.text }}
                 />
               </Flex>
             </SpotifyRatingContainer>
@@ -461,7 +461,7 @@ const SpotifyArtistPage = () => {
                           reviews.find((r) => r.userId === userPartner.id)
                             ?.rating || 0
                         }
-                        style={{ color: appTheme.text }}
+                        style={{ color: token.text }}
                       />
                     </Flex>
                   </>
@@ -480,7 +480,7 @@ const SpotifyArtistPage = () => {
         <SpotifyBodyContainer>
           <div
             style={{
-              fontSize: appTheme.fontSizeLg,
+              fontSize: token.fontSizeLg,
               fontWeight: "bold",
             }}
           >
@@ -488,7 +488,7 @@ const SpotifyArtistPage = () => {
           </div>
           <Flex
             justify="space-between"
-            style={{ padding: appTheme.paddingSmall }}
+            style={{ padding: token.paddingSmall }}
             gap={16}
           >
             <Input
@@ -498,9 +498,9 @@ const SpotifyArtistPage = () => {
                 setNewComment(e.target.value);
               }}
               style={{
-                border: `1px solid ${appTheme.borderColor}`,
-                borderRadius: appTheme.borderRadius,
-                background: appTheme.colorBg,
+                border: `1px solid ${token.borderColor}`,
+                borderRadius: token.borderRadius,
+                background: token.colorBg,
               }}
             />
             <CommentButton

@@ -61,7 +61,7 @@ import {
   scrollToTop,
 } from "../../utils/utils";
 import { ThemeProvider } from "styled-components";
-import { appTheme } from "../../theme";
+import { token } from "../../theme";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCompactDisc, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { ROUTES } from "../../routes";
@@ -311,7 +311,7 @@ const SpotifyTrackPage = () => {
   }, [loading]);
 
   return (
-    <ThemeProvider theme={appTheme}>
+    <ThemeProvider theme={token}>
       <SpotifyBigContainer>
         <SpotifyFeaturedContainer>
           <SpotifyBackButton
@@ -359,14 +359,14 @@ const SpotifyTrackPage = () => {
                 handleGoToAlbum();
               }}
             >
-              <FontAwesomeIcon icon={faCompactDisc} color={appTheme.text} />
+              <FontAwesomeIcon icon={faCompactDisc} color={token.text} />
             </SpotifyButtonSmall>
 
             <SpotifyTrackPlayButton>
               <a target="_blank" href={trackDetails?.external_urls.spotify}>
                 <FontAwesomeIcon
                   icon={faPlay}
-                  color={appTheme.borderColor}
+                  color={token.borderColor}
                   fontSize={32}
                 />
               </a>
@@ -389,7 +389,7 @@ const SpotifyTrackPage = () => {
                   value={
                     reviews.find((r) => r.userId === user?.id)?.rating || 0
                   }
-                  style={{ color: appTheme.text }}
+                  style={{ color: token.text }}
                 />
               </Flex>
             </SpotifyRatingContainer>
@@ -407,7 +407,7 @@ const SpotifyTrackPage = () => {
                           reviews.find((r) => r.userId === userPartner.id)
                             ?.rating || 0
                         }
-                        style={{ color: appTheme.text }}
+                        style={{ color: token.text }}
                       />
                     </Flex>
                   </>
@@ -425,7 +425,7 @@ const SpotifyTrackPage = () => {
         <SpotifyBodyContainer>
           <div
             style={{
-              fontSize: appTheme.fontSizeLg,
+              fontSize: token.fontSizeLg,
               fontWeight: "bold",
             }}
           >
@@ -433,7 +433,7 @@ const SpotifyTrackPage = () => {
           </div>
           <Flex
             justify="space-between"
-            style={{ padding: appTheme.paddingSmall }}
+            style={{ padding: token.paddingSmall }}
             gap={16}
           >
             <Input
@@ -443,9 +443,9 @@ const SpotifyTrackPage = () => {
                 setNewComment(e.target.value);
               }}
               style={{
-                border: `1px solid ${appTheme.borderColor}`,
-                borderRadius: appTheme.borderRadius,
-                background: appTheme.colorBg,
+                border: `1px solid ${token.borderColor}`,
+                borderRadius: token.borderRadius,
+                background: token.colorBg,
               }}
             />
             <CommentButton

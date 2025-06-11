@@ -21,14 +21,14 @@ export interface AppTheme {
   fontSizeHuge: number;
 }
 
-export const appTheme = {
+export const token = {
   text: "#261D18",
   textSecondary: "#564C47",
   colorBgRed: "#FF552E",
   colorBgYellow: "#F2A815",
   colorBgLightYellow: "#FED170",
   colorBgVoliet: "#B6ACE4",
-  colorBgPink: "#FFC1C6",
+  colorBgPink: "#F2A297",
   colorBgGreen: "#ABCF82",
   colorBgTeal: "#ADD6B8",
   colorBg: "#F7EBDB",

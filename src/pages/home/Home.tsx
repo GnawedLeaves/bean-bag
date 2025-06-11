@@ -24,7 +24,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes";
-import { appTheme } from "../../theme";
+import { token } from "../../theme";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -81,7 +81,7 @@ const Home: React.FC = () => {
       title: "Our Memories",
       description: "Share and relive our special moments together",
       icon: <BookOutlined style={{ fontSize: "2rem" }} />,
-      color: appTheme.colorBgPink,
+      color: token.colorBgPink,
       route: ROUTES.BLOG?.path || "/blog",
       action: "View Memories",
     },
@@ -89,7 +89,7 @@ const Home: React.FC = () => {
       title: "Our Plants",
       description: "Track and share our growing plant family",
       icon: <ExperimentOutlined style={{ fontSize: "2rem" }} />,
-      color: appTheme.colorBgGreen,
+      color: token.colorBgGreen,
       route: ROUTES.PLANTS?.path || "/plants",
       action: "See Plants",
     },
@@ -97,7 +97,7 @@ const Home: React.FC = () => {
       title: "Space Together",
       description: "Explore the cosmos and NASA's daily discoveries",
       icon: <RocketOutlined style={{ fontSize: "2rem" }} />,
-      color: appTheme.colorBgVoliet,
+      color: token.colorBgVoliet,
       route: ROUTES.SPACE?.path || "/space",
       action: "Explore Space",
     },
@@ -108,22 +108,22 @@ const Home: React.FC = () => {
       title: "Days Together",
       value: daysTogetherCount,
       suffix: "days",
-      icon: <HeartOutlined style={{ color: appTheme.colorBgRed }} />,
-      color: appTheme.colorBgLightYellow,
+      icon: <HeartOutlined style={{ color: token.colorBgRed }} />,
+      color: token.colorBgLightYellow,
     },
     {
       title: "Memories Shared",
       value: recentEntries.length,
       suffix: "posts",
-      icon: <CameraOutlined style={{ color: appTheme.colorBgRed }} />,
-      color: appTheme.colorBgPink,
+      icon: <CameraOutlined style={{ color: token.colorBgRed }} />,
+      color: token.colorBgPink,
     },
     {
       title: "Love Level",
       value: 100,
       suffix: "%",
-      icon: <StarOutlined style={{ color: appTheme.colorBgRed }} />,
-      color: appTheme.colorBgGreen,
+      icon: <StarOutlined style={{ color: token.colorBgRed }} />,
+      color: token.colorBgGreen,
     },
   ];
 
@@ -132,7 +132,7 @@ const Home: React.FC = () => {
       <div
         style={{
           padding: "2rem",
-          backgroundColor: appTheme.colorBg,
+          backgroundColor: token.colorBg,
           minHeight: "100vh",
           display: "flex",
           justifyContent: "center",
@@ -141,10 +141,10 @@ const Home: React.FC = () => {
       >
         <Space direction="vertical" align="center">
           <HeartOutlined
-            style={{ fontSize: "3rem", color: appTheme.colorBgRed }}
+            style={{ fontSize: "3rem", color: token.colorBgRed }}
             spin
           />
-          <Text style={{ color: appTheme.text }}>
+          <Text style={{ color: token.text }}>
             Loading our special space...
           </Text>
         </Space>
@@ -156,7 +156,7 @@ const Home: React.FC = () => {
     <div
       style={{
         padding: "2rem",
-        backgroundColor: appTheme.colorBg,
+        backgroundColor: token.colorBg,
         minHeight: "100vh",
       }}
     >
@@ -178,14 +178,14 @@ const Home: React.FC = () => {
                 {stat.icon}
                 <Statistic
                   title={
-                    <Text style={{ color: appTheme.text, fontWeight: "600" }}>
+                    <Text style={{ color: token.text, fontWeight: "600" }}>
                       {stat.title}
                     </Text>
                   }
                   value={stat.value}
                   suffix={stat.suffix}
                   valueStyle={{
-                    color: appTheme.text,
+                    color: token.text,
                     fontSize: "2rem",
                     fontWeight: "bold",
                   }}
@@ -200,7 +200,7 @@ const Home: React.FC = () => {
       <Title
         level={2}
         style={{
-          color: appTheme.text,
+          color: token.text,
           marginBottom: "2rem",
           textAlign: "center",
         }}
@@ -233,8 +233,8 @@ const Home: React.FC = () => {
                   size="large"
                   onClick={() => navigate(card.route)}
                   style={{
-                    backgroundColor: appTheme.colorBgRed,
-                    borderColor: appTheme.colorBgRed,
+                    backgroundColor: token.colorBgRed,
+                    borderColor: token.colorBgRed,
                     fontWeight: "600",
                   }}
                 >
@@ -247,12 +247,12 @@ const Home: React.FC = () => {
                 size="large"
                 style={{ textAlign: "center", flex: 1 }}
               >
-                <div style={{ color: appTheme.text }}>{card.icon}</div>
+                <div style={{ color: token.text }}>{card.icon}</div>
                 <div>
                   <Title
                     level={3}
                     style={{
-                      color: appTheme.text,
+                      color: token.text,
                       marginBottom: "0.5rem",
                       fontWeight: "bold",
                     }}
@@ -261,7 +261,7 @@ const Home: React.FC = () => {
                   </Title>
                   <Paragraph
                     style={{
-                      color: appTheme.text,
+                      color: token.text,
                       fontSize: "1rem",
                       margin: 0,
                     }}
@@ -279,9 +279,9 @@ const Home: React.FC = () => {
       {recentEntries.length > 0 && (
         <Card
           title={
-            <Title level={3} style={{ color: appTheme.text, margin: 0 }}>
+            <Title level={3} style={{ color: token.text, margin: 0 }}>
               <GiftOutlined
-                style={{ marginRight: "0.5rem", color: appTheme.colorBgRed }}
+                style={{ marginRight: "0.5rem", color: token.colorBgRed }}
               />
               Recent Memories
             </Title>
@@ -290,7 +290,7 @@ const Home: React.FC = () => {
             <Button
               type="link"
               onClick={() => navigate(ROUTES.BLOG?.path || "/blog")}
-              style={{ color: appTheme.colorBgRed, fontWeight: "600" }}
+              style={{ color: token.colorBgRed, fontWeight: "600" }}
             >
               View All
             </Button>
@@ -305,23 +305,23 @@ const Home: React.FC = () => {
         >
           <Timeline
             items={recentEntries.map((entry, index) => ({
-              dot: <CalendarOutlined style={{ color: appTheme.colorBgRed }} />,
+              dot: <CalendarOutlined style={{ color: token.colorBgRed }} />,
               children: (
                 <div key={index}>
                   <Text
                     strong
-                    style={{ color: appTheme.text, fontSize: "1.1rem" }}
+                    style={{ color: token.text, fontSize: "1.1rem" }}
                   >
                     {entry.title}
                   </Text>
                   <br />
-                  <Text type="secondary" style={{ color: appTheme.text }}>
+                  <Text type="secondary" style={{ color: token.text }}>
                     {new Date(entry.timestamp).toLocaleDateString()}
                   </Text>
                   {entry.content && (
                     <>
                       <br />
-                      <Text style={{ color: appTheme.text }}>
+                      <Text style={{ color: token.text }}>
                         {entry.content.substring(0, 100)}
                         {entry.content.length > 100 ? "..." : ""}
                       </Text>
@@ -338,7 +338,7 @@ const Home: React.FC = () => {
       <Card
         style={{
           marginTop: "2rem",
-          background: `linear-gradient(135deg, ${appTheme.colorBgYellow}, ${appTheme.colorBgLightYellow})`,
+          background: `linear-gradient(135deg, ${token.colorBgYellow}, ${token.colorBgLightYellow})`,
           border: "none",
           borderRadius: "16px",
           boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
@@ -347,15 +347,15 @@ const Home: React.FC = () => {
       >
         <Space direction="vertical" size="large">
           <HeartOutlined
-            style={{ fontSize: "3rem", color: appTheme.colorBgRed }}
+            style={{ fontSize: "3rem", color: token.colorBgRed }}
           />
-          <Title level={2} style={{ color: appTheme.text, margin: 0 }}>
+          <Title level={2} style={{ color: token.text, margin: 0 }}>
             Every Day is a Gift with You
           </Title>
           <Paragraph
             style={{
               fontSize: "1.1rem",
-              color: appTheme.text,
+              color: token.text,
               fontStyle: "italic",
               margin: 0,
               maxWidth: "600px",

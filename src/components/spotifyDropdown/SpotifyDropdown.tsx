@@ -1,5 +1,5 @@
 import styled, { ThemeProvider } from "styled-components";
-import { appTheme } from "../../theme";
+import { token } from "../../theme";
 import { useEffect, useRef, useState } from "react";
 import { SmileOutlined } from "@ant-design/icons";
 import { BaseOptionType } from "antd/es/select";
@@ -93,7 +93,7 @@ const SpotifyDropdownComponent = ({
   };
 
   return (
-    <ThemeProvider theme={appTheme}>
+    <ThemeProvider theme={token}>
       <DropdownContainer ref={dropdownRef}>
         <DropdownButton
           dropdownLength={dropdownOptions.length}

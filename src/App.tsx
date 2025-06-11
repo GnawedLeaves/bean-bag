@@ -15,7 +15,7 @@ import { UploadPlantsPage } from "./pages/plant/UploadPlants";
 import { ROUTES } from "./routes";
 import { SettingsPage } from "./pages/settings/Settings";
 import BlogPage from "./pages/blog/Blogs";
-import { appTheme } from "./theme";
+import { token } from "./theme";
 import SpotifyPage from "./pages/spotify/Spotify";
 import { UserProvider } from "./contexts/UserContext";
 import SpotifyArtistDetailsPage from "./pages/spotify/SpotifyArtist";
@@ -63,7 +63,7 @@ const GlobalStyle = createGlobalStyle`
 const App: React.FC = () => {
   return (
     <ApolloProvider client={client}>
-      <ThemeProvider theme={appTheme}>
+      <ThemeProvider theme={token}>
         <UserProvider>
           <Router>
             <GlobalStyle />

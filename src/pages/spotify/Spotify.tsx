@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useUser } from "../../contexts/UserContext";
 import { ThemeProvider } from "styled-components";
-import { appTheme } from "../../theme";
+import { token } from "../../theme";
 import { Button, Flex, Input, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes";
@@ -479,7 +479,7 @@ const SpotifyPage = () => {
   }, [loading, user]);
 
   return (
-    <ThemeProvider theme={appTheme}>
+    <ThemeProvider theme={token}>
       <SpotifyMain>
         <SpotifyHeroContainer>
           <SpotifyHeroTitle>MUSIC</SpotifyHeroTitle>
@@ -507,9 +507,9 @@ const SpotifyPage = () => {
                   setErrorMessage("");
                 }}
                 style={{
-                  borderColor: appTheme.borderColor,
+                  borderColor: token.borderColor,
                   border: "2px solid",
-                  borderRadius: appTheme.borderRadius,
+                  borderRadius: token.borderRadius,
                   height: 40,
                 }}
               />
@@ -522,15 +522,15 @@ const SpotifyPage = () => {
               </SpotifySearchButton>
             </Flex>
             {errorMessage !== "" && (
-              <div style={{ color: appTheme.colorBgRed }}>{errorMessage}</div>
+              <div style={{ color: token.colorBgRed }}>{errorMessage}</div>
             )}
           </SpotifySearchContainer>
           <Flex gap={16} wrap="wrap" style={{ width: "100%" }} justify="center">
-            <StatsCard background={appTheme.colorBgPink}>
+            <StatsCard background={token.colorBgPink}>
               <StatsCardNumber>{totalReviews}</StatsCardNumber>
               <StatsCardDescription>Ratings added</StatsCardDescription>
             </StatsCard>
-            <StatsCard background={appTheme.colorBgYellow}>
+            <StatsCard background={token.colorBgYellow}>
               <StatsCardNumber>{totalComments}</StatsCardNumber>
               <StatsCardDescription>Comments written</StatsCardDescription>
             </StatsCard>
