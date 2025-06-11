@@ -404,8 +404,6 @@ const SpotifyPage = () => {
           ),
         ]);
 
-      console.log({ allActivity });
-
       // Enrich the activity data
       const enrichedActivity = allActivity.slice(0, 10).map((activity) => {
         let details;
@@ -462,7 +460,6 @@ const SpotifyPage = () => {
         };
       });
 
-      console.log({ enrichedActivity });
       setEnrichedActivity(enrichedActivity);
       setHistoryLoading(false);
     } catch (error) {

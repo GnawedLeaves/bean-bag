@@ -16,6 +16,9 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes";
+import { BlogBodyPage, BlogHeroContainer, BlogMainPage } from "./BlogStyles";
+import BlogCalendar from "../../components/blogCalendarComponent/BlogCalendar";
+import dayjs from "dayjs";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -76,11 +79,11 @@ const BlogPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: "1rem" }}>
-      <Title level={1} style={{ marginBottom: "2rem" }}>
-        My Blog
-      </Title>
-
+    <BlogMainPage>
+      <BlogHeroContainer>
+        <BlogCalendar currentDate={dayjs()} />
+      </BlogHeroContainer>
+      <BlogBodyPage>hi</BlogBodyPage>
       <Button
         onClick={() => {
           navigate(ROUTES.UPLOAD.path);
@@ -88,7 +91,6 @@ const BlogPage: React.FC = () => {
       >
         Add Entry
       </Button>
-
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {entries.map((entry, index) => (
           <Card
@@ -145,13 +147,12 @@ const BlogPage: React.FC = () => {
           </Card>
         ))}
       </Space>
-
       {entries.length === 0 && (
         <div style={{ textAlign: "center", padding: "2rem" }}>
           <Text type="secondary">No blog entries found.</Text>
         </div>
       )}
-    </div>
+    </BlogMainPage>
   );
 };
 

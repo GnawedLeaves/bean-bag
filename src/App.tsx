@@ -25,9 +25,10 @@ import SpotifyPlaylistDetailsPage from "./pages/spotify/SpotifyPlaylist";
 
 const GlobalStyle = createGlobalStyle`
   * {
-    box-sizing: border-box;
-        font-family: 'Josefin Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    font-family: 'Josefin Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
       Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    box-sizing: border-box;
+
   }
   
   body {
@@ -35,7 +36,7 @@ const GlobalStyle = createGlobalStyle`
     padding: 0;
     font-family: 'Josefin Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
       Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background-color: #F7EBDB;
+    background-color: ${token.colorBg};
   }
   
   /* Mobile-friendly responsive styles */
