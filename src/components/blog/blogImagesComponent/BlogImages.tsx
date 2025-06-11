@@ -1,13 +1,139 @@
 import styled from "styled-components";
 import { BlogImage } from "../../../types/blogTypes";
-
+import { useEffect, useState } from "react";
+import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
+import Draggable3DImage from "../../Draggable3DImage/Draggable3DImage";
+import { Draggable3DImageContainer } from "../blogDraggable3DImage/BlogDraggable3DImageStyles";
+import BlogDraggable3DImage from "../blogDraggable3DImage/BlogDraggable3DImage";
 interface BlogImagesProps {
   images: BlogImage[];
+  date: string;
 }
 
-export const BlogImagesContainer = styled.div``;
-const BlogImages = ({ images }: BlogImagesProps) => {
-  return <BlogImagesContainer></BlogImagesContainer>;
+interface BlogImageCardProps {
+  zIndex: number;
+}
+
+export const BlogImagesContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+  align-items: center;
+  gap: 16px;
+  height: 300px;
+`;
+
+export const BlogImageCard = styled.div<BlogImageCardProps>`
+  border: 2px solid ${(props) => props.theme.borderColor};
+  padding: ${(props) => props.theme.paddingMed}px;
+  align-items: center;
+  gap: 8px;
+  width: 200px;
+  height: 300px;
+  background: ${(props) => props.theme.colorBg};
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  position: absolute;
+  z-index: ${(props) => props.zIndex};
+`;
+
+export const BlogImageDateStamp = styled.div`
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  color: ${(props) => props.theme.textSecondary};
+  font-size: ${(props) => props.theme.fontSizeSmall}px;
+  opacity: 0.5;
+  text-align: right;
+`;
+
+export const BlogImagee = styled.img`
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border: 2px solid ${(props) => props.theme.borderColor};
+`;
+
+export const ArrowContainer = styled.div`
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  padding: ${(props) => props.theme.paddingSmall}px;
+  border-radius: 50%;
+  border: 2px solid ${(props) => props.theme.borderColor};
+  color: ${(props) => props.theme.text};
+`;
+
+const BlogImages = ({ images, date }: BlogImagesProps) => {
+  const [pageCount, setPageCount] = useState<number>(0);
+  const maxPages = images.length - 1;
+
+  const generateRandomId = (): string => {
+    const firstLength = Math.floor(Math.random() * 3) + 1; // 2-4 digits
+    const secondLength = Math.floor(Math.random() * 5) + 1; // 1-4 digits
+
+    const firstPart = Math.floor(Math.random() * Math.pow(10, firstLength));
+    const secondPart = Math.floor(Math.random() * Math.pow(10, secondLength));
+
+    return `${firstPart.toString().padStart(2, "0")}-${secondPart
+      .toString()
+      .padStart(5, "0")}`;
+  };
+
+  const handleIncreasePage = () => {
+    if (pageCount + 1 > maxPages) {
+      setPageCount(0);
+    } else {
+      setPageCount((prev) => prev + 1);
+    }
+  };
+
+  const handleDecreasePage = () => {
+    if (pageCount - 1 < 0) {
+      setPageCount(maxPages);
+    } else {
+      setPageCount((prev) => prev - 1);
+    }
+  };
+
+  useEffect(() => {
+    console.log({ pageCount });
+  }, [pageCount]);
+  return (
+    <BlogImagesContainer>
+      {maxPages > 1 && (
+        <ArrowContainer onClick={handleDecreasePage}>
+          <ArrowLeftOutlined />
+        </ArrowContainer>
+      )}
+
+      {images.map((image, index) => {
+        return index === pageCount ? (
+          <BlogDraggable3DImage
+            zIndex={pageCount === index ? maxPages : maxPages - index}
+            src={image.url}
+            date={date}
+            randomId={generateRandomId()}
+          />
+        ) : (
+          <BlogImageCard
+            zIndex={pageCount === index ? maxPages : maxPages - index}
+          >
+            <BlogImagee src={image.url} />
+            <BlogImageDateStamp>
+              {date}
+              <br />
+              {generateRandomId()}
+            </BlogImageDateStamp>
+          </BlogImageCard>
+        );
+      })}
+      {maxPages > 1 && (
+        <ArrowContainer>
+          <ArrowRightOutlined onClick={handleIncreasePage} />
+        </ArrowContainer>
+      )}
+    </BlogImagesContainer>
+  );
 };
 
 export default BlogImages;

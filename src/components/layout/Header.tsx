@@ -44,7 +44,7 @@ const Header: React.FC = () => {
     {
       key: ROUTES.BLOG?.path || "/blogs",
       icon: <BookOutlined />,
-      label: "Blog",
+      label: "Beans",
       path: ROUTES.BLOG?.path || "/blogs",
     },
     // {

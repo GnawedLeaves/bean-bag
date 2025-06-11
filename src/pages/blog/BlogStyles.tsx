@@ -23,10 +23,11 @@ export const BlogButton = styled.button`
   align-items: center;
   justify-content: center;
   display: flex;
+  gap: 4px;
   color: ${(props) => props.theme.text};
 `;
 export const BlogBodyPage = styled.div`
-  padding: ${(props) => props.theme.paddingMed}px;
+  padding: ${(props) => props.theme.paddingLg}px;
   padding-top: ${(props) => props.theme.paddingLg}px;
   background: ${(props) => props.theme.colorBg};
   border: 2px solid ${(props) => props.theme.borderColor};
@@ -44,7 +45,7 @@ export const BlogBodyPage = styled.div`
 export const BlogTopBar = styled.div`
   width: 100%;
   position: relative;
-  padding: 32px 0;
+  padding: 16px 0;
   font-size: ${(props) => props.theme.fontSizeLgg}px;
   font-weight: bold;
   display: flex;
@@ -60,6 +61,28 @@ export const BlogTopBarSubtitle = styled.div`
 
 export const BlogEntriesContainer = styled.div`
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 `;
-export const BlogEntryContainer = styled.div``;
+export const BlogEntryContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
 export const BlogEntryImagesContainer = styled.div``;
+
+export const BlogEntryTitle = styled.div`
+  font-size: ${(props) => props.theme.fontSizeLg}px;
+  font-weight: bold;
+`;
+
+export const BlogEntryContent = styled.div`
+  width: 100%;
+  text-wrap: wrap;
+`;
+
+export const BlogEntryLocation = styled.div`
+  color: ${(props) => props.theme.textSecondary};
+  font-size: ${(props) => props.theme.fontSizeSmall}px;
+`;

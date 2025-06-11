@@ -11,7 +11,12 @@ import {
   Button,
   Flex,
 } from "antd";
-import { CalendarOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import {
+  CalendarOutlined,
+  EnvironmentOutlined,
+  FrownOutlined,
+  SignatureOutlined,
+} from "@ant-design/icons";
 import { getBlogEntries } from "../../services/hygraph";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
@@ -22,6 +27,9 @@ import {
   BlogButton,
   BlogEntriesContainer,
   BlogEntryContainer,
+  BlogEntryContent,
+  BlogEntryLocation,
+  BlogEntryTitle,
   BlogHeroContainer,
   BlogMainPage,
   BlogTopBar,
@@ -30,7 +38,11 @@ import {
 import BlogCalendar from "../../components/blog/blogCalendarComponent/BlogCalendar";
 import dayjs, { Dayjs } from "dayjs";
 import { BlogEntry } from "../../types/blogTypes";
-import { convertISOToDayjs } from "../../utils/utils";
+import {
+  convertISOToDayjs,
+  convertISOToDDMMYYY,
+  convertISOToDDMMYYYHHmm,
+} from "../../utils/utils";
 import {
   getAddressFromCoords,
   getLocationDetails,
@@ -65,12 +77,12 @@ const BlogPage: React.FC = () => {
 
   useEffect(() => {
     fetchEntries();
-    getStreetLocation(1.3608108, 103.8609839);
   }, []);
 
   useEffect(() => {
     if (entries.length > 0) {
       handleGetAllEntryDates();
+      handleCalendarDayClick(dayjs());
     }
   }, [entries]);
 
@@ -83,14 +95,24 @@ const BlogPage: React.FC = () => {
     return () => unsubscribe();
   }, [navigate]);
 
-  const handleCalendarDayClick = (date: Dayjs) => {
+  const handleCalendarDayClick = async (date: Dayjs) => {
     setSelectedDate(date);
     const filteredEntries = entries.filter((entry) =>
       convertISOToDayjs(entry.timestamp).isSame(date, "day")
     );
-    console.log({ filteredEntries });
 
-    setDayEntries(filteredEntries);
+    const entriesWithLocation = await Promise.all(
+      filteredEntries.map(async (entry) => ({
+        ...entry,
+        streetLocation: await getStreetLocation(
+          entry.location.latitude,
+          entry.location.longitude
+        ),
+      }))
+    );
+
+    console.log({ entriesWithLocation });
+    setDayEntries(entriesWithLocation);
   };
 
   const handleGoToAddEntry = () => {
@@ -149,8 +171,8 @@ const BlogPage: React.FC = () => {
   return (
     <BlogMainPage>
       <BlogTopBar>
-        BLOG
-        <BlogTopBarSubtitle>we can dump our shit here!!</BlogTopBarSubtitle>
+        {/* BLOGS
+        <BlogTopBarSubtitle>we can dump our shit here!!</BlogTopBarSubtitle> */}
       </BlogTopBar>
       <BlogHeroContainer>
         <BlogCalendar
@@ -161,94 +183,46 @@ const BlogPage: React.FC = () => {
       </BlogHeroContainer>
       <BlogBodyPage>
         {dayEntries.length > 0 ? (
-          <BlogEntriesContainer>
-            {dayEntries.map((entry, index) => (
-              <BlogEntryContainer key={index}>
-                <BlogImages images={entry.images} />
-              </BlogEntryContainer>
-            ))}
-          </BlogEntriesContainer>
+          <>
+            <BlogTopBar>
+              {selectedDate.format("DD MMM")} Bean
+              {dayEntries.length > 1 ? "s" : ""}
+              {/* <BlogTopBarSubtitle>we can dump our shit here!!</BlogTopBarSubtitle> */}
+            </BlogTopBar>
+            <BlogEntriesContainer>
+              {dayEntries.map((entry, index) => (
+                <BlogEntryContainer key={index}>
+                  <BlogImages
+                    images={entry.images}
+                    date={convertISOToDDMMYYY(entry.timestamp)}
+                  />
+                  <Flex vertical gap={8}>
+                    <BlogEntryTitle>{entry.title}</BlogEntryTitle>
+                    <BlogEntryContent>{entry.content}</BlogEntryContent>
+                    <BlogEntryLocation>
+                      {convertISOToDDMMYYYHHmm(entry.timestamp)} •{" "}
+                      {entry.streetLocation?.street},{" "}
+                      {entry.streetLocation?.country}
+                    </BlogEntryLocation>
+                  </Flex>
+                </BlogEntryContainer>
+              ))}
+            </BlogEntriesContainer>{" "}
+          </>
         ) : (
-          <Flex vertical gap={16}>
-            No Entry for this date.
+          <Flex vertical gap={16} align="center">
+            {/* <FrownOutlined /> */}
+            No Beans for this date.
             <BlogButton
               onClick={() => {
                 handleGoToAddEntry();
               }}
             >
-              Add Entry
+              <SignatureOutlined /> Add Bean
             </BlogButton>
           </Flex>
         )}
       </BlogBodyPage>
-      <Button
-        onClick={() => {
-          navigate(ROUTES.UPLOAD.path);
-        }}
-      >
-        Add Entry
-      </Button>
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        {entries.map((entry, index) => (
-          <Card
-            key={index}
-            hoverable
-            style={{ width: "100%" }}
-            bodyStyle={{ padding: "1.5rem" }}
-          >
-            <Title level={2} style={{ marginBottom: "1rem" }}>
-              {entry.title}
-            </Title>
-
-            <Paragraph style={{ marginBottom: "1rem", fontSize: "16px" }}>
-              {entry.content}
-            </Paragraph>
-
-            <Space
-              direction="vertical"
-              size="small"
-              style={{ marginBottom: "1rem" }}
-            >
-              <Text type="secondary">
-                <CalendarOutlined style={{ marginRight: "0.5rem" }} />
-                <strong>Posted on:</strong>{" "}
-                {new Date(entry.timestamp).toLocaleString()}
-              </Text>
-
-              {entry.location && (
-                <Text type="secondary">
-                  <EnvironmentOutlined style={{ marginRight: "0.5rem" }} />
-                  <strong>Location:</strong>
-                  {entry.location.latitude}, {entry.location.longitude}
-                </Text>
-              )}
-            </Space>
-
-            {entry.images && entry.images.length > 0 && (
-              <Row gutter={[8, 8]}>
-                {entry.images.map((img: any, i: number) => (
-                  <Col key={i}>
-                    <Image
-                      width={100}
-                      src={img.url}
-                      alt={img.fileName}
-                      style={{
-                        borderRadius: "4px",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </Col>
-                ))}
-              </Row>
-            )}
-          </Card>
-        ))}
-      </Space>
-      {entries.length === 0 && (
-        <div style={{ textAlign: "center", padding: "2rem" }}>
-          <Text type="secondary">No blog entries found.</Text>
-        </div>
-      )}
     </BlogMainPage>
   );
 };

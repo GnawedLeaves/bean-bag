@@ -61,3 +61,11 @@ export const scrollToTop = () => {
 export const convertISOToDayjs = (isoString: string) => {
   return dayjs(isoString);
 };
+
+export const convertISOToDDMMYYYHHmm = (isoString: string): string => {
+  return dayjs(isoString).format("DD MMM YYYY HH:mm");
+};
+
+export const convertISOToDDMMYYY = (isoString: string): string => {
+  return dayjs(isoString).format("DD/MM/YYYY");
+};

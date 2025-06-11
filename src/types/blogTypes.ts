@@ -17,4 +17,11 @@ export interface BlogEntry {
   timestamp: string;
   images: BlogImage[];
   location: BlogLocation;
+  streetLocation?: BlogStreetLocation;
+}
+
+export interface BlogStreetLocation {
+  street: string;
+  country: string;
+  fullAddress: any;
 }

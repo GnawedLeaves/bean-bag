@@ -3,7 +3,12 @@ import weekday from "dayjs/plugin/weekday";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import {
+  InfoCircleOutlined,
+  LeftOutlined,
+  RightOutlined,
+} from "@ant-design/icons";
+import { Flex } from "antd";
 dayjs.extend(weekday);
 dayjs.extend(weekOfYear);
 
@@ -173,6 +178,18 @@ export const CalendarWrapper = styled.div`
 export const CalendarButtonsContainer = styled.div`
   display: flex;
   gap: 8px;
+`;
+
+export const CalendarToolTip = styled.div<CalendarBigContainerProps>`
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  display: flex;
+  padding: ${(props) => props.theme.paddingMed}px;
+  align-items: center;
+  gap: 8px;
+  width: 200px;
+  transition: 0.5s;
+  opacity: ${(props) => (props.weekMode ? 0 : 1)};
 `;
 
 const BlogCalendar = ({
@@ -366,6 +383,15 @@ const BlogCalendar = ({
           Today
         </ExpandButton>
       </CalendarButtonsContainer>
+
+      <CalendarToolTip weekMode={weekMode}>
+        <Flex align="flex-start" style={{ height: "100%" }}>
+          <InfoCircleOutlined />
+        </Flex>
+        <Flex align="flex-start" style={{ height: "100%" }}>
+          Outline means there is a bean there
+        </Flex>
+      </CalendarToolTip>
     </BlogCalendarContainer>
   );
 };
