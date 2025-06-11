@@ -31,8 +31,13 @@ import {
   RecentReviewedTitle,
   SpotifyAlbumContainer,
   SpotifyHeroContainer,
+  SpotifyHeroSubtitle,
+  SpotifyHeroTitle,
   SpotifyMain,
   SpotifyMainBodyContainer,
+  SpotifyRecentlyContainer,
+  SpotifyRecentlyImg,
+  SpotifyRecentlyTitle,
   SpotifySearchButton,
   SpotifySearchContainer,
   SpotifySearchSubtitle,
@@ -108,7 +113,7 @@ const SpotifyPage = () => {
     }
   };
 
-  const handleGoToTrackDetails = async () => {
+  const handleGoToSpotifyDetails = async () => {
     const linkObj = extractSpotifyLinkInfo(inputTrackLink);
     //track
     if (linkObj?.type === "track" && spotifyToken) {
@@ -314,7 +319,6 @@ const SpotifyPage = () => {
         };
       });
 
-      console.log({ enrichedData });
       setEnrichedSearchHistory(enrichedData);
     } catch (error) {
       console.error("Error fetching search history:", error);
@@ -394,6 +398,8 @@ const SpotifyPage = () => {
           ),
         ]);
 
+      console.log({ allActivity });
+
       // Enrich the activity data
       const enrichedActivity = allActivity.slice(0, 10).map((activity) => {
         let details;
@@ -450,6 +456,7 @@ const SpotifyPage = () => {
         };
       });
 
+      console.log({ enrichedActivity });
       setEnrichedActivity(enrichedActivity);
     } catch (error) {
       console.error("Error fetching activity:", error);
@@ -467,7 +474,12 @@ const SpotifyPage = () => {
   return (
     <ThemeProvider theme={appTheme}>
       <SpotifyMain>
-        <SpotifyHeroContainer>MUSIC</SpotifyHeroContainer>
+        <SpotifyHeroContainer>
+          <SpotifyHeroTitle>MUSIC</SpotifyHeroTitle>
+          <SpotifyHeroSubtitle>
+            So that we can rate and comment on each other's music
+          </SpotifyHeroSubtitle>
+        </SpotifyHeroContainer>
 
         <SpotifyMainBodyContainer>
           <SpotifySearchContainer>
@@ -496,7 +508,7 @@ const SpotifyPage = () => {
               />
               <SpotifySearchButton
                 onClick={() => {
-                  handleGoToTrackDetails();
+                  handleGoToSpotifyDetails();
                 }}
               >
                 {isTrackLoading ? <Spin size="default" /> : "Find"}
@@ -518,10 +530,12 @@ const SpotifyPage = () => {
           </Flex>
 
           <RecentReviewedContainer>
-            <RecentReviewedTitle>Recently Reviewed</RecentReviewedTitle>
-            <Flex vertical gap={8}>
-              {enrichedActivity.map((activity) => (
-                <SpotifyAlbumContainer
+            <RecentReviewedTitle>
+              Recently Reviewed / Commented
+            </RecentReviewedTitle>
+            <Flex vertical gap={8} justify="center">
+              {enrichedActivity.slice(0, 10).map((activity) => (
+                <SpotifyRecentlyContainer
                   key={activity.id}
                   onClick={() => {
                     const route =
@@ -548,23 +562,22 @@ const SpotifyPage = () => {
                   }}
                 >
                   <Flex gap={8} align="center">
-                    <img
-                      src={activity.imageUrl}
-                      alt=""
-                      style={{ width: 40, height: 40, borderRadius: 8 }}
-                    />
-                    <Flex vertical>
-                      <ItemTitle>
-                        {activity.activityType === "review" ? "⭐" : "💬"}{" "}
+                    <SpotifyRecentlyImg src={activity.imageUrl} alt="" />
+                    <Flex vertical gap={4}>
+                      <SpotifyRecentlyTitle>
                         {activity.displayName}
-                      </ItemTitle>
+                      </SpotifyRecentlyTitle>
                       <ItemSubtitle>
-                        {activity.username} • {activity.artist} •{" "}
+                        {activity.type !== "artist" && activity.artist}{" "}
+                      </ItemSubtitle>
+                      <ItemSubtitle>
+                        {activity.username} •
                         {formatFirebaseDate(activity.dateAdded)}
                       </ItemSubtitle>
                     </Flex>
                   </Flex>
-                </SpotifyAlbumContainer>
+                  {activity.activityType === "review" ? "⭐" : "💬"}{" "}
+                </SpotifyRecentlyContainer>
               ))}
             </Flex>
           </RecentReviewedContainer>
@@ -606,7 +619,9 @@ const SpotifyPage = () => {
                       style={{ width: 40, height: 40, borderRadius: 8 }}
                     />
                     <Flex vertical>
-                      <ItemTitle>{item.displayName}</ItemTitle>
+                      <SpotifyRecentlyTitle>
+                        {item.displayName}
+                      </SpotifyRecentlyTitle>
                       <ItemSubtitle>
                         {item.username} • {item.artist} • {item.type} •{" "}
                         {item.dateAdded}

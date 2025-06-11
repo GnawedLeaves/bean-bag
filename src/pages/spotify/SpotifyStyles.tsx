@@ -275,10 +275,19 @@ export const SpotifyHeroContainer = styled.div`
   height: 200px;
   padding: ${(props) => props.theme.paddingMed}px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 8px;
+`;
+export const SpotifyHeroTitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeHuge}px;
   font-weight: bold;
+`;
+
+export const SpotifyHeroSubtitle = styled.div`
+  width: 80%;
+  text-align: center;
 `;
 
 export const SpotifyMainBodyContainer = styled.div`
@@ -354,3 +363,31 @@ export const RecentReviewedTitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeLg}px;
   font-weight: bold;
 `;
+
+export const SpotifyRecentlyContainer = styled.div`
+  display: flex;
+  padding: ${(props) => props.theme.paddingMed}px;
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  background: ${(props) => props.theme.colorBg};
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const SpotifyRecentlyImg = styled.img`
+  width: 60px;
+  border-radius: 50%;
+  border: 2px solid ${(props) => props.theme.borderColor};
+`;
+export const SpotifyRecentlyTitle = styled.div`
+  font-size: ${(props) => props.theme.fontSizeMed}px;
+  font-weight: bold;
+  color: ${(props) => props.theme.text};
+`;
+
+export const SpotifyMainItemContainer = styled.div`
+  width: 200px;
+  background: red;
+`;
+
+export const SpotifyMainAlbumContainer = styled.div``;
