@@ -270,3 +270,27 @@ export interface SpotifyPlaylistTrack {
   is_local: boolean;
   track: SpotifyTrack;
 }
+export interface SearchHistoryItem {
+  id: string;
+  userId: string;
+  username: string;
+  spotifyId: string;
+  type: string;
+  dateAdded: string;
+}
+
+export interface EnrichedActivity extends SpotifyReview, SpotifyComment {
+  details?: SpotifyTrack | SpotifyAlbum | SpotifyArtist | SpotifyPlaylist;
+  displayName: string;
+  imageUrl: string;
+  artist: string;
+  username: string;
+  activityType: "review" | "comment";
+}
+
+export interface EnrichedHistoryItem extends SearchHistoryItem {
+  details?: SpotifyTrack | SpotifyAlbum | SpotifyArtist | SpotifyPlaylist;
+  displayName: string;
+  imageUrl: string;
+  artist: string;
+}

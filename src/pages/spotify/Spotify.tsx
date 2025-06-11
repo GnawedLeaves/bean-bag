@@ -8,13 +8,28 @@ import { ROUTES } from "../../routes";
 import {
   getSpotifyAlbum,
   getSpotifyArtist,
-  getSpotifyPlaylist,
   getSpotifyTrack,
+  getMultipleSpotifyTracks,
+  getMultipleSpotifyAlbums,
+  getMultipleSpotifyArtists,
+  getSpotifyPlaylist,
 } from "../../services/spotify/spotify";
-import { SpotifyLinkInfo } from "../../types/spotifyTypes";
+import {
+  EnrichedActivity,
+  EnrichedHistoryItem,
+  SearchHistoryItem,
+  SpotifyAlbum,
+  SpotifyArtist,
+  SpotifyComment,
+  SpotifyLinkInfo,
+  SpotifyPlaylist,
+  SpotifyReview,
+  SpotifyTrack,
+} from "../../types/spotifyTypes";
 import {
   RecentReviewedContainer,
   RecentReviewedTitle,
+  SpotifyAlbumContainer,
   SpotifyHeroContainer,
   SpotifyMain,
   SpotifyMainBodyContainer,
@@ -37,14 +52,10 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
 import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
-interface SearchHistoryItem {
-  id: string;
-  userId: string;
-  username: string;
-  spotifyId: string;
-  type: string;
-  dateAdded: string;
-}
+import { ItemTitle, ItemSubtitle } from "./SpotifyArtist";
+
+// First, add these fields to your EnrichedHistoryItem interface
+
 const SpotifyPage = () => {
   const { user, userPartner, spotifyToken, loading } = useUser();
   const navigate = useNavigate();
@@ -61,6 +72,14 @@ const SpotifyPage = () => {
     []
   );
   const [artistHistory, setArtistHistory] = useState<SearchHistoryItem[]>([]);
+  const [totalReviews, setTotalReviews] = useState<number>(0);
+  const [totalComments, setTotalComments] = useState<number>(0);
+  const [recentActivity, setRecentActivity] = useState<Array<any>>([]);
+  // Add these states
+  const [enrichedSearchHistory, setEnrichedSearchHistory] = useState<
+    EnrichedHistoryItem[]
+  >([]);
+  const [enrichedActivity, setEnrichedActivity] = useState<any[]>([]);
 
   const extractSpotifyLinkInfo = (url: string): SpotifyLinkInfo => {
     try {
@@ -213,19 +232,227 @@ const SpotifyPage = () => {
         });
       });
 
+      // Group items by type for batch fetching
       const tracks = historyData.filter((item) => item.type === "track");
       const albums = historyData.filter((item) => item.type === "album");
-      const playlists = historyData.filter((item) => item.type === "playlist");
       const artists = historyData.filter((item) => item.type === "artist");
+      const playlists = historyData.filter((item) => item.type === "playlist");
 
-      // Update all states
-      setSearchHistory(historyData);
-      setTrackHistory(tracks);
-      setAlbumHistory(albums);
-      setPlaylistHistory(playlists);
-      setArtistHistory(artists);
+      // Fetch details for each type
+      const [trackDetails, albumDetails, artistDetails, playlistDetails] =
+        await Promise.all([
+          getMultipleSpotifyTracks(
+            tracks.map((t) => t.spotifyId),
+            spotifyToken?.accessToken || ""
+          ),
+          getMultipleSpotifyAlbums(
+            albums.map((a) => a.spotifyId),
+            spotifyToken?.accessToken || ""
+          ),
+          getMultipleSpotifyArtists(
+            artists.map((a) => a.spotifyId),
+            spotifyToken?.accessToken || ""
+          ),
+          Promise.all(
+            playlists.map((p) =>
+              getSpotifyPlaylist(p.spotifyId, spotifyToken?.accessToken || "")
+            )
+          ),
+        ]);
+
+      // Combine history data with details
+      const enrichedData = historyData.map((item) => {
+        let details;
+        let displayName = "";
+        let imageUrl = "";
+        let artist = "";
+
+        switch (item.type) {
+          case "track":
+            details = trackDetails.find((t) => t.id === item.spotifyId);
+            if (details as SpotifyTrack) {
+              displayName = (details as SpotifyTrack).name;
+              imageUrl = (details as SpotifyTrack).album.images[0]?.url;
+              artist = (details as SpotifyTrack).artists[0]?.name;
+            }
+            break;
+
+          case "album":
+            details = albumDetails.find((a) => a.id === item.spotifyId);
+            if (details as SpotifyAlbum) {
+              displayName = (details as SpotifyAlbum).name;
+              imageUrl = (details as SpotifyAlbum).images[0]?.url;
+              artist = (details as SpotifyAlbum).artists[0]?.name;
+            }
+            break;
+
+          case "artist":
+            details = artistDetails.find((a) => a.id === item.spotifyId);
+            if (details as SpotifyArtist) {
+              displayName = (details as SpotifyArtist).name;
+              imageUrl = (details as SpotifyArtist).images[0]?.url;
+              artist = (details as SpotifyArtist).name;
+            }
+            break;
+
+          case "playlist":
+            details = playlistDetails.find((p) => p.id === item.spotifyId);
+            if (details as SpotifyPlaylist) {
+              displayName = (details as SpotifyPlaylist).name;
+              imageUrl = (details as SpotifyPlaylist).images[0]?.url;
+              artist = (details as SpotifyPlaylist).owner.display_name;
+            }
+            break;
+        }
+
+        return {
+          ...item,
+          details,
+          displayName,
+          imageUrl,
+          artist,
+        };
+      });
+
+      console.log({ enrichedData });
+      setEnrichedSearchHistory(enrichedData);
     } catch (error) {
       console.error("Error fetching search history:", error);
+    }
+  };
+
+  const handleGetAllReviewsAndComments = async () => {
+    try {
+      // Get all reviews for user and partner
+      const reviewQuery = query(
+        collection(db, "anniAppSpotifyReview"),
+        where("userId", "in", [user?.id, userPartner?.id])
+      );
+      const reviewSnapshot = await getDocs(reviewQuery);
+      const reviews = reviewSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          rating: data.rating,
+          spotifyId: data.spotifyId,
+          userId: data.userId,
+          dateAdded: data.dateAdded,
+          type: data.type,
+          activityType: "review",
+        } as SpotifyReview;
+      });
+
+      // Get all comments
+      const commentQuery = query(
+        collection(db, "anniAppSpotifyReviewComment"),
+        where("userId", "in", [user?.id, userPartner?.id])
+      );
+      const commentSnapshot = await getDocs(commentQuery);
+      const comments = commentSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          content: data.content,
+          spotifyId: data.spotifyId,
+          userId: data.userId,
+          dateAdded: data.dateAdded,
+          type: data.type,
+          activityType: "comment",
+        } as SpotifyComment;
+      });
+
+      setTotalReviews(reviews.length);
+      setTotalComments(comments.length);
+
+      const allActivity = [...reviews, ...comments].sort(
+        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
+      );
+
+      // Group items by type for batch fetching
+      const tracks: string[] = [];
+      const albums: string[] = [];
+      const artists: string[] = [];
+      const playlists: string[] = [];
+
+      allActivity.forEach((activity) => {
+        if (activity.type === "track") tracks.push(activity.spotifyId);
+        if (activity.type === "album") albums.push(activity.spotifyId);
+        if (activity.type === "artist") artists.push(activity.spotifyId);
+        if (activity.type === "playlist") playlists.push(activity.spotifyId);
+      });
+
+      // Fetch all details in parallel
+      const [trackDetails, albumDetails, artistDetails, playlistDetails] =
+        await Promise.all([
+          getMultipleSpotifyTracks(tracks, spotifyToken?.accessToken || ""),
+          getMultipleSpotifyAlbums(albums, spotifyToken?.accessToken || ""),
+          getMultipleSpotifyArtists(artists, spotifyToken?.accessToken || ""),
+          Promise.all(
+            playlists.map((p) =>
+              getSpotifyPlaylist(p, spotifyToken?.accessToken || "")
+            )
+          ),
+        ]);
+
+      // Enrich the activity data
+      const enrichedActivity = allActivity.slice(0, 10).map((activity) => {
+        let details;
+        let displayName = "";
+        let imageUrl = "";
+        let artist = "";
+
+        switch (activity.type) {
+          case "track":
+            details = trackDetails.find((t) => t.id === activity.spotifyId);
+            if (details as SpotifyTrack) {
+              displayName = (details as SpotifyTrack).name;
+              imageUrl = (details as SpotifyTrack).album.images[0]?.url;
+              artist = (details as SpotifyTrack).artists[0]?.name;
+            }
+            break;
+
+          case "album":
+            details = albumDetails.find((a) => a.id === activity.spotifyId);
+            if (details as SpotifyAlbum) {
+              displayName = (details as SpotifyAlbum).name;
+              imageUrl = (details as SpotifyAlbum).images[0]?.url;
+              artist = (details as SpotifyAlbum).artists[0]?.name;
+            }
+            break;
+
+          case "artist":
+            details = artistDetails.find((a) => a.id === activity.spotifyId);
+            if (details as SpotifyArtist) {
+              displayName = (details as SpotifyArtist).name;
+              imageUrl = (details as SpotifyArtist).images[0]?.url;
+              artist = (details as SpotifyArtist).name;
+            }
+            break;
+
+          case "playlist":
+            details = playlistDetails.find((p) => p.id === activity.spotifyId);
+            if (details as SpotifyPlaylist) {
+              displayName = (details as SpotifyPlaylist).name;
+              imageUrl = (details as SpotifyPlaylist).images[0]?.url;
+              artist = (details as SpotifyPlaylist).owner.display_name;
+            }
+            break;
+        }
+
+        return {
+          ...activity,
+          details,
+          displayName,
+          imageUrl,
+          artist,
+          username:
+            activity.userId === user?.id ? user.name : userPartner?.name,
+        };
+      });
+
+      setEnrichedActivity(enrichedActivity);
+    } catch (error) {
+      console.error("Error fetching activity:", error);
     }
   };
 
@@ -233,6 +460,7 @@ const SpotifyPage = () => {
     if (!loading && user) {
       handleGetSearchHistory();
       scrollToTop();
+      handleGetAllReviewsAndComments();
     }
   }, [loading, user]);
 
@@ -278,25 +506,116 @@ const SpotifyPage = () => {
               <div style={{ color: appTheme.colorBgRed }}>{errorMessage}</div>
             )}
           </SpotifySearchContainer>
-          <Flex
-            gap={16}
-            wrap={"wrap"}
-            style={{ width: "100%" }}
-            justify="center"
-          >
+          <Flex gap={16} wrap="wrap" style={{ width: "100%" }} justify="center">
             <StatsCard background={appTheme.colorBgPink}>
-              <StatsCardNumber>123</StatsCardNumber>
+              <StatsCardNumber>{totalReviews}</StatsCardNumber>
               <StatsCardDescription>Ratings added</StatsCardDescription>
-            </StatsCard>{" "}
+            </StatsCard>
             <StatsCard background={appTheme.colorBgYellow}>
-              <StatsCardNumber>69</StatsCardNumber>
+              <StatsCardNumber>{totalComments}</StatsCardNumber>
               <StatsCardDescription>Comments written</StatsCardDescription>
             </StatsCard>
           </Flex>
 
           <RecentReviewedContainer>
             <RecentReviewedTitle>Recently Reviewed</RecentReviewedTitle>
-            yo
+            <Flex vertical gap={8}>
+              {enrichedActivity.map((activity) => (
+                <SpotifyAlbumContainer
+                  key={activity.id}
+                  onClick={() => {
+                    const route =
+                      activity.type === "track"
+                        ? ROUTES.SPOTIFY_TRACK.path.replace(
+                            ":trackId",
+                            activity.spotifyId
+                          )
+                        : activity.type === "album"
+                        ? ROUTES.SPOTIFY_ALBUM.path.replace(
+                            ":albumId",
+                            activity.spotifyId
+                          )
+                        : activity.type === "artist"
+                        ? ROUTES.SPOTIFY_ARTIST.path.replace(
+                            ":artistId",
+                            activity.spotifyId
+                          )
+                        : ROUTES.SPOTIFY_PLAYLIST.path.replace(
+                            ":playlistId",
+                            activity.spotifyId
+                          );
+                    navigate(route);
+                  }}
+                >
+                  <Flex gap={8} align="center">
+                    <img
+                      src={activity.imageUrl}
+                      alt=""
+                      style={{ width: 40, height: 40, borderRadius: 8 }}
+                    />
+                    <Flex vertical>
+                      <ItemTitle>
+                        {activity.activityType === "review" ? "⭐" : "💬"}{" "}
+                        {activity.displayName}
+                      </ItemTitle>
+                      <ItemSubtitle>
+                        {activity.username} • {activity.artist} •{" "}
+                        {formatFirebaseDate(activity.dateAdded)}
+                      </ItemSubtitle>
+                    </Flex>
+                  </Flex>
+                </SpotifyAlbumContainer>
+              ))}
+            </Flex>
+          </RecentReviewedContainer>
+
+          <RecentReviewedContainer>
+            <RecentReviewedTitle>Recent Searches</RecentReviewedTitle>
+            <Flex vertical gap={8}>
+              {enrichedSearchHistory.slice(0, 10).map((item) => (
+                <SpotifyAlbumContainer
+                  key={item.id}
+                  onClick={() => {
+                    const route =
+                      item.type === "track"
+                        ? ROUTES.SPOTIFY_TRACK.path.replace(
+                            ":trackId",
+                            item.spotifyId
+                          )
+                        : item.type === "album"
+                        ? ROUTES.SPOTIFY_ALBUM.path.replace(
+                            ":albumId",
+                            item.spotifyId
+                          )
+                        : item.type === "artist"
+                        ? ROUTES.SPOTIFY_ARTIST.path.replace(
+                            ":artistId",
+                            item.spotifyId
+                          )
+                        : ROUTES.SPOTIFY_PLAYLIST.path.replace(
+                            ":playlistId",
+                            item.spotifyId
+                          );
+                    navigate(route);
+                  }}
+                >
+                  <Flex gap={8} align="center">
+                    <img
+                      src={item.imageUrl}
+                      alt=""
+                      style={{ width: 40, height: 40, borderRadius: 8 }}
+                    />
+                    <Flex vertical>
+                      <ItemTitle>{item.displayName}</ItemTitle>
+                      <ItemSubtitle>
+                        {item.username} • {item.artist} • {item.type} •{" "}
+                        {item.dateAdded}
+                      </ItemSubtitle>
+                    </Flex>
+                  </Flex>
+                </SpotifyAlbumContainer>
+              ))}
+            </Flex>
           </RecentReviewedContainer>
         </SpotifyMainBodyContainer>
       </SpotifyMain>
