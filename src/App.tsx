@@ -28,7 +28,6 @@ const GlobalStyle = createGlobalStyle`
     font-family: 'Josefin Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
       Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     box-sizing: border-box;
-
   }
   
   body {

@@ -21,6 +21,7 @@ import {
   BlogHeroContainer,
   BlogMainPage,
   BlogTopBar,
+  BlogTopBarSubtitle,
 } from "./BlogStyles";
 import BlogCalendar from "../../components/blogCalendarComponent/BlogCalendar";
 import dayjs, { Dayjs } from "dayjs";
@@ -90,7 +91,10 @@ const BlogPage: React.FC = () => {
 
   return (
     <BlogMainPage>
-      <BlogTopBar></BlogTopBar>
+      <BlogTopBar>
+        BLOG
+        <BlogTopBarSubtitle>we can dump our shit here!!</BlogTopBarSubtitle>
+      </BlogTopBar>
       <BlogHeroContainer>
         <BlogCalendar
           currentDate={selectedDate}

@@ -29,8 +29,17 @@ export const BlogBodyPage = styled.div`
 
 export const BlogTopBar = styled.div`
   width: 100%;
-  // background: red;
   position: relative;
-  height: 32px;
-  padding: 16px 0;
+  padding: 32px 0;
+  font-size: ${(props) => props.theme.fontSizeLgg}px;
+  font-weight: bold;
+  display: flex;
+  gap: 4px;
+  flex-direction: column;
+  align-items: center;
+`;
+
+export const BlogTopBarSubtitle = styled.div`
+  font-size: ${(props) => props.theme.fontSizeMed}px;
+  color: ${(props) => props.theme.textSecondary};
 `;

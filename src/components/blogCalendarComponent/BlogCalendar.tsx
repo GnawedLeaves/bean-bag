@@ -41,7 +41,7 @@ export const BlogCalendarContainer = styled.div<CalendarBigContainerProps>`
   flex-direction: column;
   gap: 16px;
   padding: 16px ${(props) => props.theme.paddingLg}px;
-  height: ${(props) => (props.weekMode ? "25vh" : "55vh")};
+  height: ${(props) => (props.weekMode ? "25vh" : "60vh")};
   transition: height 0.5s ease;
   align-items: center;
 `;
@@ -53,7 +53,7 @@ export const BlogCalendarWeekContainer = styled.div`
 
 export const WeekItemContainer = styled.div<WeekItemDayLabelProps>`
   border-radius: 40px;
-  border: 1px solid
+  border: 2px solid
     ${(props) => (props.selected ? props.theme.borderColor : "transparent")};
   padding: 8px 4px 0px 4px;
   display: flex;
@@ -87,7 +87,7 @@ export const MonthItemDayNumber = styled(
   WeekItemDayNumber
 )<WeekItemDayLabelProps>`
   background: transparent;
-  border: 1px solid
+  border: 2px solid
     ${(props) => (props.selected ? props.theme.text : "transparent")};
 `;
 
@@ -98,6 +98,8 @@ export const MonthItemDayNumberInner = styled.div<WeekItemDayLabelProps>`
   align-items: center;
   justify-content: center;
   background: ${(props) => (props.selected ? props.theme.text : "transparent")};
+  color: ${(props) =>
+    props.selected ? props.theme.colorBg : props.theme.text};
   border-radius: 50%;
 `;
 
@@ -122,7 +124,7 @@ export const CalendarArrow = styled.div<CalendarArrowProps>`
 
 export const ExpandButton = styled.button`
   border: none;
-  border: 1px solid ${(props) => props.theme.borderColor};
+  border: 2px solid ${(props) => props.theme.borderColor};
   border-radius: ${(props) => props.theme.borderRadius}px;
   padding: ${(props) => props.theme.paddingSmall}px
     ${(props) => props.theme.paddingMed}px;
@@ -157,6 +159,11 @@ export const MonthDayLabelContainer = styled.div`
 
 export const CalendarWrapper = styled.div`
   margin: 16px 0;
+`;
+
+export const CalendarButtonsContainer = styled.div`
+  display: flex;
+  gap: 8px;
 `;
 
 const BlogCalendar = ({
@@ -327,13 +334,23 @@ const BlogCalendar = ({
         )}
       </CalendarWrapper>
 
-      <ExpandButton
-        onClick={() => {
-          setWeekMode(!weekMode);
-        }}
-      >
-        {weekMode ? "Show more" : "Show less"}
-      </ExpandButton>
+      <CalendarButtonsContainer>
+        <ExpandButton
+          onClick={() => {
+            setWeekMode(!weekMode);
+          }}
+        >
+          {weekMode ? "Show more" : "Show less"}
+        </ExpandButton>
+        <ExpandButton
+          onClick={() => {
+            setDateState(dayjs());
+            onDayClick(dayjs());
+          }}
+        >
+          Today
+        </ExpandButton>
+      </CalendarButtonsContainer>
     </BlogCalendarContainer>
   );
 };
