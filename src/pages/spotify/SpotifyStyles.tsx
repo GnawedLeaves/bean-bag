@@ -362,6 +362,7 @@ export const RecentReviewedContainer = styled.div`
 export const RecentReviewedTitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeLg}px;
   font-weight: bold;
+  margin-bottom: 16px;
 `;
 
 export const SpotifyRecentlyContainer = styled.div`
@@ -385,9 +386,32 @@ export const SpotifyRecentlyTitle = styled.div`
   color: ${(props) => props.theme.text};
 `;
 
-export const SpotifyMainItemContainer = styled.div`
-  width: 200px;
-  background: red;
+export const SpotifyHistoryItemContainer = styled.div`
+  padding: ${(props) => props.theme.paddingMed}px;
+  // width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  // border: 2px solid ${(props) => props.theme.borderColor};
 `;
 
-export const SpotifyMainAlbumContainer = styled.div``;
+export const SpotifyHistoryTrackImg = styled.img`
+  width: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+`;
+
+export const SpotifyHistoryAlbumImg = styled.img`
+  width: 100px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  object-fit: cover;
+`;
+
+export const SpotifyHistoryArtistImg = styled.img`
+  width: 100px;
+  height: 150px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  object-fit: cover;
+`;

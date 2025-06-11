@@ -33,6 +33,10 @@ import {
   SpotifyHeroContainer,
   SpotifyHeroSubtitle,
   SpotifyHeroTitle,
+  SpotifyHistoryAlbumImg,
+  SpotifyHistoryArtistImg,
+  SpotifyHistoryItemContainer,
+  SpotifyHistoryTrackImg,
   SpotifyMain,
   SpotifyMainBodyContainer,
   SpotifyRecentlyContainer,
@@ -584,9 +588,14 @@ const SpotifyPage = () => {
 
           <RecentReviewedContainer>
             <RecentReviewedTitle>Recent Searches</RecentReviewedTitle>
-            <Flex vertical gap={8}>
+            <Flex
+              gap={16}
+              wrap={"wrap"}
+              style={{ width: "100%" }}
+              justify="center"
+            >
               {enrichedSearchHistory.slice(0, 10).map((item) => (
-                <SpotifyAlbumContainer
+                <SpotifyHistoryItemContainer
                   key={item.id}
                   onClick={() => {
                     const route =
@@ -612,23 +621,29 @@ const SpotifyPage = () => {
                     navigate(route);
                   }}
                 >
-                  <Flex gap={8} align="center">
-                    <img
-                      src={item.imageUrl}
-                      alt=""
-                      style={{ width: 40, height: 40, borderRadius: 8 }}
-                    />
-                    <Flex vertical>
-                      <SpotifyRecentlyTitle>
-                        {item.displayName}
-                      </SpotifyRecentlyTitle>
-                      <ItemSubtitle>
-                        {item.username} • {item.artist} • {item.type} •{" "}
-                        {item.dateAdded}
-                      </ItemSubtitle>
-                    </Flex>
+                  {item.type === "track" && (
+                    <SpotifyHistoryTrackImg src={item.imageUrl} alt="" />
+                  )}
+
+                  {item.type === "artist" && (
+                    <SpotifyHistoryArtistImg src={item.imageUrl} alt="" />
+                  )}
+
+                  {item.type === "album" ||
+                    (item.type === "playlist" && (
+                      <SpotifyHistoryAlbumImg src={item.imageUrl} alt="" />
+                    ))}
+
+                  <Flex gap={8} align="center" vertical>
+                    <SpotifyRecentlyTitle>
+                      {item.displayName}
+                    </SpotifyRecentlyTitle>
+                    <ItemSubtitle>
+                      {item.username} • {item.dateAdded}
+                      {/* • {item.artist} • {item.type} •{" "} */}
+                    </ItemSubtitle>
                   </Flex>
-                </SpotifyAlbumContainer>
+                </SpotifyHistoryItemContainer>
               ))}
             </Flex>
           </RecentReviewedContainer>
