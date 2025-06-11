@@ -9,6 +9,8 @@ dayjs.extend(weekOfYear);
 
 interface BlogCalendarProps {
   currentDate: Dayjs;
+  onDayClick: (date: Dayjs) => void;
+  blogsDateArray?: Dayjs[];
 }
 
 interface WeekItemDayLabelProps {
@@ -27,19 +29,25 @@ interface WeekData {
   dayLabel: string;
   dayNumber: number;
 }
+
+interface MonthData {
+  date: Dayjs;
+  dayLabel: string;
+  dayNumber: number;
+}
 export const BlogCalendarContainer = styled.div<CalendarBigContainerProps>`
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 0 ${(props) => props.theme.paddingLg}px;
-  height: ${(props) => (props.weekMode ? "20vh" : "50vh")};
+  padding: 16px ${(props) => props.theme.paddingLg}px;
+  height: ${(props) => (props.weekMode ? "25vh" : "55vh")};
   transition: height 0.5s ease;
+  align-items: center;
 `;
 
 export const BlogCalendarWeekContainer = styled.div`
   display: flex;
-  gap: 8px;
   justify-content: center;
 `;
 
@@ -47,7 +55,7 @@ export const WeekItemContainer = styled.div<WeekItemDayLabelProps>`
   border-radius: 40px;
   border: 1px solid
     ${(props) => (props.selected ? props.theme.borderColor : "transparent")};
-  padding: 8px 0px 0px 0px;
+  padding: 8px 4px 0px 4px;
   display: flex;
   //   gap: 4px;
   flex-direction: column;
@@ -75,6 +83,24 @@ export const WeekItemDayNumber = styled.div<WeekItemDayLabelProps>`
   height: 35px;
 `;
 
+export const MonthItemDayNumber = styled(
+  WeekItemDayNumber
+)<WeekItemDayLabelProps>`
+  background: transparent;
+  border: 1px solid
+    ${(props) => (props.selected ? props.theme.text : "transparent")};
+`;
+
+export const MonthItemDayNumberInner = styled.div<WeekItemDayLabelProps>`
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${(props) => (props.selected ? props.theme.text : "transparent")};
+  border-radius: 50%;
+`;
+
 export const CalendarTopBar = styled.div`
   width: 100%;
   display: flex;
@@ -94,12 +120,57 @@ export const CalendarArrow = styled.div<CalendarArrowProps>`
   color: ${(props) => props.theme.text};
 `;
 
-const BlogCalendar = ({ currentDate }: BlogCalendarProps) => {
+export const ExpandButton = styled.button`
+  border: none;
+  border: 1px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  padding: ${(props) => props.theme.paddingSmall}px
+    ${(props) => props.theme.paddingMed}px;
+
+  transition: 0.3s;
+`;
+
+export const BlogCalendarMonthContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  width: 100%;
+  max-width: 800px;
+`;
+
+export const MonthItemContainer = styled.div<WeekItemDayLabelProps>`
+  // width: 100%;
+  height: 50px;
+  border-color: transparent;
+  // background: lime;
+`;
+
+export const MonthDayLabelContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 16px;
+  justify-items: center;
+`;
+
+export const CalendarWrapper = styled.div`
+  margin: 16px 0;
+`;
+
+const BlogCalendar = ({
+  currentDate,
+  blogsDateArray,
+  onDayClick,
+}: BlogCalendarProps) => {
   const [weekMode, setWeekMode] = useState<boolean>(true);
   const [weekData, setWeekData] = useState<WeekData[]>([]);
+  const [monthData, setMonthData] = useState<MonthData[]>([]);
+  const [dateState, setDateState] = useState<Dayjs>(currentDate);
 
-  const getWeekData = () => {
-    const startOfWeek = currentDate.startOf("week");
+  const getWeekData = (inputDate: Dayjs) => {
+    const startOfWeek = inputDate.startOf("week");
     const weekDays: WeekData[] = [];
 
     const dayLabels = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -116,46 +187,153 @@ const BlogCalendar = ({ currentDate }: BlogCalendarProps) => {
     setWeekData(weekDays);
   };
 
-  // Call getWeekData when component mounts or currentDate changes
+  const getMonthData = (inputDate: Dayjs) => {
+    const startOfMonth = inputDate.startOf("month");
+    const endOfMonth = inputDate.endOf("month");
+    const startDay = startOfMonth.day(); // 0-6, representing Sunday-Saturday
+    const daysInMonth = endOfMonth.date();
+    const monthDays: MonthData[] = [];
+    const dayLabels = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+    // Add empty slots for days from previous month
+    for (let i = 0; i < startDay; i++) {
+      monthDays.push({
+        date: startOfMonth.subtract(startDay - i, "day"),
+        dayLabel: dayLabels[i],
+        dayNumber: 0, // Use 0 to indicate empty day
+      });
+    }
+
+    // Add days of current month
+    for (let i = 1; i <= daysInMonth; i++) {
+      const currentDay = startOfMonth.add(i - 1, "day");
+      monthDays.push({
+        date: currentDay,
+        dayLabel: dayLabels[currentDay.day()],
+        dayNumber: i,
+      });
+    }
+
+    // Fill remaining grid slots if needed
+    const remainingDays = (7 - ((startDay + daysInMonth) % 7)) % 7;
+    for (let i = 1; i <= remainingDays; i++) {
+      monthDays.push({
+        date: endOfMonth.add(i, "day"),
+        dayLabel: dayLabels[(startDay + daysInMonth + i - 1) % 7],
+        dayNumber: 0, // Use 0 to indicate empty day
+      });
+    }
+
+    setMonthData(monthDays);
+  };
+
+  const handleDayClick = (day: Dayjs) => {
+    onDayClick(day);
+    setDateState(day);
+  };
+
   useEffect(() => {
-    getWeekData();
+    getWeekData(dateState);
+    getMonthData(dateState);
+  }, [dateState]);
+
+  useEffect(() => {
+    setDateState(currentDate);
   }, [currentDate]);
 
   return (
     <BlogCalendarContainer weekMode={weekMode}>
       <CalendarTopBar>
-        <CalendarArrow show={!weekMode}>
+        <CalendarArrow
+          show={true}
+          onClick={() => {
+            weekMode
+              ? setDateState((prev) => prev.subtract(1, "week"))
+              : setDateState((prev) => prev.subtract(1, "month"));
+          }}
+        >
           <LeftOutlined />
         </CalendarArrow>
-        <CalendarTitle>June</CalendarTitle>
-        <CalendarArrow show={!weekMode}>
+        <CalendarTitle>
+          {weekMode ? dateState.format("MMMM") : dateState.format("MMMM YYYY")}
+        </CalendarTitle>
+        <CalendarArrow
+          show={true}
+          onClick={() => {
+            weekMode
+              ? setDateState((prev) => prev.add(1, "week"))
+              : setDateState((prev) => prev.add(1, "month"));
+          }}
+        >
           <RightOutlined />
         </CalendarArrow>
       </CalendarTopBar>
-      {weekMode && (
-        <BlogCalendarWeekContainer>
-          {weekData.map((day) => (
-            <WeekItemContainer
-              selected={day.date.isSame(currentDate, "day")}
-              key={day.date.toString()}
-            >
-              <WeekItemDayLabel selected={day.date.isSame(currentDate, "day")}>
-                {day.dayLabel}
-              </WeekItemDayLabel>
-              <WeekItemDayNumber selected={day.date.isSame(currentDate, "day")}>
-                {day.dayNumber}
-              </WeekItemDayNumber>
-            </WeekItemContainer>
-          ))}
-        </BlogCalendarWeekContainer>
-      )}
-      <button
+
+      <CalendarWrapper>
+        {weekMode ? (
+          <BlogCalendarWeekContainer>
+            {weekData.map((day) => (
+              <WeekItemContainer
+                selected={day.date.isSame(currentDate, "day")}
+                key={day.date.toString()}
+                onClick={() => {
+                  handleDayClick(day.date);
+                }}
+              >
+                <WeekItemDayLabel
+                  selected={day.date.isSame(currentDate, "day")}
+                >
+                  {day.dayLabel}
+                </WeekItemDayLabel>
+                <WeekItemDayNumber
+                  selected={day.date.isSame(currentDate, "day")}
+                >
+                  {day.dayNumber}
+                </WeekItemDayNumber>
+              </WeekItemContainer>
+            ))}
+          </BlogCalendarWeekContainer>
+        ) : (
+          <>
+            <MonthDayLabelContainer>
+              {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((day) => (
+                <WeekItemDayLabel key={day}>{day}</WeekItemDayLabel>
+              ))}
+            </MonthDayLabelContainer>
+            <BlogCalendarMonthContainer>
+              {monthData.map((day, index) => (
+                <MonthItemContainer
+                  key={index}
+                  selected={day.date.isSame(currentDate, "day")}
+                  onClick={() => {
+                    handleDayClick(day.date);
+                  }}
+                >
+                  {day.dayNumber !== 0 && (
+                    <MonthItemDayNumber
+                      selected={day.date.isSame(currentDate, "day")}
+                    >
+                      <MonthItemDayNumberInner
+                        selected={day.date.isSame(currentDate, "day")}
+                      >
+                        {day.dayNumber}
+                      </MonthItemDayNumberInner>
+                    </MonthItemDayNumber>
+                  )}
+                </MonthItemContainer>
+              ))}
+            </BlogCalendarMonthContainer>
+          </>
+        )}
+      </CalendarWrapper>
+
+      <ExpandButton
         onClick={() => {
           setWeekMode(!weekMode);
         }}
       >
-        hi
-      </button>
+        {weekMode ? "Show more" : "Show less"}
+      </ExpandButton>
     </BlogCalendarContainer>
   );
 };

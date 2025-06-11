@@ -26,3 +26,11 @@ export const BlogBodyPage = styled.div`
   gap: 32px;
   transition: 0.3s;
 `;
+
+export const BlogTopBar = styled.div`
+  width: 100%;
+  // background: red;
+  position: relative;
+  height: 32px;
+  padding: 16px 0;
+`;

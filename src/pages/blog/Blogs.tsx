@@ -16,9 +16,14 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes";
-import { BlogBodyPage, BlogHeroContainer, BlogMainPage } from "./BlogStyles";
+import {
+  BlogBodyPage,
+  BlogHeroContainer,
+  BlogMainPage,
+  BlogTopBar,
+} from "./BlogStyles";
 import BlogCalendar from "../../components/blogCalendarComponent/BlogCalendar";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -26,6 +31,7 @@ const BlogPage: React.FC = () => {
   const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const navigate = useNavigate();
 
   const fetchEntries = async () => {
@@ -56,6 +62,10 @@ const BlogPage: React.FC = () => {
     return () => unsubscribe();
   }, [navigate]);
 
+  const handleCalendarDayClick = (date: Dayjs) => {
+    setSelectedDate(date);
+  };
+
   if (loading) {
     return (
       <div style={{ padding: "2rem", textAlign: "center" }}>
@@ -80,8 +90,12 @@ const BlogPage: React.FC = () => {
 
   return (
     <BlogMainPage>
+      <BlogTopBar></BlogTopBar>
       <BlogHeroContainer>
-        <BlogCalendar currentDate={dayjs()} />
+        <BlogCalendar
+          currentDate={selectedDate}
+          onDayClick={handleCalendarDayClick}
+        />
       </BlogHeroContainer>
       <BlogBodyPage>hi</BlogBodyPage>
       <Button
