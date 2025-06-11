@@ -40,6 +40,7 @@ import {
   SpotifyMain,
   SpotifyMainBodyContainer,
   SpotifyRecentlyContainer,
+  SpotifyRecentlyIconContainer,
   SpotifyRecentlyImg,
   SpotifyRecentlyTitle,
   SpotifySearchButton,
@@ -62,8 +63,7 @@ import {
 import { db } from "../../firebase/firebase";
 import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
 import { ItemTitle, ItemSubtitle } from "./SpotifyArtist";
-
-// First, add these fields to your EnrichedHistoryItem interface
+import { CommentOutlined, StarOutlined } from "@ant-design/icons";
 
 const SpotifyPage = () => {
   const { user, userPartner, spotifyToken, loading } = useUser();
@@ -84,11 +84,12 @@ const SpotifyPage = () => {
   const [totalReviews, setTotalReviews] = useState<number>(0);
   const [totalComments, setTotalComments] = useState<number>(0);
   const [recentActivity, setRecentActivity] = useState<Array<any>>([]);
-  // Add these states
   const [enrichedSearchHistory, setEnrichedSearchHistory] = useState<
     EnrichedHistoryItem[]
   >([]);
   const [enrichedActivity, setEnrichedActivity] = useState<any[]>([]);
+  const [recentsLoading, setRecentsLoading] = useState<boolean>(true);
+  const [historyLoading, setHistoryLoading] = useState<boolean>(true);
 
   const extractSpotifyLinkInfo = (url: string): SpotifyLinkInfo => {
     try {
@@ -324,6 +325,7 @@ const SpotifyPage = () => {
       });
 
       setEnrichedSearchHistory(enrichedData);
+      setRecentsLoading(false);
     } catch (error) {
       console.error("Error fetching search history:", error);
     }
@@ -462,6 +464,7 @@ const SpotifyPage = () => {
 
       console.log({ enrichedActivity });
       setEnrichedActivity(enrichedActivity);
+      setHistoryLoading(false);
     } catch (error) {
       console.error("Error fetching activity:", error);
     }
@@ -532,121 +535,132 @@ const SpotifyPage = () => {
               <StatsCardDescription>Comments written</StatsCardDescription>
             </StatsCard>
           </Flex>
+          {!recentsLoading && (
+            <RecentReviewedContainer>
+              <RecentReviewedTitle>
+                Recently Reviewed / Commented
+              </RecentReviewedTitle>
+              <Flex vertical gap={8} justify="center">
+                {enrichedActivity.slice(0, 10).map((activity) => (
+                  <SpotifyRecentlyContainer
+                    key={activity.id}
+                    onClick={() => {
+                      const route =
+                        activity.type === "track"
+                          ? ROUTES.SPOTIFY_TRACK.path.replace(
+                              ":trackId",
+                              activity.spotifyId
+                            )
+                          : activity.type === "album"
+                          ? ROUTES.SPOTIFY_ALBUM.path.replace(
+                              ":albumId",
+                              activity.spotifyId
+                            )
+                          : activity.type === "artist"
+                          ? ROUTES.SPOTIFY_ARTIST.path.replace(
+                              ":artistId",
+                              activity.spotifyId
+                            )
+                          : ROUTES.SPOTIFY_PLAYLIST.path.replace(
+                              ":playlistId",
+                              activity.spotifyId
+                            );
+                      navigate(route);
+                    }}
+                  >
+                    <Flex gap={8} align="center">
+                      <SpotifyRecentlyImg src={activity.imageUrl} alt="" />
+                      <Flex vertical gap={4}>
+                        <SpotifyRecentlyTitle>
+                          {activity.displayName}
+                        </SpotifyRecentlyTitle>
+                        <ItemSubtitle>
+                          {activity.type !== "artist" && activity.artist}{" "}
+                        </ItemSubtitle>
+                        <ItemSubtitle>
+                          {activity.username} •
+                          {formatFirebaseDate(activity.dateAdded)}
+                        </ItemSubtitle>
+                      </Flex>
+                    </Flex>
+                    {activity.activityType === "review" ? (
+                      <SpotifyRecentlyIconContainer>
+                        <StarOutlined />
+                      </SpotifyRecentlyIconContainer>
+                    ) : (
+                      <SpotifyRecentlyIconContainer>
+                        <CommentOutlined />
+                      </SpotifyRecentlyIconContainer>
+                    )}{" "}
+                  </SpotifyRecentlyContainer>
+                ))}
+              </Flex>
+            </RecentReviewedContainer>
+          )}
 
-          <RecentReviewedContainer>
-            <RecentReviewedTitle>
-              Recently Reviewed / Commented
-            </RecentReviewedTitle>
-            <Flex vertical gap={8} justify="center">
-              {enrichedActivity.slice(0, 10).map((activity) => (
-                <SpotifyRecentlyContainer
-                  key={activity.id}
-                  onClick={() => {
-                    const route =
-                      activity.type === "track"
-                        ? ROUTES.SPOTIFY_TRACK.path.replace(
-                            ":trackId",
-                            activity.spotifyId
-                          )
-                        : activity.type === "album"
-                        ? ROUTES.SPOTIFY_ALBUM.path.replace(
-                            ":albumId",
-                            activity.spotifyId
-                          )
-                        : activity.type === "artist"
-                        ? ROUTES.SPOTIFY_ARTIST.path.replace(
-                            ":artistId",
-                            activity.spotifyId
-                          )
-                        : ROUTES.SPOTIFY_PLAYLIST.path.replace(
-                            ":playlistId",
-                            activity.spotifyId
-                          );
-                    navigate(route);
-                  }}
-                >
-                  <Flex gap={8} align="center">
-                    <SpotifyRecentlyImg src={activity.imageUrl} alt="" />
-                    <Flex vertical gap={4}>
+          {!historyLoading && (
+            <RecentReviewedContainer>
+              <RecentReviewedTitle>Recent Searches</RecentReviewedTitle>
+              <Flex
+                gap={16}
+                wrap={"wrap"}
+                style={{ width: "100%" }}
+                justify="center"
+              >
+                {enrichedSearchHistory.slice(0, 10).map((item) => (
+                  <SpotifyHistoryItemContainer
+                    key={item.id}
+                    onClick={() => {
+                      const route =
+                        item.type === "track"
+                          ? ROUTES.SPOTIFY_TRACK.path.replace(
+                              ":trackId",
+                              item.spotifyId
+                            )
+                          : item.type === "album"
+                          ? ROUTES.SPOTIFY_ALBUM.path.replace(
+                              ":albumId",
+                              item.spotifyId
+                            )
+                          : item.type === "artist"
+                          ? ROUTES.SPOTIFY_ARTIST.path.replace(
+                              ":artistId",
+                              item.spotifyId
+                            )
+                          : ROUTES.SPOTIFY_PLAYLIST.path.replace(
+                              ":playlistId",
+                              item.spotifyId
+                            );
+                      navigate(route);
+                    }}
+                  >
+                    {item.type === "track" && (
+                      <SpotifyHistoryTrackImg src={item.imageUrl} alt="" />
+                    )}
+
+                    {item.type === "artist" && (
+                      <SpotifyHistoryArtistImg src={item.imageUrl} alt="" />
+                    )}
+
+                    {item.type === "album" ||
+                      (item.type === "playlist" && (
+                        <SpotifyHistoryAlbumImg src={item.imageUrl} alt="" />
+                      ))}
+
+                    <Flex gap={8} align="center" vertical>
                       <SpotifyRecentlyTitle>
-                        {activity.displayName}
+                        {item.displayName}
                       </SpotifyRecentlyTitle>
                       <ItemSubtitle>
-                        {activity.type !== "artist" && activity.artist}{" "}
-                      </ItemSubtitle>
-                      <ItemSubtitle>
-                        {activity.username} •
-                        {formatFirebaseDate(activity.dateAdded)}
+                        {item.username} • {item.dateAdded}
+                        {/* • {item.artist} • {item.type} •{" "} */}
                       </ItemSubtitle>
                     </Flex>
-                  </Flex>
-                  {activity.activityType === "review" ? "⭐" : "💬"}{" "}
-                </SpotifyRecentlyContainer>
-              ))}
-            </Flex>
-          </RecentReviewedContainer>
-
-          <RecentReviewedContainer>
-            <RecentReviewedTitle>Recent Searches</RecentReviewedTitle>
-            <Flex
-              gap={16}
-              wrap={"wrap"}
-              style={{ width: "100%" }}
-              justify="center"
-            >
-              {enrichedSearchHistory.slice(0, 10).map((item) => (
-                <SpotifyHistoryItemContainer
-                  key={item.id}
-                  onClick={() => {
-                    const route =
-                      item.type === "track"
-                        ? ROUTES.SPOTIFY_TRACK.path.replace(
-                            ":trackId",
-                            item.spotifyId
-                          )
-                        : item.type === "album"
-                        ? ROUTES.SPOTIFY_ALBUM.path.replace(
-                            ":albumId",
-                            item.spotifyId
-                          )
-                        : item.type === "artist"
-                        ? ROUTES.SPOTIFY_ARTIST.path.replace(
-                            ":artistId",
-                            item.spotifyId
-                          )
-                        : ROUTES.SPOTIFY_PLAYLIST.path.replace(
-                            ":playlistId",
-                            item.spotifyId
-                          );
-                    navigate(route);
-                  }}
-                >
-                  {item.type === "track" && (
-                    <SpotifyHistoryTrackImg src={item.imageUrl} alt="" />
-                  )}
-
-                  {item.type === "artist" && (
-                    <SpotifyHistoryArtistImg src={item.imageUrl} alt="" />
-                  )}
-
-                  {item.type === "album" ||
-                    (item.type === "playlist" && (
-                      <SpotifyHistoryAlbumImg src={item.imageUrl} alt="" />
-                    ))}
-
-                  <Flex gap={8} align="center" vertical>
-                    <SpotifyRecentlyTitle>
-                      {item.displayName}
-                    </SpotifyRecentlyTitle>
-                    <ItemSubtitle>
-                      {item.username} • {item.dateAdded}
-                      {/* • {item.artist} • {item.type} •{" "} */}
-                    </ItemSubtitle>
-                  </Flex>
-                </SpotifyHistoryItemContainer>
-              ))}
-            </Flex>
-          </RecentReviewedContainer>
+                  </SpotifyHistoryItemContainer>
+                ))}
+              </Flex>
+            </RecentReviewedContainer>
+          )}
         </SpotifyMainBodyContainer>
       </SpotifyMain>
     </ThemeProvider>

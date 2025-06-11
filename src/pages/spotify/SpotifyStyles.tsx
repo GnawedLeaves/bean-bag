@@ -373,8 +373,13 @@ export const SpotifyRecentlyContainer = styled.div`
   background: ${(props) => props.theme.colorBg};
   align-items: center;
   justify-content: space-between;
+  position: relative;
 `;
-
+export const SpotifyRecentlyIconContainer = styled.div`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+`;
 export const SpotifyRecentlyImg = styled.img`
   width: 60px;
   border-radius: 50%;
