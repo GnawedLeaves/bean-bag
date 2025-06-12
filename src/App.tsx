@@ -67,7 +67,7 @@ const App: React.FC = () => {
         <UserProvider>
           <Router>
             <GlobalStyle />
-            {/* <Header /> */}
+            <Header />
             <main>
               <Routes>
                 <Route path={ROUTES.HOME.path} element={<Home />} />

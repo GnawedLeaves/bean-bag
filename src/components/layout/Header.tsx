@@ -111,48 +111,6 @@ const Header: React.FC = () => {
 
   return (
     <>
-      {/* Desktop Header */}
-      <AntHeader
-        className="desktop-header"
-        style={{
-          background: "#001529",
-          color: "white",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "0 2rem",
-          position: "sticky",
-          top: 0,
-          zIndex: 1000,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-        }}
-      >
-        <Link
-          to={ROUTES.HOME.path}
-          style={{
-            color: "white",
-            fontSize: "1.8rem",
-            fontWeight: "bold",
-            textDecoration: "none",
-          }}
-        >
-          Anni App
-        </Link>
-
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          selectedKeys={[location.pathname]}
-          items={desktopMenuItems}
-          style={{
-            background: "transparent",
-            border: "none",
-            flex: 1,
-            justifyContent: "flex-end",
-          }}
-        />
-      </AntHeader>
-
       {/* Mobile Bottom Navigation */}
       <div
         className="mobile-bottom-nav"
@@ -177,67 +135,6 @@ const Header: React.FC = () => {
           ))}
         </div>
       </div>
-
-      {/* Mobile Top Header (minimal) */}
-      {/* <AntHeader
-        className="mobile-header"
-        style={{
-          background: "#001529",
-          color: "white",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "0 1rem",
-          position: "sticky",
-          top: 0,
-          zIndex: 1000,
-          height: "56px",
-        }}
-      >
-        <Link
-          to={ROUTES.HOME.path}
-          style={{
-            color: "white",
-            fontSize: "1.4rem",
-            fontWeight: "bold",
-            textDecoration: "none",
-          }}
-        >
-          Anni App
-        </Link>
-
-        <Button
-          type="text"
-          icon={<MenuOutlined />}
-          style={{ color: "white", fontSize: "1.2rem" }}
-          onClick={() => setIsMenuOpen(true)}
-        />
-      </AntHeader> */}
-
-      {/* Mobile Drawer for additional options */}
-      <Drawer
-        title="Menu"
-        placement="right"
-        closable={true}
-        onClose={() => setIsMenuOpen(false)}
-        open={isMenuOpen}
-        bodyStyle={{ padding: "1rem" }}
-        className="mobile-drawer"
-      >
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <Button
-            type="primary"
-            danger
-            onClick={async () => {
-              await handleSignOut();
-              setIsMenuOpen(false);
-            }}
-            style={{ width: "100%" }}
-          >
-            Sign Out
-          </Button>
-        </div>
-      </Drawer>
 
       {/* Responsive CSS */}
       <style>
@@ -270,7 +167,7 @@ const Header: React.FC = () => {
               left: 0;
               right: 0;
               background: #001529;
-              border-top: 1px solid #434343;
+              border-top: 2px solid #352A24;
               z-index: 1000;
               padding: 8px 0;
             }
@@ -280,7 +177,7 @@ const Header: React.FC = () => {
               justify-content: space-around;
               align-items: center;
               max-width: 100%;
-              margin: 0 auto;
+              // margin: 0 auto;
             }
 
             .nav-item {
@@ -314,7 +211,7 @@ const Header: React.FC = () => {
 
             /* Add bottom padding to main content to account for fixed nav */
             body {
-              padding-bottom: 70px;
+              padding-bottom: 60px;
             }
 
             /* Ensure main content doesn't overlap with bottom nav */
@@ -323,13 +220,7 @@ const Header: React.FC = () => {
             }
           }
 
-          /* Hide mobile elements on desktop */
-          @media (min-width: 769px) {
-            .mobile-bottom-nav,
-            .mobile-header {
-              display: none !important;
-            }
-          }
+        
         `}
       </style>
     </>
