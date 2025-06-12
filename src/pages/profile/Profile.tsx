@@ -24,8 +24,8 @@ import {
   ImageLoading,
 } from "../../components/loading/LoadingStates";
 
-interface SettingPageProps {}
-const SettingsPage = ({}: SettingPageProps) => {
+interface ProfilePageProps {}
+const ProfilePage = ({}: ProfilePageProps) => {
   const navigate = useNavigate();
   const { user, loading, getUserContextData } = useUser();
   const [isEditing, setIsEditing] = useState(false);
@@ -177,4 +177,4 @@ const SettingsPage = ({}: SettingPageProps) => {
   );
 };
 
-export { SettingsPage };
+export { ProfilePage };

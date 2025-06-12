@@ -13,7 +13,6 @@ import LoginPage from "./pages/login/Login";
 import { PlantsPage } from "./pages/plant/Plants";
 import { UploadPlantsPage } from "./pages/plant/UploadPlants";
 import { ROUTES } from "./routes";
-import { SettingsPage } from "./pages/profile/Profile";
 import BlogPage from "./pages/blog/Blogs";
 import { token } from "./theme";
 import SpotifyPage from "./pages/spotify/Spotify";
@@ -22,6 +21,7 @@ import SpotifyArtistDetailsPage from "./pages/spotify/SpotifyArtist";
 import SpotifyTrackPage from "./pages/spotify/SpotifyTrack";
 import SpotifyAlbumPage from "./pages/spotify/SpotifyAlbum";
 import SpotifyPlaylistDetailsPage from "./pages/spotify/SpotifyPlaylist";
+import { ProfilePage } from "./pages/profile/Profile";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -80,7 +80,7 @@ const App: React.FC = () => {
                   path={ROUTES.PLANTS_UPLOAD.path}
                   element={<UploadPlantsPage />}
                 />
-                <Route path={ROUTES.PROFILE.path} element={<SettingsPage />} />
+                <Route path={ROUTES.PROFILE.path} element={<ProfilePage />} />
                 <Route path={ROUTES.BLOGS.path} element={<BlogPage />} />
                 <Route path={ROUTES.SPOTIFY.path} element={<SpotifyPage />} />
                 <Route
