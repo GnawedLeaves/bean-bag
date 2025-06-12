@@ -22,10 +22,13 @@ export const CommentCardDisplayPic = styled.img`
   width: 50px;
   height: 50px;
   border-radius: 100%;
+  border: 1px solid ${(props) => props.theme.borderColor};
   object-fit: cover;
 `;
 export const CommentCardName = styled.div`
   font-size: ${(props) => props.theme.fontSizeSmall}px;
+  font-weight: bold;
+  margin-bottom: 4px;
 `;
 
 export const CommentCardContent = styled.div`

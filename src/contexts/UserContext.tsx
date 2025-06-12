@@ -25,6 +25,7 @@ interface UserContextType {
   userPartner: UserData | null;
   spotifyToken: SpotifyAuthToken | null;
   loading: boolean;
+  getUserContextData: () => void;
 }
 
 const UserContext = createContext<UserContextType>({
@@ -32,6 +33,7 @@ const UserContext = createContext<UserContextType>({
   userPartner: null,
   spotifyToken: null,
   loading: true,
+  getUserContextData: () => {},
 });
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -43,6 +45,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     null
   );
   const [loading, setLoading] = useState(true);
+  const [flag, setFlag] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -93,10 +96,16 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [flag]);
+
+  const getUserContextData = () => {
+    setFlag(!flag);
+  };
 
   return (
-    <UserContext.Provider value={{ user, userPartner, spotifyToken, loading }}>
+    <UserContext.Provider
+      value={{ user, userPartner, spotifyToken, loading, getUserContextData }}
+    >
       {children}
     </UserContext.Provider>
   );

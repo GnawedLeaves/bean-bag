@@ -473,3 +473,30 @@ export const getPlantEntries = async () => {
     throw error;
   }
 };
+
+// Helper function to get asset URL from ID
+export const getAssetUrlById = async (assetId: string): Promise<string> => {
+  try {
+    const GET_ASSET_URL = gql`
+      query GetAssetUrl($id: ID!) {
+        asset(where: { id: $id }) {
+          url
+        }
+      }
+    `;
+
+    const result = await client.query({
+      query: GET_ASSET_URL,
+      variables: { id: assetId },
+    });
+
+    if (!result.data?.asset?.url) {
+      throw new Error("Failed to get asset URL");
+    }
+
+    return result.data.asset.url;
+  } catch (error) {
+    console.error("Error getting asset URL:", error);
+    throw error;
+  }
+};

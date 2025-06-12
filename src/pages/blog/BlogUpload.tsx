@@ -1,4 +1,3 @@
-// src/pages/Upload.tsx
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
