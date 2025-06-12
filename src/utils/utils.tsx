@@ -1,11 +1,11 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp, GeoPoint } from "firebase/firestore";
 import dayjs from "dayjs";
 export function firebaseDateToJS(date: Timestamp | null): Date | null {
   if (!date) return null;
   return date.toDate();
 }
 
-export function formatFirebaseDate(date: Timestamp | null): string {
+export function formatFirebaseDate(date: Timestamp | null | undefined): string {
   if (!date) return "";
 
   const jsDate = date.toDate();
@@ -68,4 +68,29 @@ export const convertISOToDDMMYYYHHmm = (isoString: string): string => {
 
 export const convertISOToDDMMYYY = (isoString: string): string => {
   return dayjs(isoString).format("DD/MM/YYYY");
+};
+
+export const calculateDistance = (
+  point1: GeoPoint,
+  point2: GeoPoint
+): string => {
+  console.log({ point1, point2 });
+  const R = 6371e3; // Earth's radius in meters
+  const φ1 = (point1.latitude * Math.PI) / 180; // φ, λ in radians
+  const φ2 = (point2.latitude * Math.PI) / 180;
+  const Δφ = ((point2.latitude - point1.latitude) * Math.PI) / 180;
+  const Δλ = ((point2.longitude - point1.longitude) * Math.PI) / 180;
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c; // in metres
+
+  // Format the output based on the distance
+  if (distance >= 1000) {
+    return `${(distance / 1000).toFixed(1)}km`;
+  }
+  return `${Math.round(distance).toFixed(2)}m`;
 };

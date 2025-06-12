@@ -20,8 +20,8 @@ export const ImageWrapper = styled.div`
 `;
 
 export const RotatingCard = styled.div<{
-  rotateX: number;
-  rotateY: number;
+  rotatex: number;
+  rotatey: number;
   url: string;
   thickness: number;
 }>`
@@ -31,7 +31,7 @@ export const RotatingCard = styled.div<{
   border: 2px solid ${(props) => props.theme.borderColor};
   transform-style: preserve-3d;
   transition: transform 0.1s ease-out;
-  transform: ${({ rotateX, rotateY }) =>
+  transform: ${({ rotatex: rotateX, rotatey: rotateY }) =>
     `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`};
   will-change: transform;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);

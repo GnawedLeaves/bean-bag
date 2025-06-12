@@ -4,7 +4,7 @@ import { auth, db } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, Timestamp, updateDoc } from "firebase/firestore";
 import { UploadChangeParam } from "antd/es/upload";
 import { RcFile, UploadFile } from "antd/es/upload/interface";
 import {
@@ -49,6 +49,7 @@ const ProfilePage = ({}: ProfilePageProps) => {
       const userRef = doc(db, "anniAppUsers", user.id);
       await updateDoc(userRef, {
         name: newName,
+        lastUpdated: Timestamp.now(),
       });
       console.log("Name updated successfully!");
       message.success("Name updated successfully!");
@@ -86,6 +87,7 @@ const ProfilePage = ({}: ProfilePageProps) => {
         const userRef = doc(db, "anniAppUsers", user.id);
         await updateDoc(userRef, {
           displayPicture: imageUrl,
+          lastUpdated: Timestamp.now(),
         });
         message.success("Profile picture updated successfully!");
         getUserContextData();

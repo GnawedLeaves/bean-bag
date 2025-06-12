@@ -7,6 +7,7 @@ export interface AppTheme {
   colorBgVoliet: string;
   colorBgPink: string;
   colorBgGreen: string;
+  colorBgOrange: string;
   colorBgTeal: string;
   colorBg: string;
   borderColor: string;
@@ -34,6 +35,7 @@ export const token = {
   // colorBgPink: "#FFC1C6",
   colorBgGreen: "#ABCF82",
   colorBgTeal: "#ADD6B8",
+  colorBgOrange: "#F7A374",
   colorBg: "#FEFAEF",
   borderColor: "#352A24",
   borderRadius: 16,

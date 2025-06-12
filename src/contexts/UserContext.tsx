@@ -3,14 +3,19 @@ import { onAuthStateChanged } from "firebase/auth";
 import {
   collection,
   doc,
+  GeoPoint,
   getDoc,
   getDocs,
   query,
+  Timestamp,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { auth, db } from "../firebase/firebase";
 import { SpotifyAuthToken } from "../types/spotifyTypes";
 import { getSpotifyAuthToken } from "../services/spotify/authSpotify";
+import { useLocationHook } from "../hooks/useLocation";
+import e from "express";
 
 interface UserData {
   id: string;
@@ -18,6 +23,9 @@ interface UserData {
   email: string;
   partnerId: string;
   displayPicture: string;
+  lastUpdated: Timestamp;
+  location: GeoPoint;
+  status: string;
 }
 
 interface UserContextType {
@@ -39,6 +47,11 @@ const UserContext = createContext<UserContextType>({
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const {
+    location,
+    loading: locationLoading,
+    error: locationError,
+  } = useLocationHook();
   const [user, setUser] = useState<UserData | null>(null);
   const [userPartner, setUserPartner] = useState<UserData | null>(null);
   const [spotifyToken, setSpotifyToken] = useState<SpotifyAuthToken | null>(
@@ -100,6 +113,28 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const getUserContextData = () => {
     setFlag(!flag);
+  };
+
+  useEffect(() => {
+    if (user && location) {
+      updateLocation();
+    }
+  }, [user, location]);
+
+  const updateLocation = async () => {
+    if (!location || !user) return;
+
+    try {
+      const geoPoint = new GeoPoint(location.latitude, location.longitude);
+      const userRef = doc(db, "anniAppUsers", user.id);
+
+      await updateDoc(userRef, {
+        location: geoPoint,
+        lastUpdated: Timestamp.now(),
+      });
+    } catch (e) {
+      console.error("error updating location in user context", e);
+    }
   };
 
   return (

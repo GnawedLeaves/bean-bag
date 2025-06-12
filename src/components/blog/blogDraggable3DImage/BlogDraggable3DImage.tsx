@@ -90,8 +90,8 @@ const BlogDraggable3DImage = ({
     >
       <ImageWrapper>
         <RotatingCard
-          rotateX={rotate.x}
-          rotateY={rotate.y}
+          rotatex={rotate.x}
+          rotatey={rotate.y}
           url={src}
           thickness={5}
         >

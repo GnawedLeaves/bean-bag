@@ -57,7 +57,7 @@ const Header: React.FC = () => {
     {
       key: ROUTES.SPOTIFY?.path || "/spotify",
       icon: <SpotifyOutlined />,
-      label: "Spotify",
+      label: "Beanify",
       path: ROUTES.SPOTIFY?.path || "/spotify",
     },
     {
