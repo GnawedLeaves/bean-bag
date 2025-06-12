@@ -9,6 +9,7 @@ import {
   SettingOutlined,
   SunOutlined,
   SpotifyOutlined,
+  MehOutlined,
 } from "@ant-design/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
@@ -66,10 +67,10 @@ const Header: React.FC = () => {
       path: ROUTES.SPACE?.path || "/space",
     },
     {
-      key: ROUTES.SETTINGS?.path || "/settings",
-      icon: <SettingOutlined />,
-      label: "Settings",
-      path: ROUTES.SETTINGS?.path || "/feedback",
+      key: ROUTES.PROFILE?.path || "/profile",
+      icon: <MehOutlined />,
+      label: "Profile",
+      path: ROUTES.PROFILE?.path || "/profile",
     },
   ];
 
@@ -87,27 +88,6 @@ const Header: React.FC = () => {
       </Link>
     ),
   }));
-
-  // Desktop menu items (includes sign out)
-  const desktopMenuItems = [
-    ...mobileMenuItems,
-    {
-      key: "signout",
-      label: (
-        <Button
-          type="link"
-          danger
-          onClick={async () => {
-            await handleSignOut();
-            setIsMenuOpen(false);
-          }}
-          style={{ color: "#ff4d4f" }}
-        >
-          Sign Out
-        </Button>
-      ),
-    },
-  ];
 
   return (
     <>

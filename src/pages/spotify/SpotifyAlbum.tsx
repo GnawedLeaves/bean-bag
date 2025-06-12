@@ -485,6 +485,7 @@ const SpotifyAlbumPage = () => {
                 border: `1px solid ${token.borderColor}`,
                 borderRadius: token.borderRadius,
                 background: token.colorBg,
+                fontFamily: token.fontFamily,
               }}
             />
             <CommentButton

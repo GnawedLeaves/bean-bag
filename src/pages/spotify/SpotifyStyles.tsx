@@ -6,7 +6,7 @@ declare module "styled-components" {
 export const AlbumContainer = styled.div``;
 
 export const CommentCard = styled.div`
-  border: 1px solid ${(props) => props.theme.borderColor};
+  border: 2px solid ${(props) => props.theme.borderColor};
   border-top-left-radius: ${(props) => props.theme.borderRadius}px;
   border-top-right-radius: ${(props) => props.theme.borderRadius}px;
   border-bottom-right-radius: ${(props) => props.theme.borderRadius}px;
@@ -393,8 +393,7 @@ export const SpotifyRecentlyTitle = styled.div`
 `;
 
 export const SpotifyHistoryItemContainer = styled.div`
-  padding: ${(props) => props.theme.paddingMed}px;
-  // width: 150px;
+  padding: ${(props) => props.theme.paddingSmall}px;
   display: flex;
   flex-direction: column;
   align-items: center;

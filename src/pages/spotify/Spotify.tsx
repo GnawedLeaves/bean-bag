@@ -63,7 +63,11 @@ import {
 import { db } from "../../firebase/firebase";
 import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
 import { ItemTitle, ItemSubtitle } from "./SpotifyArtist";
-import { CommentOutlined, StarOutlined } from "@ant-design/icons";
+import {
+  CommentOutlined,
+  SearchOutlined,
+  StarOutlined,
+} from "@ant-design/icons";
 
 const SpotifyPage = () => {
   const { user, userPartner, spotifyToken, loading } = useUser();
@@ -515,7 +519,7 @@ const SpotifyPage = () => {
                   handleGoToSpotifyDetails();
                 }}
               >
-                {isTrackLoading ? <Spin size="default" /> : "Find"}
+                {isTrackLoading ? <Spin size="default" /> : <SearchOutlined />}
               </SpotifySearchButton>
             </Flex>
             {errorMessage !== "" && (
@@ -538,7 +542,7 @@ const SpotifyPage = () => {
                 Recently Reviewed / Commented
               </RecentReviewedTitle>
               <Flex vertical gap={8} justify="center">
-                {enrichedActivity.slice(0, 10).map((activity) => (
+                {enrichedActivity.map((activity) => (
                   <SpotifyRecentlyContainer
                     key={activity.id}
                     onClick={() => {

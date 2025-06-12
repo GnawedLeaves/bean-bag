@@ -18,6 +18,7 @@ export interface AppTheme {
   paddingSmall: number;
   paddingMed: number;
   paddingLg: number;
+  paddingLgg: number;
   fontSizeHuge: number;
   fontFamily: string;
 }
@@ -44,5 +45,6 @@ export const token = {
   paddingSmall: 8,
   paddingMed: 16,
   paddingLg: 32,
+  paddingLgg: 64,
   fontFamily: "Josefin Sans , sans-serif",
 };

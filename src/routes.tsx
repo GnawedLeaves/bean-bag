@@ -28,9 +28,9 @@ export const ROUTES: Record<string, RouteConfig> = {
     path: "/plantsUpload",
     name: "Upload Plants",
   },
-  SETTINGS: {
-    path: "/settings",
-    name: "Settings",
+  PROFILE: {
+    path: "/profile",
+    name: "Profile",
   },
   BLOGS: {
     path: "/blogs",
