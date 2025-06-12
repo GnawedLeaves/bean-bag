@@ -187,7 +187,7 @@ const Home: React.FC = () => {
           </HomeStatsCard>{" "}
           <HomeStatsCard background={token.colorBgVoliet}>
             <HomeStatsCardNumber>--</HomeStatsCardNumber>
-            <HomeStatsCardDescription>agendas created</HomeStatsCardDescription>
+            <HomeStatsCardDescription>agenda items</HomeStatsCardDescription>
           </HomeStatsCard>
           <HomeStatsCard background={token.colorBgPink}>
             <HomeStatsCardNumber>{gayLevel}%</HomeStatsCardNumber>

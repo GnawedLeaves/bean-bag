@@ -19,7 +19,7 @@ import { token } from "../../theme";
 
 const { Header: AntHeader } = Layout;
 
-const Header: React.FC = () => {
+const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,10 +44,10 @@ const Header: React.FC = () => {
       path: ROUTES.HOME.path,
     },
     {
-      key: ROUTES.SPACE?.path || "/space",
+      key: ROUTES.AGENDA?.path || "/agenda",
       icon: <CoffeeOutlined />,
-      label: "Agendas",
-      path: ROUTES.SPACE?.path || "/space",
+      label: "Agenda",
+      path: ROUTES.AGENDA?.path || "/agenda",
     },
     {
       key: ROUTES.BLOG?.path || "/blogs",
@@ -209,4 +209,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header;
+export default Navbar;

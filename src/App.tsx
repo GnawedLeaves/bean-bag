@@ -1,5 +1,5 @@
 // src/App.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 
@@ -7,7 +7,7 @@ import { ApolloProvider } from "@apollo/client";
 import { client } from "./services/hygraph";
 import Home from "./pages/home/Home";
 import BlogUploadPage from "./pages/blog/BlogUpload";
-import Header from "./components/layout/Header";
+import Navbar from "./components/layout/Navbar";
 import SpacePage from "./pages/space/Space";
 import LoginPage from "./pages/login/Login";
 import { PlantsPage } from "./pages/plant/Plants";
@@ -16,12 +16,13 @@ import { ROUTES } from "./routes";
 import BlogPage from "./pages/blog/Blogs";
 import { token } from "./theme";
 import SpotifyPage from "./pages/spotify/Spotify";
-import { UserProvider } from "./contexts/UserContext";
+import { UserProvider, useUser } from "./contexts/UserContext";
 import SpotifyArtistDetailsPage from "./pages/spotify/SpotifyArtist";
 import SpotifyTrackPage from "./pages/spotify/SpotifyTrack";
 import SpotifyAlbumPage from "./pages/spotify/SpotifyAlbum";
 import SpotifyPlaylistDetailsPage from "./pages/spotify/SpotifyPlaylist";
 import { ProfilePage } from "./pages/profile/Profile";
+import AgendaPage from "./pages/agenda/Agenda";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -67,7 +68,7 @@ const App: React.FC = () => {
         <UserProvider>
           <Router>
             <GlobalStyle />
-            <Header />
+            <Navbar />
             <main>
               <Routes>
                 <Route path={ROUTES.HOME.path} element={<Home />} />
@@ -99,6 +100,7 @@ const App: React.FC = () => {
                   path={ROUTES.SPOTIFY_PLAYLIST.path}
                   element={<SpotifyPlaylistDetailsPage />}
                 />
+                <Route path={ROUTES.AGENDA.path} element={<AgendaPage />} />
               </Routes>
             </main>
           </Router>
