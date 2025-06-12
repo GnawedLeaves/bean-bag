@@ -6,9 +6,11 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
 import BlogEntryForm from "../../components/blog/blogEntryComponents/BlogEntryForm";
+import dayjs from "dayjs";
 
 const UploadContainer = styled.div`
   padding: 1rem;
+  background: ${(props) => props.theme.colorBgPink};
 `;
 
 const BlogUploadPage: React.FC = () => {
@@ -30,8 +32,10 @@ const BlogUploadPage: React.FC = () => {
   }, []);
   return (
     <UploadContainer>
-      {blogDate}
-      <BlogEntryForm onSuccess={handleSuccess} />
+      <BlogEntryForm
+        onSuccess={handleSuccess}
+        blogDate={blogDate ?? dayjs().format("YYYY-MM-DD")}
+      />
     </UploadContainer>
   );
 };

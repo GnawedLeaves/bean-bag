@@ -255,9 +255,10 @@ export const createBlogEntry = async (
   title: string,
   content: string,
   location: any,
-  imageIds: string[]
+  imageIds: string[],
+  dateAdded: string
 ) => {
-  const timestamp = new Date().toISOString();
+  const timestamp = dateAdded;
 
   const CREATE_ENTRY = gql`
     mutation CreateEntry(
@@ -331,7 +332,7 @@ export const createBlogEntry = async (
 export const getBlogEntries = async () => {
   const GET_ALL_ENTRIES = gql`
     query GetAllBlogs {
-      blogEntries {
+      blogEntries(first: 100) {
         title
         content
         timestamp

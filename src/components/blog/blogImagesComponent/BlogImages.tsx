@@ -119,9 +119,6 @@ const BlogImages = ({ images, date }: BlogImagesProps) => {
     }
   };
 
-  useEffect(() => {
-    console.log({ pageCount });
-  }, [pageCount]);
   return (
     <BlogImagesContainer>
       {maxPages > 1 && (
