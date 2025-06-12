@@ -48,6 +48,10 @@ import {
   getLocationDetails,
 } from "../../services/google";
 import BlogImages from "../../components/blog/blogImagesComponent/BlogImages";
+import {
+  PageLoading,
+  BlogEntryLoading,
+} from "../../components/loading/LoadingStates";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -64,7 +68,6 @@ const BlogPage: React.FC = () => {
     try {
       setLoading(true);
       const results = await getBlogEntries();
-      console.log("Fetched entries:", results);
       setEntries(results);
       setError(null);
     } catch (error) {
@@ -111,7 +114,6 @@ const BlogPage: React.FC = () => {
       }))
     );
 
-    console.log({ entriesWithLocation });
     setDayEntries(entriesWithLocation);
   };
 
@@ -135,36 +137,30 @@ const BlogPage: React.FC = () => {
 
     const dates = Array.from(uniqueDatesMap.values());
 
-    console.log({ dates });
     setUniqueDates(dates);
   };
 
   const getStreetLocation = async (latitude: number, longitude: number) => {
     const location = await getAddressFromCoords(latitude, longitude);
-    console.log({ location });
 
     return location;
   };
 
   if (loading) {
-    return (
-      <div style={{ padding: "2rem", textAlign: "center" }}>
-        <Spin size="large" />
-      </div>
-    );
+    return <PageLoading />;
   }
 
   if (error) {
     return (
-      <div style={{ padding: "2rem" }}>
+      <BlogMainPage>
         <Alert
           message="Error"
           description={error}
           type="error"
           showIcon
-          style={{ marginBottom: "1rem" }}
+          style={{ margin: "2rem" }}
         />
-      </div>
+      </BlogMainPage>
     );
   }
 
@@ -197,23 +193,32 @@ const BlogPage: React.FC = () => {
               <SignatureOutlined /> Add Bean
             </BlogButton>
             <BlogEntriesContainer>
-              {dayEntries.map((entry, index) => (
-                <BlogEntryContainer key={index}>
-                  <BlogImages
-                    images={entry.images}
-                    date={convertISOToDDMMYYY(entry.timestamp)}
-                  />
-                  <Flex vertical gap={8}>
-                    <BlogEntryTitle>{entry.title}</BlogEntryTitle>
-                    <BlogEntryContent>{entry.content}</BlogEntryContent>
-                    <BlogEntryLocation>
-                      {convertISOToDDMMYYYHHmm(entry.timestamp)} •{" "}
-                      {entry.streetLocation?.street},{" "}
-                      {entry.streetLocation?.country}
-                    </BlogEntryLocation>
-                  </Flex>
-                </BlogEntryContainer>
-              ))}
+              {loading ? (
+                <>
+                  <BlogEntryLoading />
+                  <BlogEntryLoading />
+                  <BlogEntryLoading />
+                </>
+              ) : (
+                dayEntries.map((entry, index) => (
+                  <BlogEntryContainer key={index}>
+                    <BlogImages
+                      images={entry.images}
+                      date={convertISOToDDMMYYY(entry.timestamp)}
+                    />
+                    <Flex vertical gap={8}>
+                      <BlogEntryTitle>{entry.title}</BlogEntryTitle>
+                      <BlogEntryContent>{entry.content}</BlogEntryContent>
+                      <BlogEntryLocation>
+                        {convertISOToDDMMYYYHHmm(entry.timestamp)} •{" "}
+                        {entry.streetLocation?.street &&
+                          entry.streetLocation?.street + ", "}
+                        {entry.streetLocation?.country}
+                      </BlogEntryLocation>
+                    </Flex>
+                  </BlogEntryContainer>
+                ))
+              )}
             </BlogEntriesContainer>{" "}
           </>
         ) : (

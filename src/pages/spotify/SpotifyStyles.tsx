@@ -423,3 +423,25 @@ export const SpotifyHistoryArtistImg = styled.img`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
   object-fit: cover;
 `;
+
+export const LoadingCardContainer = styled.div`
+  width: 100%;
+  height: 120px;
+  background: ${(props) => props.theme.colorBg};
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const LoadingHistoryContainer = styled.div`
+  width: 150px;
+  height: 200px;
+  background: ${(props) => props.theme.colorBg};
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;

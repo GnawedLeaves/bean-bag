@@ -27,6 +27,8 @@ import {
   SpotifyTrack,
 } from "../../types/spotifyTypes";
 import {
+  LoadingCardContainer,
+  LoadingHistoryContainer,
   RecentReviewedContainer,
   RecentReviewedTitle,
   SpotifyAlbumContainer,
@@ -68,6 +70,10 @@ import {
   SearchOutlined,
   StarOutlined,
 } from "@ant-design/icons";
+import {
+  PageLoading,
+  SpinnerIcon,
+} from "../../components/loading/LoadingStates";
 
 const SpotifyPage = () => {
   const { user, userPartner, spotifyToken, loading } = useUser();
@@ -479,6 +485,10 @@ const SpotifyPage = () => {
     }
   }, [loading, user]);
 
+  if (loading) {
+    return <PageLoading />;
+  }
+
   return (
     <ThemeProvider theme={token}>
       <SpotifyMain>
@@ -527,20 +537,42 @@ const SpotifyPage = () => {
             )}
           </SpotifySearchContainer>
           <Flex gap={16} wrap="wrap" style={{ width: "100%" }} justify="center">
-            <StatsCard background={token.colorBgPink}>
-              <StatsCardNumber>{totalReviews}</StatsCardNumber>
-              <StatsCardDescription>Ratings added</StatsCardDescription>
-            </StatsCard>
-            <StatsCard background={token.colorBgYellow}>
-              <StatsCardNumber>{totalComments}</StatsCardNumber>
-              <StatsCardDescription>Comments written</StatsCardDescription>
-            </StatsCard>
+            {recentsLoading ? (
+              <>
+                <LoadingCardContainer>
+                  <SpinnerIcon />
+                </LoadingCardContainer>
+                <LoadingCardContainer>
+                  <SpinnerIcon />
+                </LoadingCardContainer>
+              </>
+            ) : (
+              <>
+                <StatsCard background={token.colorBgPink}>
+                  <StatsCardNumber>{totalReviews}</StatsCardNumber>
+                  <StatsCardDescription>Ratings added</StatsCardDescription>
+                </StatsCard>
+                <StatsCard background={token.colorBgYellow}>
+                  <StatsCardNumber>{totalComments}</StatsCardNumber>
+                  <StatsCardDescription>Comments written</StatsCardDescription>
+                </StatsCard>
+              </>
+            )}
           </Flex>
-          {!recentsLoading && (
-            <RecentReviewedContainer>
-              <RecentReviewedTitle>
-                Recently Reviewed / Commented
-              </RecentReviewedTitle>
+
+          <RecentReviewedContainer>
+            <RecentReviewedTitle>
+              Recently Reviewed / Commented
+            </RecentReviewedTitle>
+            {recentsLoading ? (
+              <Flex vertical gap={8} justify="center">
+                {[1, 2, 3].map((i) => (
+                  <LoadingCardContainer key={i}>
+                    <SpinnerIcon />
+                  </LoadingCardContainer>
+                ))}
+              </Flex>
+            ) : (
               <Flex vertical gap={8} justify="center">
                 {enrichedActivity.map((activity) => (
                   <SpotifyRecentlyContainer
@@ -596,15 +628,28 @@ const SpotifyPage = () => {
                   </SpotifyRecentlyContainer>
                 ))}
               </Flex>
-            </RecentReviewedContainer>
-          )}
+            )}
+          </RecentReviewedContainer>
 
-          {!historyLoading && (
-            <RecentReviewedContainer>
-              <RecentReviewedTitle>Recent Searches</RecentReviewedTitle>
+          <RecentReviewedContainer>
+            <RecentReviewedTitle>Recent Searches</RecentReviewedTitle>
+            {historyLoading ? (
               <Flex
                 gap={16}
-                wrap={"wrap"}
+                wrap="wrap"
+                style={{ width: "100%" }}
+                justify="center"
+              >
+                {[1, 2, 3, 4].map((i) => (
+                  <LoadingHistoryContainer key={i}>
+                    <SpinnerIcon />
+                  </LoadingHistoryContainer>
+                ))}
+              </Flex>
+            ) : (
+              <Flex
+                gap={16}
+                wrap="wrap"
                 style={{ width: "100%" }}
                 justify="center"
               >
@@ -660,8 +705,8 @@ const SpotifyPage = () => {
                   </SpotifyHistoryItemContainer>
                 ))}
               </Flex>
-            </RecentReviewedContainer>
-          )}
+            )}
+          </RecentReviewedContainer>
         </SpotifyMainBodyContainer>
       </SpotifyMain>
     </ThemeProvider>

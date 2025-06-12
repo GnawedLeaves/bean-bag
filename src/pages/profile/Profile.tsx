@@ -19,6 +19,10 @@ import {
 import { useUser } from "../../contexts/UserContext";
 import { token } from "../../theme";
 import { getAssetUrlById, uploadImages } from "../../services/hygraph";
+import {
+  PageLoading,
+  ImageLoading,
+} from "../../components/loading/LoadingStates";
 
 interface SettingPageProps {}
 const SettingsPage = ({}: SettingPageProps) => {
@@ -26,6 +30,7 @@ const SettingsPage = ({}: SettingPageProps) => {
   const { user, loading, getUserContextData } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(user?.name || "");
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     console.log({ user });
@@ -67,6 +72,7 @@ const SettingsPage = ({}: SettingPageProps) => {
   };
 
   const handleImageUpload = async (file: RcFile): Promise<boolean> => {
+    setIsUploading(true);
     try {
       // Upload to CMS
       const imageIds = await uploadImages([file]);
@@ -75,8 +81,6 @@ const SettingsPage = ({}: SettingPageProps) => {
       }
 
       const imageUrl = await getAssetUrlById(imageIds[0]);
-
-      console.log({ imageUrl });
 
       if (user?.id) {
         const userRef = doc(db, "anniAppUsers", user.id);
@@ -92,8 +96,14 @@ const SettingsPage = ({}: SettingPageProps) => {
       console.error("Upload error:", error);
       message.error("Failed to update profile picture");
       return false;
+    } finally {
+      setIsUploading(false);
     }
   };
+
+  if (loading) {
+    return <PageLoading />;
+  }
 
   return (
     <ProfileMainContainer>
@@ -119,11 +129,15 @@ const SettingsPage = ({}: SettingPageProps) => {
             beforeUpload={handleImageUpload}
             maxCount={1}
           >
-            {user?.displayPicture && (
-              <ProfileDisplayPictureInner
-                src={user?.displayPicture}
-                alt="Profile"
-              />
+            {isUploading ? (
+              <ImageLoading />
+            ) : (
+              user?.displayPicture && (
+                <ProfileDisplayPictureInner
+                  src={user.displayPicture}
+                  alt="Profile"
+                />
+              )
             )}
           </Upload>
         </ProfileDisplayPictureContainer>

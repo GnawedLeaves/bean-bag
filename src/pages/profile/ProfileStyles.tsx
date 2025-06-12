@@ -49,6 +49,26 @@ export const ProfileDisplayPictureContainer = styled.div`
   border: 2px solid ${(props) => props.theme.borderColor};
   cursor: pointer;
   transition: opacity 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    &::after {
+      content: "Change Picture";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: ${(props) => props.theme.text};
+      font-size: ${(props) => props.theme.fontSizeSmall}px;
+      text-align: center;
+      z-index: 1;
+    }
+
+    img {
+      opacity: 0.7;
+    }
+  }
 `;
 
 export const ProfileDisplayPictureInner = styled.img`
@@ -58,6 +78,7 @@ export const ProfileDisplayPictureInner = styled.img`
   object-fit: cover;
   border: 2px solid ${(props) => props.theme.borderColor};
   margin-top: 6px;
+  transition: opacity 0.3s ease;
 `;
 
 export const ProfileDisplayName = styled.div`
