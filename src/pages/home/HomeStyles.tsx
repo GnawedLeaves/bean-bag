@@ -5,6 +5,7 @@ import {
   formatFirebaseDate,
 } from "../../utils/utils";
 import style from "antd/es/affix/style";
+import { Image } from "antd";
 declare module "styled-components" {
   export interface DefaultTheme extends AppTheme {}
 }
@@ -162,15 +163,6 @@ export const HomePartnerSubTitle = styled.div`
 
 export const HomePartnerSubText = styled.div``;
 
-export const SpacePictureContainer = styled.img`
-  width: 100%;
-  // max-height: 260px;
-  object-fit: cover;
-  border: 2px solid ${(props) => props.theme.borderColor};
-  border-radius: ${(props) => props.theme.borderRadius}px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-`;
-
 export const SpacePictureTitle = styled.div`
   font-weight: bold;
   font-size: ${(props) => props.theme.fontSizeLgg}px;
@@ -179,4 +171,13 @@ export const SpacePictureTitle = styled.div`
 export const SpacePictureExplanation = styled.div`
   white-space: pre-wrap;
   color: ${(props) => props.theme.text};
+`;
+
+export const SpacePictureContainer = styled(Image)`
+  width: 100%;
+  // max-height: 260px;
+  object-fit: cover;
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 `;

@@ -1,17 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Typography, Flex } from "antd";
-import {
-  HeartOutlined,
-  BookOutlined,
-  ExperimentOutlined,
-  RocketOutlined,
-  CalendarOutlined,
-  CameraOutlined,
-  StarOutlined,
-  GiftOutlined,
-  ReloadOutlined,
-  InfoCircleOutlined,
-} from "@ant-design/icons";
+import { Flex } from "antd";
+import { ReloadOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { getBlogEntries } from "../../services/hygraph";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
@@ -41,13 +30,11 @@ import {
   SpacePictureTitle,
 } from "./HomeStyles";
 import { useUser } from "../../contexts/UserContext";
-import { useLocationHook } from "../../hooks/useLocation";
 import {
   addLineBreaksAfterSentences,
   calculateDistance,
   formatFirebaseDate,
 } from "../../utils/utils";
-import { Timestamp } from "firebase/firestore";
 import dayjs from "dayjs";
 import { getAstronomyPictureOfTheDay } from "../../services/nasa";
 import { NasaApodObject } from "../../types/nasaTypes";
