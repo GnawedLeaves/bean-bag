@@ -45,7 +45,7 @@ export const BlogBodyPage = styled.div`
 export const BlogTopBar = styled.div`
   width: 100%;
   position: relative;
-  padding: 16px 0;
+  // padding: 16px 0;
   font-size: ${(props) => props.theme.fontSizeLgg}px;
   font-weight: bold;
   display: flex;

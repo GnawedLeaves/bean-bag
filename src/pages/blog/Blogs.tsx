@@ -189,6 +189,13 @@ const BlogPage: React.FC = () => {
               {dayEntries.length > 1 ? "s" : ""}
               {/* <BlogTopBarSubtitle>we can dump our shit here!!</BlogTopBarSubtitle> */}
             </BlogTopBar>
+            <BlogButton
+              onClick={() => {
+                handleGoToAddEntry();
+              }}
+            >
+              <SignatureOutlined /> Add Bean
+            </BlogButton>
             <BlogEntriesContainer>
               {dayEntries.map((entry, index) => (
                 <BlogEntryContainer key={index}>

@@ -1,7 +1,7 @@
 // src/pages/Upload.tsx
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
@@ -13,9 +13,9 @@ const UploadContainer = styled.div`
 
 const BlogUploadPage: React.FC = () => {
   const navigate = useNavigate();
+  const { blogDate } = useParams();
 
   const handleSuccess = () => {
-    // Navigate to home page after successful submission
     setTimeout(() => {
       navigate(ROUTES.BLOGS.path);
     }, 1000);
@@ -30,6 +30,7 @@ const BlogUploadPage: React.FC = () => {
   }, []);
   return (
     <UploadContainer>
+      {blogDate}
       <BlogEntryForm onSuccess={handleSuccess} />
     </UploadContainer>
   );
