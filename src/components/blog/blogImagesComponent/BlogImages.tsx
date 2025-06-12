@@ -1,9 +1,7 @@
 import styled from "styled-components";
 import { BlogImage } from "../../../types/blogTypes";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
-import Draggable3DImage from "../../Draggable3DImage/Draggable3DImage";
-import { Draggable3DImageContainer } from "../blogDraggable3DImage/BlogDraggable3DImageStyles";
 import BlogDraggable3DImage from "../blogDraggable3DImage/BlogDraggable3DImage";
 interface BlogImagesProps {
   images: BlogImage[];
@@ -12,6 +10,12 @@ interface BlogImagesProps {
 
 interface BlogImageCardProps {
   zIndex: number;
+}
+
+interface ImageTransform {
+  rotate: number;
+  translateX: number;
+  translateY: number;
 }
 
 export const BlogImagesContainer = styled.div`
@@ -30,10 +34,11 @@ export const BlogImageCard = styled.div<BlogImageCardProps>`
   padding: ${(props) => props.theme.paddingMed}px;
   align-items: center;
   gap: 8px;
-  width: 200px;
+  width: 150px;
   height: 300px;
   background: ${(props) => props.theme.colorBg};
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease;
   position: absolute;
   z-index: ${(props) => props.zIndex};
 `;
@@ -63,9 +68,28 @@ export const ArrowContainer = styled.div`
   color: ${(props) => props.theme.text};
 `;
 
+const generateRandomTransforms = (count: number): ImageTransform[] => {
+  const transforms: ImageTransform[] = [];
+  const PI_4 = Math.PI / 10;
+
+  for (let i = 0; i < count; i++) {
+    transforms.push({
+      rotate: (Math.random() * 2 - 1) * PI_4,
+      translateX: Math.floor(Math.random() * 100) - 50,
+      translateY: Math.floor(Math.random() * 41) - 20,
+    });
+  }
+
+  return transforms;
+};
+
 const BlogImages = ({ images, date }: BlogImagesProps) => {
   const [pageCount, setPageCount] = useState<number>(0);
-  const maxPages = images.length - 1;
+
+  const maxPages = useMemo(() => {
+    return images.length;
+  }, [images]);
+  const [transforms] = useState(() => generateRandomTransforms(maxPages));
 
   const generateRandomId = (): string => {
     const firstLength = Math.floor(Math.random() * 3) + 1; // 2-4 digits
@@ -80,7 +104,7 @@ const BlogImages = ({ images, date }: BlogImagesProps) => {
   };
 
   const handleIncreasePage = () => {
-    if (pageCount + 1 > maxPages) {
+    if (pageCount + 1 > maxPages - 1) {
       setPageCount(0);
     } else {
       setPageCount((prev) => prev + 1);
@@ -89,7 +113,7 @@ const BlogImages = ({ images, date }: BlogImagesProps) => {
 
   const handleDecreasePage = () => {
     if (pageCount - 1 < 0) {
-      setPageCount(maxPages);
+      setPageCount(maxPages - 1);
     } else {
       setPageCount((prev) => prev - 1);
     }
@@ -107,8 +131,10 @@ const BlogImages = ({ images, date }: BlogImagesProps) => {
       )}
 
       {images.map((image, index) => {
+        const transform = transforms[index];
         return index === pageCount ? (
           <BlogDraggable3DImage
+            key={image.url}
             zIndex={pageCount === index ? maxPages : maxPages - index}
             src={image.url}
             date={date}
@@ -116,7 +142,13 @@ const BlogImages = ({ images, date }: BlogImagesProps) => {
           />
         ) : (
           <BlogImageCard
+            key={image.url}
             zIndex={pageCount === index ? maxPages : maxPages - index}
+            style={{
+              transform: `rotate(${transform.rotate}rad) 
+                         translateX(${transform.translateX}px) 
+                         translateY(${transform.translateY}px)`,
+            }}
           >
             <BlogImagee src={image.url} />
             <BlogImageDateStamp>

@@ -8,6 +8,8 @@ import {
   BlogImageDateStamp,
   BlogImagee,
 } from "../blogImagesComponent/BlogImages";
+import { Image } from "antd";
+import { token } from "../../../theme";
 
 interface Draggable3DImageProps {
   src: string;
@@ -95,7 +97,16 @@ const BlogDraggable3DImage = ({
         >
           <div className="left-edge" />
           <div className="top-edge" />
-          <BlogImagee src={src} />
+          <Image
+            width={"100%"}
+            height={200}
+            src={src}
+            style={{
+              objectFit: "cover",
+              border: `2px solid ${token.borderColor}`,
+            }}
+          />
+          {/* <BlogImagee src={src} /> */}
           <BlogImageDateStamp>
             {date}
             <br />

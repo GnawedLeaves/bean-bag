@@ -240,7 +240,7 @@ export const SpotifyBarInnerContainer = styled.div<{ trackDuration: number }>`
   background-size: 200% 100%;
   height: 30px;
   width: 10%;
-  animation: ${widthAnimation} ${(props) => props.trackDuration}s ease-in-out
+  animation: ${widthAnimation} ${(props) => props.trackDuration}s linear
       infinite,
     ${gradientAnimation} 5s ease-in-out infinite;
 `;

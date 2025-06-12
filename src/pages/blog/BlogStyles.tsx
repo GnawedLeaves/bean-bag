@@ -63,12 +63,12 @@ export const BlogEntriesContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 64px;
 `;
 export const BlogEntryContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 16px;
 `;
 export const BlogEntryImagesContainer = styled.div``;
 
