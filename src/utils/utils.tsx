@@ -74,7 +74,6 @@ export const calculateDistance = (
   point1: GeoPoint,
   point2: GeoPoint
 ): string => {
-  console.log({ point1, point2 });
   const R = 6371e3; // Earth's radius in meters
   const φ1 = (point1.latitude * Math.PI) / 180; // φ, λ in radians
   const φ2 = (point2.latitude * Math.PI) / 180;
@@ -93,4 +92,26 @@ export const calculateDistance = (
     return `${(distance / 1000).toFixed(1)}km`;
   }
   return `${Math.round(distance).toFixed(2)}m`;
+};
+
+export const addLineBreaksAfterSentences = (text: string): string => {
+  const abbreviations = ["Dr", "Mr", "Mrs", "Ms", "Prof", "Sr", "Jr", "vs"];
+  let processedText = text;
+
+  // First, temporarily replace periods in abbreviations
+  abbreviations.forEach((abbr) => {
+    const regex = new RegExp(`${abbr}\\.`, "g");
+    processedText = processedText.replace(regex, `${abbr}@@@`);
+  });
+
+  // Replace periods followed by space and capital letter with period + double newline
+  processedText = processedText.replace(/\.\s+([A-Z])/g, ".\n\n$1");
+
+  // Restore the original abbreviations
+  abbreviations.forEach((abbr) => {
+    const regex = new RegExp(`${abbr}@@@`, "g");
+    processedText = processedText.replace(regex, `${abbr}.`);
+  });
+
+  return processedText;
 };

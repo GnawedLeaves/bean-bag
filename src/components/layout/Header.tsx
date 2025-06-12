@@ -10,6 +10,7 @@ import {
   SunOutlined,
   SpotifyOutlined,
   MehOutlined,
+  CoffeeOutlined,
 } from "@ant-design/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
@@ -43,6 +44,12 @@ const Header: React.FC = () => {
       path: ROUTES.HOME.path,
     },
     {
+      key: ROUTES.SPACE?.path || "/space",
+      icon: <CoffeeOutlined />,
+      label: "Agendas",
+      path: ROUTES.SPACE?.path || "/space",
+    },
+    {
       key: ROUTES.BLOG?.path || "/blogs",
       icon: <BookOutlined />,
       label: "Beans",
@@ -60,12 +67,7 @@ const Header: React.FC = () => {
       label: "Beanify",
       path: ROUTES.SPOTIFY?.path || "/spotify",
     },
-    {
-      key: ROUTES.SPACE?.path || "/space",
-      icon: <ExperimentOutlined />,
-      label: "Space",
-      path: ROUTES.SPACE?.path || "/space",
-    },
+
     {
       key: ROUTES.PROFILE?.path || "/profile",
       icon: <MehOutlined />,

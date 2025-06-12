@@ -10,6 +10,7 @@ import {
   StarOutlined,
   GiftOutlined,
   ReloadOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import { getBlogEntries } from "../../services/hygraph";
 import { onAuthStateChanged } from "firebase/auth";
@@ -21,7 +22,10 @@ import { ThemeProvider } from "styled-components";
 import {
   HomeBigCardRefreshButton,
   HomePage,
+  HomePartnerSubText,
+  HomePartnerSubTitle,
   HomePartnerText,
+  HomeSpaceContainer,
   HomeStatsBigCard,
   HomeStatsBigCardDate,
   HomeStatsBigCardDisplayPic,
@@ -32,11 +36,21 @@ import {
   HomeStatsCardDescription,
   HomeStatsCardNumber,
   HomeStatsContainer,
+  SpacePictureContainer,
+  SpacePictureExplanation,
+  SpacePictureTitle,
 } from "./HomeStyles";
 import { useUser } from "../../contexts/UserContext";
 import { useLocationHook } from "../../hooks/useLocation";
-import { calculateDistance, formatFirebaseDate } from "../../utils/utils";
+import {
+  addLineBreaksAfterSentences,
+  calculateDistance,
+  formatFirebaseDate,
+} from "../../utils/utils";
 import { Timestamp } from "firebase/firestore";
+import dayjs from "dayjs";
+import { getAstronomyPictureOfTheDay } from "../../services/nasa";
+import { NasaApodObject } from "../../types/nasaTypes";
 
 const Home: React.FC = () => {
   const { user, userPartner, spotifyToken, loading, getUserContextData } =
@@ -47,6 +61,7 @@ const Home: React.FC = () => {
   const [gayLevel, setGayLevel] = useState<number>(0);
   const [blogCount, setBlogCount] = useState<number>(0);
   const [distance, setDistance] = useState<string>("");
+  const [apodData, setApodData] = useState<NasaApodObject>();
   const [recentEntries, setRecentEntries] = useState<any[]>([]);
   const [isSpinning, setIsSpinning] = useState(false);
   const navigate = useNavigate();
@@ -72,10 +87,35 @@ const Home: React.FC = () => {
     } finally {
     }
   };
+
+  const getAPOD = async () => {
+    const today = new Date();
+    const formattedDate = today.toISOString().split("T")[0];
+
+    try {
+      const response = (await getAstronomyPictureOfTheDay({
+        thumbs: true,
+        date: formattedDate,
+      })) as NasaApodObject;
+
+      // Create the transformed response with line breaks
+      const transformedResponse = {
+        ...response,
+        explanation: addLineBreaksAfterSentences(response.explanation),
+      };
+
+      // Set the transformed response, not the original
+      setApodData(transformedResponse);
+    } catch (e) {
+      console.error("Error getting apod", e);
+    }
+  };
+
   useEffect(() => {
     fetchRecentEntries();
     calculateDaysTogether();
     calculateGayLevels();
+    getAPOD();
   }, []);
 
   useEffect(() => {
@@ -91,7 +131,6 @@ const Home: React.FC = () => {
   useEffect(() => {
     if (user?.location && userPartner?.location) {
       const distance = calculateDistance(user.location, userPartner.location);
-      console.log({ distance });
       setDistance(distance);
     }
   }, [user, userPartner]);
@@ -108,8 +147,27 @@ const Home: React.FC = () => {
     <ThemeProvider theme={token}>
       <HomePage>
         <HomeStatsContainer>
+          <HomePartnerText>Stats</HomePartnerText>
           <HomeStatsBigCard>
-            <HomePartnerText>Your Partner</HomePartnerText>
+            <HomeStatsBigCardDisplayPic src={user?.displayPicture} />
+            <Flex vertical gap={8}>
+              <HomeStatsBigCardName>
+                {/* {user?.name || "Marcus"}{" "}
+                 */}
+                Me
+              </HomeStatsBigCardName>
+              <HomeStatsBigCardStatus>
+                {user?.status ?? "--"}
+              </HomeStatsBigCardStatus>
+              <HomeStatsBigCardDate>
+                {formatFirebaseDate(user?.lastUpdated) || "--:--"}
+              </HomeStatsBigCardDate>
+              <HomeStatsBigCardLocation>
+                {distance} away
+              </HomeStatsBigCardLocation>
+            </Flex>
+          </HomeStatsBigCard>
+          <HomeStatsBigCard>
             <HomeBigCardRefreshButton
               isSpinning={isSpinning}
               onClick={handleRefresh}
@@ -132,23 +190,6 @@ const Home: React.FC = () => {
               </HomeStatsBigCardDate>
             </Flex>
           </HomeStatsBigCard>
-          <HomeStatsBigCard>
-            <HomeStatsBigCardDisplayPic src={user?.displayPicture} />
-            <Flex vertical gap={8}>
-              <HomeStatsBigCardName>
-                {user?.name || "Marcus"}{" "}
-              </HomeStatsBigCardName>
-              <HomeStatsBigCardStatus>
-                {user?.status ?? "--"}
-              </HomeStatsBigCardStatus>
-              <HomeStatsBigCardDate>
-                {formatFirebaseDate(user?.lastUpdated) || "--:--"}
-              </HomeStatsBigCardDate>
-              <HomeStatsBigCardLocation>
-                {distance} away
-              </HomeStatsBigCardLocation>
-            </Flex>
-          </HomeStatsBigCard>
           <HomeStatsCard background={token.colorBgGreen}>
             <HomeStatsCardNumber>{daysTogetherCount}</HomeStatsCardNumber>
             <HomeStatsCardDescription>days togther</HomeStatsCardDescription>
@@ -166,6 +207,28 @@ const Home: React.FC = () => {
             <HomeStatsCardDescription>gay level</HomeStatsCardDescription>
           </HomeStatsCard>{" "}
         </HomeStatsContainer>
+        {apodData && (
+          <HomeSpaceContainer>
+            <Flex vertical align="center" gap={8}>
+              <HomePartnerSubTitle>The Daily</HomePartnerSubTitle>
+              <HomePartnerText>Space Picture</HomePartnerText>
+              <HomePartnerSubText>
+                {dayjs().format("DD MMM YYYY")}
+              </HomePartnerSubText>
+            </Flex>
+            <SpacePictureContainer src={apodData?.hdurl ?? apodData.url} />
+            <Flex style={{ width: "100%" }} vertical gap={4}>
+              <SpacePictureTitle>{apodData.title}</SpacePictureTitle>
+              <SpacePictureExplanation>
+                {apodData.explanation}
+              </SpacePictureExplanation>
+            </Flex>
+            <Flex gap={8} align="center">
+              <InfoCircleOutlined />
+              Check back every day for a new picture!
+            </Flex>
+          </HomeSpaceContainer>
+        )}
       </HomePage>
     </ThemeProvider>
   );
