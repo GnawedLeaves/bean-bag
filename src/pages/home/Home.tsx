@@ -3,7 +3,7 @@ import { Flex } from "antd";
 import { ReloadOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { getBlogEntries } from "../../services/hygraph";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../firebase/firebase";
+import { auth, db } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes";
 import { token } from "../../theme";
@@ -38,6 +38,8 @@ import {
 import dayjs from "dayjs";
 import { getAstronomyPictureOfTheDay } from "../../services/nasa";
 import { NasaApodObject } from "../../types/nasaTypes";
+import { collection, getDocs } from "firebase/firestore";
+import { AgendaItemType } from "../agenda/Agenda";
 
 const Home: React.FC = () => {
   const { user, userPartner, spotifyToken, loading, getUserContextData } =
@@ -53,6 +55,7 @@ const Home: React.FC = () => {
   const [isSpinning, setIsSpinning] = useState(false);
   const navigate = useNavigate();
   const anniversaryDate = new Date("2024-06-14");
+  const [agendaLength, setAgendaLength] = useState<number>(0);
 
   const calculateDaysTogether = () => {
     const today = new Date();
@@ -98,10 +101,25 @@ const Home: React.FC = () => {
     }
   };
 
+  const handleGetAllAgenda = async () => {
+    try {
+      const agendaRef = collection(db, "anniAppAgendaItems");
+      const snapshot = await getDocs(agendaRef);
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as AgendaItemType),
+      }));
+      setAgendaLength(data.length);
+    } catch (e) {
+      console.error("Error getting agenda items", e);
+    }
+  };
+
   useEffect(() => {
     fetchRecentEntries();
     calculateDaysTogether();
     calculateGayLevels();
+    handleGetAllAgenda();
     getAPOD();
   }, []);
 
@@ -186,7 +204,7 @@ const Home: React.FC = () => {
             <HomeStatsCardDescription>bean entries</HomeStatsCardDescription>
           </HomeStatsCard>{" "}
           <HomeStatsCard background={token.colorBgVoliet}>
-            <HomeStatsCardNumber>--</HomeStatsCardNumber>
+            <HomeStatsCardNumber>{agendaLength || "--"}</HomeStatsCardNumber>
             <HomeStatsCardDescription>agenda items</HomeStatsCardDescription>
           </HomeStatsCard>
           <HomeStatsCard background={token.colorBgPink}>

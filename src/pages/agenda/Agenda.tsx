@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
-import { AgendaMain } from "./AgendaStyles";
+import {
+  AgendaBodyContainer,
+  AgendaHeroContainer,
+  AgendaMain,
+  AgendaStatsCard,
+  AgendaStatsCardDescription,
+  AgendaStatsCardNumber,
+  AgendaTitle,
+} from "./AgendaStyles";
 import { token } from "../../theme";
 import {
   collection,
@@ -15,8 +23,14 @@ import { useUser } from "../../contexts/UserContext";
 import { onAuthStateChanged } from "firebase/auth";
 import { ROUTES } from "../../routes";
 import { useNavigate } from "react-router-dom";
+import {
+  HomeStatsCard,
+  HomeStatsCardNumber,
+  HomeStatsCardDescription,
+} from "../home/HomeStyles";
+import { Flex } from "antd";
 
-interface AgendaItem {
+export interface AgendaItemType {
   id?: string;
   addedOn: Timestamp;
   completedOn?: Timestamp;
@@ -37,8 +51,7 @@ interface ViewAgendaItem {
 const AgendaPage = () => {
   const { user, userPartner, spotifyToken, loading } = useUser();
 
-  console.log({ user });
-  const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([]);
+  const [agendaItems, setAgendaItems] = useState<AgendaItemType[]>([]);
   const [newContent, setNewContent] = useState("");
   const navigate = useNavigate();
   useEffect(() => {
@@ -58,7 +71,7 @@ const AgendaPage = () => {
       const snapshot = await getDocs(agendaRef);
       const data = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...(doc.data() as AgendaItem),
+        ...(doc.data() as AgendaItemType),
       }));
       setAgendaItems(data);
     } catch (e) {
@@ -69,7 +82,7 @@ const AgendaPage = () => {
   const handleAddAgenda = async () => {
     if (!newContent.trim() || !user) return;
     try {
-      const newItem: Omit<AgendaItem, "id"> = {
+      const newItem: Omit<AgendaItemType, "id"> = {
         addedOn: Timestamp.now(),
         completed: false,
         content: newContent,
@@ -114,39 +127,61 @@ const AgendaPage = () => {
   return (
     <ThemeProvider theme={token}>
       <AgendaMain>
-        <h2>Agenda</h2>
-
-        <div>
-          <input
-            type="text"
-            value={newContent}
-            placeholder="Add new item..."
-            onChange={(e) => setNewContent(e.target.value)}
-          />
-          <button onClick={handleAddAgenda}>Add</button>
-        </div>
-
-        <ul>
-          {agendaItems.map((item) => (
-            <li key={item.id}>
-              <p>
-                <strong>{item.content}</strong>{" "}
-                {item.completed && "(Completed)"}
-              </p>
-              <button onClick={() => handleCompleteAgenda(item.id!)}>
-                Mark Complete
-              </button>
-              <button
-                onClick={() => {
-                  const newText = prompt("Edit content", item.content);
-                  if (newText) handleEditAgenda(item.id!, newText);
-                }}
-              >
-                Edit
-              </button>
-            </li>
-          ))}
-        </ul>
+        <AgendaHeroContainer>
+          <AgendaTitle>AGENDA</AgendaTitle>
+          <Flex gap={8}>
+            <AgendaStatsCard background={token.colorBgOrange}>
+              <AgendaStatsCardNumber>{12}</AgendaStatsCardNumber>
+              <AgendaStatsCardDescription>
+                days togther
+              </AgendaStatsCardDescription>
+            </AgendaStatsCard>
+            <AgendaStatsCard background={token.colorBgVoliet}>
+              <AgendaStatsCardNumber>{12}</AgendaStatsCardNumber>
+              <AgendaStatsCardDescription>
+                days togther
+              </AgendaStatsCardDescription>
+            </AgendaStatsCard>
+            <AgendaStatsCard background={token.colorBgGreen}>
+              <AgendaStatsCardNumber>{12}</AgendaStatsCardNumber>
+              <AgendaStatsCardDescription>
+                days togther
+              </AgendaStatsCardDescription>
+            </AgendaStatsCard>
+          </Flex>
+        </AgendaHeroContainer>
+        <AgendaBodyContainer>
+          <div>
+            <input
+              type="text"
+              value={newContent}
+              placeholder="Add new item..."
+              onChange={(e) => setNewContent(e.target.value)}
+            />
+            <button onClick={handleAddAgenda}>Add</button>
+          </div>
+          <ul>
+            {agendaItems.map((item) => (
+              <li key={item.id}>
+                <p>
+                  <strong>{item.content}</strong>{" "}
+                  {item.completed && "(Completed)"}
+                </p>
+                <button onClick={() => handleCompleteAgenda(item.id!)}>
+                  Mark Complete
+                </button>
+                <button
+                  onClick={() => {
+                    const newText = prompt("Edit content", item.content);
+                    if (newText) handleEditAgenda(item.id!, newText);
+                  }}
+                >
+                  Edit
+                </button>
+              </li>
+            ))}
+          </ul>
+        </AgendaBodyContainer>
       </AgendaMain>
     </ThemeProvider>
   );

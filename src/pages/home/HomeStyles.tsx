@@ -55,7 +55,7 @@ export const HomeStatsCard = styled.div<HomeStatsCardProps>`
   display: flex;
   flex-direction: column;
   gap: 4px;
-  width: 150px;
+  width: 140px;
 `;
 
 export const HomeStatsCardNumber = styled.div`

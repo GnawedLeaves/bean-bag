@@ -82,19 +82,20 @@ const generateRandomTransforms = (count: number): ImageTransform[] => {
 
   return transforms;
 };
-
 const BlogImages = ({ images, date }: BlogImagesProps) => {
   const [pageCount, setPageCount] = useState<number>(0);
 
   const maxPages = useMemo(() => {
-    return images.length;
+    return images?.length || 0;
   }, [images]);
-  const [transforms] = useState(() => generateRandomTransforms(maxPages));
+
+  const transforms = useMemo(() => {
+    return generateRandomTransforms(maxPages);
+  }, [maxPages]);
 
   const generateRandomId = (): string => {
-    const firstLength = Math.floor(Math.random() * 3) + 1; // 2-4 digits
-    const secondLength = Math.floor(Math.random() * 5) + 1; // 1-4 digits
-
+    const firstLength = Math.floor(Math.random() * 3) + 1;
+    const secondLength = Math.floor(Math.random() * 5) + 1;
     const firstPart = Math.floor(Math.random() * Math.pow(10, firstLength));
     const secondPart = Math.floor(Math.random() * Math.pow(10, secondLength));
 
@@ -119,6 +120,10 @@ const BlogImages = ({ images, date }: BlogImagesProps) => {
     }
   };
 
+  if (!images || images.length === 0) {
+    return null;
+  }
+
   return (
     <BlogImagesContainer>
       {maxPages > 1 && (
@@ -128,7 +133,12 @@ const BlogImages = ({ images, date }: BlogImagesProps) => {
       )}
 
       {images.map((image, index) => {
-        const transform = transforms[index];
+        const transform = transforms[index] || {
+          rotate: 0,
+          translateX: 0,
+          translateY: 0,
+        };
+
         return index === pageCount ? (
           <BlogDraggable3DImage
             key={image.url}
@@ -156,9 +166,10 @@ const BlogImages = ({ images, date }: BlogImagesProps) => {
           </BlogImageCard>
         );
       })}
+
       {maxPages > 1 && (
-        <ArrowContainer>
-          <ArrowRightOutlined onClick={handleIncreasePage} />
+        <ArrowContainer onClick={handleIncreasePage}>
+          <ArrowRightOutlined />
         </ArrowContainer>
       )}
     </BlogImagesContainer>

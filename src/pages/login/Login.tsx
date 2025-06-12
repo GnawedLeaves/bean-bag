@@ -12,6 +12,7 @@ import {
   LoginInput,
   LoginTitle,
 } from "./LoginStyles";
+import { token } from "../../theme";
 
 const { Text } = Typography;
 
@@ -93,6 +94,10 @@ const LoginPage = () => {
           <Flex vertical gap={8}>
             <Text>Email</Text>
             <LoginInput
+              style={{
+                background: token.colorBg,
+                fontFamily: token.fontFamily,
+              }}
               placeholder="Name"
               prefix={<MailOutlined />}
               value={input}
@@ -106,6 +111,10 @@ const LoginPage = () => {
               placeholder="Password"
               type="password"
               prefix={<LockOutlined />}
+              style={{
+                background: token.colorBg,
+                fontFamily: token.fontFamily,
+              }}
               value={inputPassword}
               onChange={(e) => {
                 setInputPassword(e.target.value);

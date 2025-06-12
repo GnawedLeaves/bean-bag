@@ -89,9 +89,9 @@ export const calculateDistance = (
 
   // Format the output based on the distance
   if (distance >= 1000) {
-    return `${(distance / 1000).toFixed(1)}km`;
+    return `${(distance / 1000).toFixed(2)}km`;
   }
-  return `${Math.round(distance).toFixed(2)}m`;
+  return `${Math.round(distance).toFixed(1)}m`;
 };
 
 export const addLineBreaksAfterSentences = (text: string): string => {

@@ -56,9 +56,11 @@ export const LoginTitle = styled.h1`
 
 export const LoginInput = styled(Input)`
   border: 2px solid ${(props) => props.theme.borderColor};
+  font-family: ${(props) => props.theme.fontFamily};
   border-radius: ${(props) => props.theme.borderRadius}px;
   padding: 8px 12px;
   background: ${(props) => props.theme.colorBg};
+
   color: ${(props) => props.theme.text};
 
   &:hover,
