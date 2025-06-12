@@ -12,6 +12,7 @@ import {
   ProfileDisplayName,
   ProfileDisplayPictureContainer,
   ProfileDisplayPictureInner,
+  ProfileDisplayStatus,
   ProfileHero,
   ProfileMainContainer,
   ProfileSubtitle,
@@ -28,20 +29,24 @@ interface ProfilePageProps {}
 const ProfilePage = ({}: ProfilePageProps) => {
   const navigate = useNavigate();
   const { user, loading, getUserContextData } = useUser();
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingStatus, setIsEditingStatus] = useState(false);
+
   const [newName, setNewName] = useState(user?.name || "");
+  const [newStatus, setNewStatus] = useState(user?.status || "");
+
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
-    console.log({ user });
     if (user) {
       setNewName(user.name);
+      setNewStatus(user.status);
     }
   }, [user]);
 
   const handleNameUpdate = async () => {
     if (!user?.id || newName === user?.name || newName === "") {
-      setIsEditing(false);
+      setIsEditingName(false);
       return;
     }
 
@@ -53,11 +58,33 @@ const ProfilePage = ({}: ProfilePageProps) => {
       });
       console.log("Name updated successfully!");
       message.success("Name updated successfully!");
-      setIsEditing(false);
+      setIsEditingName(false);
       getUserContextData();
     } catch (error) {
       console.error("Name update error:", error);
       message.error("Failed to update name");
+    }
+  };
+
+  const handleStatusUpdate = async () => {
+    if (!user?.id || newStatus === user?.name || newStatus === "") {
+      setIsEditingStatus(false);
+      return;
+    }
+
+    try {
+      const userRef = doc(db, "anniAppUsers", user.id);
+      await updateDoc(userRef, {
+        status: newStatus,
+        lastUpdated: Timestamp.now(),
+      });
+      console.log("newStatus updated successfully!");
+      message.success("Status updated successfully!");
+      setIsEditingStatus(false);
+      getUserContextData();
+    } catch (error) {
+      console.error("Name update error:", error);
+      message.error("Failed to update status");
     }
   };
 
@@ -122,7 +149,7 @@ const ProfilePage = ({}: ProfilePageProps) => {
         </ProfileSubtitle>
       </Flex>
 
-      <Flex vertical align="center" gap={32}>
+      <Flex vertical align="center" gap={16} style={{ marginBottom: 64 }}>
         <ProfileDisplayPictureContainer>
           <Upload
             style={{ padding: 0, margin: 0 }}
@@ -144,13 +171,13 @@ const ProfilePage = ({}: ProfilePageProps) => {
           </Upload>
         </ProfileDisplayPictureContainer>
 
-        {isEditing ? (
+        {isEditingName ? (
           <Input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onPressEnter={handleNameUpdate}
             onBlur={handleNameUpdate}
-            maxLength={20}
+            maxLength={15}
             style={{
               width: "200px",
               textAlign: "center",
@@ -162,9 +189,32 @@ const ProfilePage = ({}: ProfilePageProps) => {
             }}
           />
         ) : (
-          <ProfileDisplayName onClick={() => setIsEditing(true)}>
+          <ProfileDisplayName onClick={() => setIsEditingName(true)}>
             {user?.name}
           </ProfileDisplayName>
+        )}
+
+        {isEditingStatus ? (
+          <Input
+            value={newStatus}
+            onChange={(e) => setNewStatus(e.target.value)}
+            onPressEnter={handleStatusUpdate}
+            onBlur={handleStatusUpdate}
+            maxLength={30}
+            style={{
+              width: "200px",
+              textAlign: "center",
+              background: token.colorBg,
+              border: `2px solid ${token.borderColor}`,
+              borderRadius: token.borderRadius,
+              fontFamily: token.fontFamily,
+              fontSize: token.fontSizeLg,
+            }}
+          />
+        ) : (
+          <ProfileDisplayStatus onClick={() => setIsEditingStatus(true)}>
+            {user?.status}
+          </ProfileDisplayStatus>
         )}
       </Flex>
 
@@ -173,7 +223,7 @@ const ProfilePage = ({}: ProfilePageProps) => {
           handleSignOut();
         }}
       >
-        Sign Out{" "}
+        Sign Out
       </ProfileButton>
     </ProfileMainContainer>
   );

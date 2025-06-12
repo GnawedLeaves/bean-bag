@@ -92,3 +92,11 @@ export const ProfileDisplayName = styled.div`
     background: ${(props) => props.theme.colorBgLightYellow}20;
   }
 `;
+
+export const ProfileDisplayStatus = styled(ProfileDisplayName)`
+  font-size: ${(props) => props.theme.fontSizeLg}px;
+  padding: 0;
+  &:hover {
+    background: ${(props) => props.theme.colorBgLightYellow}20;
+  }
+`;

@@ -132,7 +132,7 @@ const Home: React.FC = () => {
               </HomeStatsBigCardDate>
             </Flex>
           </HomeStatsBigCard>
-          {/* <HomeStatsBigCard>
+          <HomeStatsBigCard>
             <HomeStatsBigCardDisplayPic src={user?.displayPicture} />
             <Flex vertical gap={8}>
               <HomeStatsBigCardName>
@@ -148,7 +148,7 @@ const Home: React.FC = () => {
                 {distance} away
               </HomeStatsBigCardLocation>
             </Flex>
-          </HomeStatsBigCard> */}
+          </HomeStatsBigCard>
           <HomeStatsCard background={token.colorBgGreen}>
             <HomeStatsCardNumber>{daysTogetherCount}</HomeStatsCardNumber>
             <HomeStatsCardDescription>days togther</HomeStatsCardDescription>
