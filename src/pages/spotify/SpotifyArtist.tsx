@@ -27,7 +27,7 @@ import {
   addDoc,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../../firebase/firebase";
+import { auth, db } from "../../firebase/firebase";
 import { Flex, Input, message, Rate } from "antd";
 import {
   CommentButton,
@@ -55,6 +55,8 @@ import { token } from "../../theme";
 import { ROUTES } from "../../routes";
 import styled from "styled-components";
 import { TrackListHeader } from "./SpotifyPlaylist";
+import { onAuthStateChanged } from "firebase/auth";
+import React from "react";
 
 // Additional styled components for artist page
 const ScrollableSection = styled.div`
@@ -358,6 +360,16 @@ const SpotifyArtistPage = () => {
       scrollToTop();
     }
   }, [loading]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
+        navigate(ROUTES.LOGIN.path);
+      } else {
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
   return (
     <ThemeProvider theme={token}>

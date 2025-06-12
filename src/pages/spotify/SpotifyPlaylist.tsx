@@ -24,7 +24,7 @@ import {
   addDoc,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../../firebase/firebase";
+import { auth, db } from "../../firebase/firebase";
 import { Flex, Input, message, Rate, Spin } from "antd";
 import {
   CommentButton,
@@ -68,6 +68,8 @@ import {
 import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
 import { faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { onAuthStateChanged } from "firebase/auth";
+import React from "react";
 
 // Additional styled components for playlist page
 const PlaylistInfoContainer = styled.div`
@@ -398,6 +400,15 @@ const SpotifyPlaylistDetailsPage = () => {
       scrollToTop();
     }
   }, [loading]);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
+        navigate(ROUTES.LOGIN.path);
+      } else {
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
   if (isLoading) {
     return (

@@ -1,5 +1,5 @@
 import { Flex, Input, message, Upload } from "antd";
-import { signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth, db } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +24,7 @@ import {
   PageLoading,
   ImageLoading,
 } from "../../components/loading/LoadingStates";
+import React from "react";
 
 interface ProfilePageProps {}
 const ProfilePage = ({}: ProfilePageProps) => {
@@ -43,6 +44,16 @@ const ProfilePage = ({}: ProfilePageProps) => {
       setNewStatus(user.status);
     }
   }, [user]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
+        navigate(ROUTES.LOGIN.path);
+      } else {
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
   const handleNameUpdate = async () => {
     if (!user?.id || newName === user?.name || newName === "") {

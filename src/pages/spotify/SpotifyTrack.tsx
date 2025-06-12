@@ -25,7 +25,7 @@ import {
   addDoc,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../../firebase/firebase";
+import { auth, db } from "../../firebase/firebase";
 import { Flex, Input, message, Rate } from "antd";
 import {
   BarBigContainer,
@@ -69,6 +69,8 @@ import SpotifyDropdownComponent from "../../components/spotifyDropdown/SpotifyDr
 import { BaseOptionType } from "antd/es/select";
 import { TrackListHeader } from "./SpotifyPlaylist";
 import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
+import { onAuthStateChanged } from "firebase/auth";
+import React from "react";
 
 interface ReviewObj extends SpotifyReview {
   username: string;
@@ -309,6 +311,15 @@ const SpotifyTrackPage = () => {
       scrollToTop();
     }
   }, [loading]);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
+        navigate(ROUTES.LOGIN.path);
+      } else {
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
   return (
     <ThemeProvider theme={token}>

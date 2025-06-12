@@ -62,7 +62,7 @@ import {
   orderBy,
   getDocs,
 } from "firebase/firestore";
-import { db } from "../../firebase/firebase";
+import { auth, db } from "../../firebase/firebase";
 import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
 import { ItemTitle, ItemSubtitle } from "./SpotifyArtist";
 import {
@@ -74,6 +74,8 @@ import {
   PageLoading,
   SpinnerIcon,
 } from "../../components/loading/LoadingStates";
+import { onAuthStateChanged } from "firebase/auth";
+import React from "react";
 
 const SpotifyPage = () => {
   const { user, userPartner, spotifyToken, loading } = useUser();
@@ -484,6 +486,16 @@ const SpotifyPage = () => {
       handleGetAllReviewsAndComments();
     }
   }, [loading, user]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
+        navigate(ROUTES.LOGIN.path);
+      } else {
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
   if (loading) {
     return <PageLoading />;

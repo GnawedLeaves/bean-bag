@@ -1,22 +1,30 @@
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes";
+import { Button, Card, Flex, Input, Typography } from "antd";
+import { MailOutlined, LockOutlined } from "@ant-design/icons";
+import {
+  LoginContainer,
+  LoginCard,
+  LoginButton,
+  LoginInput,
+  LoginTitle,
+} from "./LoginStyles";
+
+const { Text } = Typography;
 
 const LoginPage = () => {
   const [inputPassword, setInputPassword] = useState<string>("");
   const [inputEmail, setInputEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-
+  const [input, setInput] = useState<string>("");
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    // Clear previous errors
     setError("");
-
-    // Validate inputs
     if (!inputEmail.trim() || !inputPassword.trim()) {
       setError("Please enter both email and password");
       return;
@@ -28,8 +36,6 @@ const LoginPage = () => {
       navigate("/home");
     } catch (err: any) {
       console.error("error logging in", err);
-
-      // Display user-friendly error messages
       switch (err.code) {
         case "auth/user-not-found":
           setError("No account found with this email");
@@ -51,10 +57,8 @@ const LoginPage = () => {
     }
   };
 
-  const handleNameChange = (input: string) => {
-    // Clear error when user starts typing
+  const handleNameChange = () => {
     if (error) setError("");
-
     switch (input.toLowerCase()) {
       case "tasha":
         setInputEmail("annitasha@gmail.com");
@@ -63,12 +67,14 @@ const LoginPage = () => {
         setInputEmail("annimarcel@gmail.com");
         break;
       default:
-        // Allow direct email input
         setInputEmail(input);
     }
   };
 
-  // When user already logged in
+  useEffect(() => {
+    handleNameChange();
+  }, [input]);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -79,30 +85,52 @@ const LoginPage = () => {
   }, [navigate]);
 
   return (
-    <div>
-      <div>
-        <input
-          placeholder="Enter name (tasha/marcel) or email"
-          value={inputEmail}
-          onChange={(e) => handleNameChange(e.target.value)}
-        />
-      </div>
-      <div>
-        <input
-          placeholder="password"
-          type="password"
-          value={inputPassword}
-          onChange={(e) => {
-            setInputPassword(e.target.value);
-            if (error) setError(""); // Clear error when typing
-          }}
-        />
-      </div>
-      {error && <div style={{ color: "red", margin: "10px 0" }}>{error}</div>}
-      <button onClick={handleLogin} disabled={loading}>
-        {loading ? "Signing in..." : "Login"}
-      </button>
-    </div>
+    <LoginContainer>
+      <LoginCard>
+        <Flex vertical gap={24}>
+          <LoginTitle>Bean Bag</LoginTitle>
+
+          <Flex vertical gap={8}>
+            <Text>Email</Text>
+            <LoginInput
+              placeholder="Name"
+              prefix={<MailOutlined />}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+            />
+          </Flex>
+
+          <Flex vertical gap={8}>
+            <Text>Password</Text>
+            <LoginInput
+              placeholder="Password"
+              type="password"
+              prefix={<LockOutlined />}
+              value={inputPassword}
+              onChange={(e) => {
+                setInputPassword(e.target.value);
+                if (error) setError("");
+              }}
+            />
+          </Flex>
+
+          {error && (
+            <Text type="danger" style={{ textAlign: "center" }}>
+              {error}
+            </Text>
+          )}
+
+          <LoginButton
+            type="primary"
+            onClick={handleLogin}
+            loading={loading}
+            disabled={loading}
+          >
+            {loading ? "Signing in..." : "Login"}
+          </LoginButton>
+        </Flex>
+      </LoginCard>
+    </LoginContainer>
   );
 };
 

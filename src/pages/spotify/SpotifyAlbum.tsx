@@ -25,7 +25,7 @@ import {
   addDoc,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../../firebase/firebase";
+import { auth, db } from "../../firebase/firebase";
 import { Flex, Input, message, Rate } from "antd";
 import {
   CommentButton,
@@ -62,6 +62,8 @@ import styled from "styled-components";
 import { faCompactDisc, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
+import { onAuthStateChanged } from "firebase/auth";
+import React from "react";
 
 // Additional styled components for album page
 const AlbumInfoContainer = styled.div`
@@ -340,6 +342,16 @@ const SpotifyAlbumPage = () => {
       scrollToTop();
     }
   }, [loading]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
+        navigate(ROUTES.LOGIN.path);
+      } else {
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
   return (
     <ThemeProvider theme={token}>
