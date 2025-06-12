@@ -6,7 +6,7 @@ import { createGlobalStyle, ThemeProvider } from "styled-components";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "./services/hygraph";
 import Home from "./pages/home/Home";
-import BlogUploadPage from "./pages/upload/Upload";
+import BlogUploadPage from "./pages/blog/BlogUpload";
 import Header from "./components/layout/Header";
 import SpacePage from "./pages/space/Space";
 import LoginPage from "./pages/login/Login";
