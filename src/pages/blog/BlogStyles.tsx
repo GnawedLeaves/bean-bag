@@ -11,6 +11,7 @@ export const BlogMainPage = styled.div`
 
 export const BlogHeroContainer = styled.div`
   //   min-height: 50vh;
+  padding-top: 20px;
 `;
 
 export const BlogButton = styled.button`

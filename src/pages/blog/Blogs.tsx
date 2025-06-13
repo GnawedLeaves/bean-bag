@@ -166,10 +166,6 @@ const BlogPage: React.FC = () => {
 
   return (
     <BlogMainPage>
-      <BlogTopBar>
-        {/* BLOGS
-        <BlogTopBarSubtitle>we can dump our shit here!!</BlogTopBarSubtitle> */}
-      </BlogTopBar>
       <BlogHeroContainer>
         <BlogCalendar
           currentDate={selectedDate}
