@@ -24,6 +24,7 @@ export const LoginContainer = styled.div`
   align-items: center;
   min-height: 100vh;
   padding: ${(props) => props.theme.paddingLg}px;
+  position: relative;
 
   background: linear-gradient(
     300deg,

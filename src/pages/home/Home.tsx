@@ -109,6 +109,7 @@ const Home: React.FC = () => {
         id: doc.id,
         ...(doc.data() as AgendaItemType),
       }));
+      console.log({ data });
       setAgendaLength(data.length);
     } catch (e) {
       console.error("Error getting agenda items", e);
@@ -204,7 +205,7 @@ const Home: React.FC = () => {
             <HomeStatsCardDescription>bean entries</HomeStatsCardDescription>
           </HomeStatsCard>{" "}
           <HomeStatsCard background={token.colorBgVoliet}>
-            <HomeStatsCardNumber>{agendaLength || "--"}</HomeStatsCardNumber>
+            <HomeStatsCardNumber>{agendaLength}</HomeStatsCardNumber>
             <HomeStatsCardDescription>agenda items</HomeStatsCardDescription>
           </HomeStatsCard>
           <HomeStatsCard background={token.colorBgPink}>

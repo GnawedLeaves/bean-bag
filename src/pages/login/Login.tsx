@@ -87,6 +87,26 @@ const LoginPage = () => {
 
   return (
     <LoginContainer>
+      <div
+        style={{
+          position: "absolute",
+          top: 69,
+          right: 69,
+          display: input.toLowerCase() === "tasha" ? "" : "none",
+        }}
+      >
+        lmao its the gayest one{" "}
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          top: 99,
+          left: 69,
+          display: input.toLowerCase() === "marcel" ? "" : "none",
+        }}
+      >
+        WOWIE its the coolest one{" "}
+      </div>
       <LoginCard>
         <Flex vertical gap={24}>
           <LoginTitle>Bean Bag</LoginTitle>
