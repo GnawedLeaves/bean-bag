@@ -386,7 +386,11 @@ const SpotifyPage = () => {
       setTotalReviews(reviews.length);
       setTotalComments(comments.length);
 
-      const allActivity = [...reviews, ...comments].sort(
+      // const allActivity = [...reviews, ...comments].sort(
+      //   (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
+      // );
+
+      const allActivity = [...comments].sort(
         (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
       );
 
