@@ -33,6 +33,7 @@ export const CommentCardName = styled.div`
 
 export const CommentCardContent = styled.div`
   font-size: ${(props) => props.theme.fontSizeMed}px;
+  max-width: 200px;
 `;
 export const CommentCardDate = styled.div`
   position: absolute;
@@ -385,7 +386,8 @@ export const SpotifyRecentlyIconContainer = styled.div`
   right: 8px;
 `;
 export const SpotifyRecentlyImg = styled.img`
-  width: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   border: 2px solid ${(props) => props.theme.borderColor};
 `;

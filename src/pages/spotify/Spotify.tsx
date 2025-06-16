@@ -417,7 +417,7 @@ const SpotifyPage = () => {
         ]);
 
       // Enrich the activity data
-      const enrichedActivity = allActivity.slice(0, 10).map((activity) => {
+      const enrichedActivity = allActivity.slice(0, 15).map((activity) => {
         let details;
         let displayName = "";
         let imageUrl = "";
@@ -466,9 +466,14 @@ const SpotifyPage = () => {
           details,
           displayName,
           imageUrl,
+
           artist,
           username:
             activity.userId === user?.id ? user.name : userPartner?.name,
+          userDisplayImg:
+            activity.userId === user?.id
+              ? user.displayPicture
+              : userPartner?.displayPicture,
         };
       });
 
@@ -534,6 +539,7 @@ const SpotifyPage = () => {
                   border: "2px solid",
                   borderRadius: token.borderRadius,
                   height: 40,
+                  fontFamily: token.fontFamily,
                 }}
               />
               <SpotifySearchButton
@@ -614,7 +620,10 @@ const SpotifyPage = () => {
                     }}
                   >
                     <Flex gap={8} align="center">
-                      <SpotifyRecentlyImg src={activity.imageUrl} alt="" />
+                      <SpotifyRecentlyImg
+                        src={activity.userDisplayImg}
+                        alt=""
+                      />
                       <Flex vertical gap={4}>
                         <SpotifyRecentlyTitle>
                           {activity.displayName}
@@ -665,7 +674,7 @@ const SpotifyPage = () => {
                 style={{ width: "100%" }}
                 justify="center"
               >
-                {enrichedSearchHistory.slice(0, 10).map((item) => (
+                {enrichedSearchHistory.slice(0, 100).map((item) => (
                   <SpotifyHistoryItemContainer
                     key={item.id}
                     onClick={() => {

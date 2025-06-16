@@ -458,6 +458,7 @@ const SpotifyTrackPage = () => {
                 borderRadius: token.borderRadius,
                 background: token.colorBg,
                 fontFamily: token.fontFamily,
+                width: "250px",
               }}
             />
             <CommentButton

@@ -72,6 +72,8 @@ const AgendaPage = () => {
   );
   const [completedItems, setCompletedItems] = useState<ViewAgendaItem[]>([]);
   const [sortingOrder, setSortingOrder] = useState<string[]>([]);
+  const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
+
   const navigate = useNavigate();
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -97,18 +99,34 @@ const AgendaPage = () => {
         addedOn: formatFirebaseDate(item.addedOn),
         completedOn: formatFirebaseDate(item.completedOn),
       }));
-      const sorted = [...cleaned].sort((a, b) => {
-        const indexA = sortingOrder.indexOf(a.id!);
-        const indexB = sortingOrder.indexOf(b.id!);
-        if (indexA === -1 && indexB === -1) return 0;
-        if (indexA === -1) return 1;
-        if (indexB === -1) return -1;
-        return indexA - indexB;
-      });
 
-      setAgendaItems(sorted);
+      if (isFirstLoad) {
+        const sorted = [...cleaned].sort((a, b) => {
+          if (a.completed !== b.completed) {
+            return a.completed ? 1 : -1;
+          }
 
-      setActionLoading(false);
+          const dateA = new Date(a.addedOn).getTime();
+          const dateB = new Date(b.addedOn).getTime();
+          return dateB - dateA;
+        });
+        setAgendaItems(sorted);
+        setActionLoading(false);
+        setIsFirstLoad(false);
+      } else {
+        const sorted = [...cleaned].sort((a, b) => {
+          const indexA = sortingOrder.indexOf(a.id!);
+          const indexB = sortingOrder.indexOf(b.id!);
+          if (indexA === -1 && indexB === -1) return 0;
+          if (indexA === -1) return 1;
+          if (indexB === -1) return -1;
+          return indexA - indexB;
+        });
+
+        setAgendaItems(sorted);
+
+        setActionLoading(false);
+      }
     } catch (e) {
       console.error("Error getting agenda items", e);
     }
