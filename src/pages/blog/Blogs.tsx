@@ -11,12 +11,7 @@ import {
   Button,
   Flex,
 } from "antd";
-import {
-  CalendarOutlined,
-  EnvironmentOutlined,
-  FrownOutlined,
-  SignatureOutlined,
-} from "@ant-design/icons";
+import { SignatureOutlined } from "@ant-design/icons";
 import { getBlogEntries } from "../../services/hygraph";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
@@ -114,7 +109,12 @@ const BlogPage: React.FC = () => {
       }))
     );
 
-    setDayEntries(entriesWithLocation);
+    const sortedEntries = entriesWithLocation.sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+
+    setDayEntries(sortedEntries);
   };
 
   const handleGoToAddEntry = () => {

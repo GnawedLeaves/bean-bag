@@ -1,15 +1,16 @@
 // src/hooks/useLocation.ts
-import { useState, useEffect } from 'react';
-import { LocationData, getCurrentLocation } from '../services/location';
-
+import { useState, useEffect } from "react";
+import { LocationData, getCurrentLocation } from "../services/location";
+import { LocationModel, OutputLocationType } from "../types/locationTypes";
 
 interface UseLocationResult {
-    location: LocationData | null;
-    loading: boolean;
-    error: Error | null;
+  location: OutputLocationType | null;
+  loading: boolean;
+  error: Error | null;
 }
+
 export const useLocationHook = (): UseLocationResult => {
-  const [location, setLocation] = useState<LocationData | null>(null);
+  const [location, setLocation] = useState<OutputLocationType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -17,9 +18,15 @@ export const useLocationHook = (): UseLocationResult => {
     const fetchLocation = async () => {
       try {
         const data = await getCurrentLocation();
-        setLocation(data);
+        setLocation({
+          ...data,
+          longitude: data.longitude,
+          latitude: data.latitude,
+        });
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to get location'));
+        setError(
+          err instanceof Error ? err : new Error("Failed to get location")
+        );
       } finally {
         setLoading(false);
       }
@@ -28,5 +35,5 @@ export const useLocationHook = (): UseLocationResult => {
     fetchLocation();
   }, []);
 
-  return { location, loading, error } 
+  return { location, loading, error };
 };

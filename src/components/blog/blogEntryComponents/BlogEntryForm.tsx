@@ -1,5 +1,5 @@
 // src/components/blog/EntryForm.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Input, Button, message, Typography, Space } from "antd";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
@@ -114,7 +114,7 @@ export const CustomTextArea = styled(Input.TextArea)`
 
   &:focus,
   &.ant-input-focused {
-    background: ${(props) => props.theme.colorBg};
+    background: ${(props) => props.theme.colorBg} !important;
     border-color: ${(props) => props.theme.borderColor};
     box-shadow: none;
   }
@@ -223,11 +223,21 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
       setSubmitting(false);
     }
   };
+  useEffect(() => {
+    console.log({ location });
+  }, [location]);
 
   const locationDisplay = location
-    ? `${location.city ? location.city + ", " : ""}${
-        location.country ||
-        `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`
+    ? `${
+        location?.address
+          ? location.address.amenity +
+            ", " +
+            location.address.road +
+            ", " +
+            location.address.suburb +
+            ", " +
+            location.address.city
+          : ", " + location.address.country
       }`
     : "Getting location...";
 
@@ -256,7 +266,7 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
               name="title"
               label="Title"
               rules={[
-                { required: true, message: "Please enter a title" },
+                // { required: true, message: "Please enter a title" },
                 { min: 3, message: "Title must be at least 3 characters long" },
                 { max: 150, message: "Title must be less than 150 characters" },
               ]}
@@ -280,7 +290,7 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
               name="content"
               label="Content"
               rules={[
-                { required: true, message: "Please enter content" },
+                // { required: true, message: "Please enter content" },
                 {
                   min: 10,
                   message: "Content must be at least 10 characters long",
@@ -306,7 +316,7 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
               label="Images"
               required
               help="Please upload at least one image"
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom: 32 }}
             >
               <BlogButton
                 as="label"
@@ -344,14 +354,19 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
             >
               <div>
                 <Text strong>Location: </Text>
-                <Text type={locationError ? "danger" : "secondary"}>
+                <Text
+                  style={{ fontFamily: token.fontFamily }}
+                  type={locationError ? "danger" : "secondary"}
+                >
                   {locationError ? "Error getting location" : locationDisplay}
                 </Text>
               </div>
 
               <div>
                 <Text strong>Timestamp: </Text>
-                <Text type="secondary">{getCombinedDateTime().toString()}</Text>
+                <Text type="secondary" style={{ fontFamily: token.fontFamily }}>
+                  {getCombinedDateTime().toString()}
+                </Text>
               </div>
             </Space>
 

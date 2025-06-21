@@ -133,13 +133,14 @@ const PlantEntryForm: React.FC<PlantEntryFormProps> = ({ onSuccess }) => {
     }
   };
 
-  const locationDisplay = location
-    ? `${location.city ? location.city + ", " : ""}${
-        location.country ||
-        `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`
-      }`
-    : "Getting location...";
+  // const locationDisplay = location
+  //   ? `${location.city ? location.city + ", " : ""}${
+  //       location.country ||
+  //       `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`
+  //     }`
+  //   : "Getting location...";
 
+  const locationDisplay = "";
   //todo get from database
   const plantOptions = [
     {

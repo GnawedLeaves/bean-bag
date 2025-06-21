@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Layout, Menu, Button, Drawer, message } from "antd";
+import { Layout, message } from "antd";
 import {
-  MenuOutlined,
   HomeOutlined,
   BookOutlined,
   ExperimentOutlined,
@@ -16,8 +15,66 @@ import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
 import { token } from "../../theme";
+import styled from "styled-components";
 
 const { Header: AntHeader } = Layout;
+
+const MobileBottomNav = styled.div`
+  background: ${(props) => props.theme.colorBgLightYellow};
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-top: 2px solid #352a24;
+  z-index: 1000;
+  padding: 8px 0;
+  padding-bottom: 16px;
+  display: block;
+`;
+
+const NavContainer = styled.div`
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  max-width: 100%;
+`;
+
+interface NavItemProps {
+  $active?: boolean;
+}
+
+const NavItem = styled(Link)<NavItemProps>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.65);
+  transition: color 0.3s ease, background 0.3s;
+  padding: 4px 8px;
+  border-radius: 8px;
+  min-width: 60px;
+  background: ${({ $active }) =>
+    $active ? "rgba(24, 144, 255, 0.1)" : "none"};
+  color: ${({ $active }) => ($active ? "#1890ff" : "rgba(255,255,255,0.65)")};
+
+  &:hover {
+    color: #1890ff;
+    background: rgba(24, 144, 255, 0.1);
+  }
+`;
+
+const NavIcon = styled.div`
+  font-size: 20px;
+  margin-bottom: 2px;
+  color: ${(props) => props.theme.text};
+`;
+
+const NavLabel = styled.span`
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  color: ${(props) => props.theme.text};
+`;
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -94,117 +151,22 @@ const Navbar: React.FC = () => {
   return (
     <>
       {/* Mobile Bottom Navigation */}
-      <div
-        className="mobile-bottom-nav"
-        style={{ background: token.colorBgLightYellow }}
-      >
-        <div className="nav-container">
+      <MobileBottomNav>
+        <NavContainer>
           {navigationItems.map((item) => (
-            <Link
+            <NavItem
               key={item.key}
               to={item.path}
-              className={`nav-item ${
-                location.pathname === item.path ? "active" : ""
-              }`}
+              $active={location.pathname === item.path}
+              onClick={() => setIsMenuOpen(false)}
             >
-              <div className="nav-icon" style={{ color: token.text }}>
-                {item.icon}
-              </div>
-              <span className="nav-label" style={{ color: token.text }}>
-                {item.label}
-              </span>
-            </Link>
+              <NavIcon>{item.icon}</NavIcon>
+              <NavLabel>{item.label}</NavLabel>
+            </NavItem>
           ))}
-        </div>
-      </div>
-
-      {/* Responsive CSS */}
-      <style>
-        {`
-          /* Desktop styles */
-          @media (min-width: 769px) {
-            .desktop-header {
-              display: flex !important;
-            }
-            .mobile-header,
-            .mobile-bottom-nav {
-              display: none !important;
-            }
-          }
-
-          /* Mobile styles */
-          @media (max-width: 768px) {
-            .desktop-header {
-              display: none !important;
-            }
-            
-            .mobile-header {
-              display: flex !important;
-            }
-
-            .mobile-bottom-nav {
-              display: block !important;
-              position: fixed;
-              bottom: 0;
-              left: 0;
-              right: 0;
-              background: #001529;
-              border-top: 2px solid #352A24;
-              z-index: 1000;
-              padding: 8px 0;
-            }
-
-            .nav-container {
-              display: flex;
-              justify-content: space-around;
-              align-items: center;
-              max-width: 100%;
-              // margin: 0 auto;
-            }
-
-            .nav-item {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              text-decoration: none;
-              color: rgba(255, 255, 255, 0.65);
-              transition: color 0.3s ease;
-              padding: 4px 8px;
-              border-radius: 8px;
-              min-width: 60px;
-            }
-
-            .nav-item:hover,
-            .nav-item.active {
-              color: #1890ff;
-              background: rgba(24, 144, 255, 0.1);
-            }
-
-            .nav-icon {
-              font-size: 20px;
-              margin-bottom: 2px;
-            }
-
-            .nav-label {
-              font-size: 11px;
-              font-weight: 500;
-              text-align: center;
-            }
-
-            /* Add bottom padding to main content to account for fixed nav */
-            body {
-              padding-bottom: 60px;
-            }
-
-            /* Ensure main content doesn't overlap with bottom nav */
-            .ant-layout-content {
-              margin-bottom: 70px;
-            }
-          }
-
-        
-        `}
-      </style>
+        </NavContainer>
+      </MobileBottomNav>
+      {/* ...rest of your component (desktop nav, etc.) */}
     </>
   );
 };
