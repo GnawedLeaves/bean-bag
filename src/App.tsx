@@ -37,7 +37,7 @@ const GlobalStyle = createGlobalStyle`
     font-family: 'Josefin Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
       Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     background-color: ${token.colorBg};
-    margin-bottom: 50px;
+    padding-bottom: 64px;
   }
   
   /* Mobile-friendly responsive styles */
