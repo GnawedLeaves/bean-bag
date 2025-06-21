@@ -191,8 +191,8 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
 
       // Create the entry with uploaded image IDs
       await createBlogEntry(
-        values.title,
-        values.content,
+        values.title || "",
+        values.content || "",
         transformedLocation,
         imageIds,
         dateAdded
@@ -267,7 +267,7 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
               label="Title"
               rules={[
                 // { required: true, message: "Please enter a title" },
-                { min: 3, message: "Title must be at least 3 characters long" },
+                // { min: 3, message: "Title must be at least 3 characters long" },
                 { max: 150, message: "Title must be less than 150 characters" },
               ]}
             >
@@ -291,10 +291,10 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
               label="Content"
               rules={[
                 // { required: true, message: "Please enter content" },
-                {
-                  min: 10,
-                  message: "Content must be at least 10 characters long",
-                },
+                // {
+                //   min: 10,
+                //   message: "Content must be at least 10 characters long",
+                // },
                 {
                   max: 2000,
                   message: "Content must be less than 2000 characters",
