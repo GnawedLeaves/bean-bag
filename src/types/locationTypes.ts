@@ -1,7 +1,7 @@
 export interface LocationModel {
   address: {
     ISO3166_2_lvl6: string;
-    amenity: string;
+    amenity?: string;
     city: string;
     city_district: string;
     country: string;

@@ -228,17 +228,17 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
   }, [location]);
 
   const locationDisplay = location
-    ? `${
-        location?.address
-          ? location.address.amenity +
-            ", " +
-            location.address.road +
-            ", " +
-            location.address.suburb +
-            ", " +
-            location.address.city
-          : ", " + location.address.country
-      }`
+    ? location.address
+      ? [
+          location.address.amenity || "",
+          location.address.road,
+          location.address.suburb,
+          location.address.city,
+          location.address.country,
+        ]
+          .filter(Boolean)
+          .join(", ")
+      : "Unknown location"
     : "Getting location...";
 
   const getCombinedDateTime = () => {

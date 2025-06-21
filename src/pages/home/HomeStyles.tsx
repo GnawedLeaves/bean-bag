@@ -181,3 +181,30 @@ export const SpacePictureContainer = styled(Image)`
   border-radius: ${(props) => props.theme.borderRadius}px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 `;
+
+export const HomeFactContainer = styled.div`
+  padding: ${(props) => props.theme.paddingLg}px
+    ${(props) => props.theme.paddingLg}px;
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  width: 100%;
+  background: ${(props) => props.theme.colorBg};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+`;
+
+export const HomeFactTitle = styled.div`
+  font-size: ${(props) => props.theme.fontSizeLgg}px;
+  font-weight: bold;
+  color: ${(props) => props.theme.text};
+`;
+
+export const HomeFactText = styled.div`
+  color: ${(props) => props.theme.text};
+  font-size: ${(props) => props.theme.fontSizeMed}px;
+  text-align: center;
+  white-space: pre-line;
+`;

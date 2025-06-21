@@ -10,6 +10,9 @@ import { token } from "../../theme";
 import { ThemeProvider } from "styled-components";
 import {
   HomeBigCardRefreshButton,
+  HomeFactContainer,
+  HomeFactText,
+  HomeFactTitle,
   HomePage,
   HomePartnerSubText,
   HomePartnerSubTitle,
@@ -40,6 +43,8 @@ import { getAstronomyPictureOfTheDay } from "../../services/nasa";
 import { NasaApodObject } from "../../types/nasaTypes";
 import { collection, getDocs } from "firebase/firestore";
 import { AgendaItemType } from "../agenda/Agenda";
+import { getFact } from "../../services/ninjaApi/fact";
+import { FactModel } from "../../types/ninjaApiTypes";
 
 const Home: React.FC = () => {
   const { user, userPartner, spotifyToken, loading, getUserContextData } =
@@ -52,7 +57,8 @@ const Home: React.FC = () => {
   const [distance, setDistance] = useState<string>("");
   const [apodData, setApodData] = useState<NasaApodObject>();
   const [recentEntries, setRecentEntries] = useState<any[]>([]);
-  const [isSpinning, setIsSpinning] = useState(false);
+  const [isSpinning, setIsSpinning] = useState<boolean>(false);
+  const [ninjaFacts, setNinjaFacts] = useState<FactModel[]>([]);
   const navigate = useNavigate();
   const anniversaryDate = new Date("2024-06-14");
   const [agendaLength, setAgendaLength] = useState<number>(0);
@@ -116,12 +122,18 @@ const Home: React.FC = () => {
     }
   };
 
+  const handleGetFact = async () => {
+    const facts = await getFact();
+    setNinjaFacts(facts);
+  };
+
   useEffect(() => {
     fetchRecentEntries();
     calculateDaysTogether();
     calculateGayLevels();
     handleGetAllAgenda();
     getAPOD();
+    handleGetFact();
   }, []);
 
   useEffect(() => {
@@ -234,6 +246,13 @@ const Home: React.FC = () => {
               Check back every day for a new picture!
             </Flex>
           </HomeSpaceContainer>
+        )}
+
+        {ninjaFacts[0] && (
+          <HomeFactContainer>
+            <HomeFactTitle>Random Fact</HomeFactTitle>
+            <HomeFactText>{ninjaFacts[0].fact}</HomeFactText>
+          </HomeFactContainer>
         )}
       </HomePage>
     </ThemeProvider>
