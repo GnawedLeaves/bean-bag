@@ -193,7 +193,6 @@ export const HomeFactContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  margin-top: 32px;
 `;
 
 export const HomeFactTitle = styled.div`

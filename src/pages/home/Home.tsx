@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Flex } from "antd";
+import { Flex, Spin } from "antd";
 import {
   ReloadOutlined,
   InfoCircleOutlined,
@@ -395,7 +395,14 @@ const Home: React.FC = () => {
           </Flex>
         </HomeStreaksContainer>
 
-        {apodData && (
+        {ninjaFacts[0] && (
+          <HomeFactContainer>
+            <HomeFactTitle>Random Fact</HomeFactTitle>
+            <HomeFactText>{ninjaFacts[0].fact}</HomeFactText>
+          </HomeFactContainer>
+        )}
+
+        {apodData ? (
           <HomeSpaceContainer>
             <Flex vertical align="center" gap={8}>
               <HomePartnerSubTitle>The Daily</HomePartnerSubTitle>
@@ -416,13 +423,10 @@ const Home: React.FC = () => {
               Check back every day for a new picture!
             </Flex>
           </HomeSpaceContainer>
-        )}
-
-        {ninjaFacts[0] && (
-          <HomeFactContainer>
-            <HomeFactTitle>Random Fact</HomeFactTitle>
-            <HomeFactText>{ninjaFacts[0].fact}</HomeFactText>
-          </HomeFactContainer>
+        ) : (
+          <HomeSpaceContainer>
+            <Spin></Spin>
+          </HomeSpaceContainer>
         )}
       </HomePage>
     </ThemeProvider>
