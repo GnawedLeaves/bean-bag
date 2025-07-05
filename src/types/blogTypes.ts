@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface BlogImage {
   __typename: "Asset";
   fileName: string;
@@ -12,6 +14,7 @@ export interface BlogLocation {
 
 export interface BlogEntry {
   __typename: "BlogEntry";
+  id: string;
   title: string;
   content: string;
   timestamp: string;
@@ -24,4 +27,13 @@ export interface BlogStreetLocation {
   street: string;
   country: string;
   fullAddress: any;
+}
+
+export interface BlogComment {
+  id?: string;
+  blogEntryId: string;
+  userId: string;
+  content: string;
+  dateAdded: Timestamp;
+  isDelete: boolean;
 }

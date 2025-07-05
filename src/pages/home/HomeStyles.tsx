@@ -27,7 +27,7 @@ export const HomePage = styled.div`
   width: 100%;
   min-height: 100vh;
   background: ${(props) => props.theme.colorBgOrange};
-  gap: 64px;
+  gap: 32px;
 `;
 
 export const HomeStatsContainer = styled.div`
@@ -262,4 +262,5 @@ export const HomeStreakDisplayPic = styled.img`
 
 export const HomeStreakName = styled.div`
   font-size: ${(props) => props.theme.fontSizeLg}px;
+  text-align: center;
 `;

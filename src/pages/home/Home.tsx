@@ -357,7 +357,13 @@ const Home: React.FC = () => {
           <Flex gap={16} justify="space-between" wrap="wrap" align="center">
             {streakData.map((streak) => (
               <StreakContainer key={streak.id}>
-                <HomeStreakDisplayPic src={user?.displayPicture} />
+                <HomeStreakDisplayPic
+                  src={
+                    streak.userId === user?.id
+                      ? user?.displayPicture
+                      : userPartner?.displayPicture
+                  }
+                />
                 <Flex gap={8} align="center" vertical>
                   <HomeStreakName>{streak.streakName}</HomeStreakName>
                 </Flex>

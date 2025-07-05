@@ -27,7 +27,7 @@ const LoginPage = () => {
   const handleLogin = async () => {
     setError("");
     if (!inputEmail.trim() || !inputPassword.trim()) {
-      setError("Please enter both email and password");
+      setError("Please enter both name and password");
       return;
     }
 
@@ -112,7 +112,7 @@ const LoginPage = () => {
           <LoginTitle>Bean Bag</LoginTitle>
 
           <Flex vertical gap={8}>
-            <Text>Email</Text>
+            <Text>Name</Text>
             <LoginInput
               style={{
                 background: token.colorBg,
