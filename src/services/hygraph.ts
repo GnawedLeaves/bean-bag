@@ -333,6 +333,7 @@ export const getBlogEntries = async () => {
   const GET_ALL_ENTRIES = gql`
     query GetAllBlogs($first: Int!, $skip: Int!) {
       blogEntries(first: $first, skip: $skip, orderBy: timestamp_DESC) {
+        id
         title
         content
         timestamp

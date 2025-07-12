@@ -1,6 +1,15 @@
 // src/components/blog/EntryForm.tsx
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, message, Typography, Space } from "antd";
+import {
+  Form,
+  Input,
+  Button,
+  message,
+  Typography,
+  Space,
+  Flex,
+  Spin,
+} from "antd";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
@@ -128,7 +137,7 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<{
-    message: string;
+    message: React.ReactNode;
     error: boolean;
   } | null>(null);
 
@@ -176,10 +185,26 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
 
     try {
       setSubmitting(true);
-      setStatus({ message: "Uploading images...", error: false });
+      setStatus({
+        message: (
+          <Flex gap={16} align="center">
+            <Spin />
+            Uploading images...
+          </Flex>
+        ),
+        error: false,
+      });
 
       const imageIds = await uploadImages(files);
-      setStatus({ message: "Creating entry...", error: false });
+      setStatus({
+        message: (
+          <Flex gap={176}>
+            <Spin />
+            Creating Bean...
+          </Flex>
+        ),
+        error: false,
+      });
 
       const transformedLocation = {
         latitude: location.latitude,
@@ -198,8 +223,8 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
         dateAdded
       );
 
-      setStatus({ message: "Entry created successfully!", error: false });
-      message.success("Entry created successfully!");
+      setStatus({ message: "Bean created successfully!", error: false });
+      message.success("Bean created successfully!");
 
       // Reset form
       form.resetFields();
@@ -210,8 +235,8 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
         onSuccess();
       }
     } catch (error) {
-      console.error("Error creating entry:", error);
-      const errorMessage = `Error creating entry: ${
+      console.error("Error creating Bean:", error);
+      const errorMessage = `Error creating Bean: ${
         error instanceof Error ? error.message : "Unknown error"
       }`;
       setStatus({

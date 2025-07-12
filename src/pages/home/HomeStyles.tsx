@@ -27,7 +27,7 @@ export const HomePage = styled.div`
   width: 100%;
   min-height: 100vh;
   background: ${(props) => props.theme.colorBgOrange};
-  gap: 64px;
+  gap: 32px;
 `;
 
 export const HomeStatsContainer = styled.div`
@@ -193,7 +193,6 @@ export const HomeFactContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  margin-top: 32px;
 `;
 
 export const HomeFactTitle = styled.div`
@@ -207,4 +206,61 @@ export const HomeFactText = styled.div`
   font-size: ${(props) => props.theme.fontSizeMed}px;
   text-align: center;
   white-space: pre-line;
+`;
+
+export const HomeStreaksContainer = styled.div`
+  width: 100%;
+`;
+
+export const HomeStreaksTitle = styled.div`
+  font-size: ${(props) => props.theme.fontSizeLgg}px;
+  font-weight: bold;
+`;
+export const StreakContainer = styled.div`
+  padding: ${(props) => props.theme.paddingMed}px
+    ${(props) => props.theme.paddingMed}px;
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  background: ${(props) => props.theme.colorBg};
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 8px;
+  height: 250px;
+  width: 150px;
+  position: relative;
+`;
+export const StreakButton = styled.button`
+  border: none;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: 2px solid ${(props) => props.theme.borderColor};
+  // padding: ${(props) => props.theme.paddingSmall}px;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const HomeStreakNumber = styled.div`
+  font-size: 48px;
+  // color: ${(props) => props.theme.colorBgPink};
+`;
+
+export const HomeStreakDisplayPic = styled.img`
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-radius: 100%;
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  z-index: 1;
+`;
+
+export const HomeStreakName = styled.div`
+  font-size: ${(props) => props.theme.fontSizeLg}px;
+  text-align: center;
 `;
