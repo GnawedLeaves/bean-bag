@@ -331,8 +331,8 @@ export const createBlogEntry = async (
 // Your existing getEntries function (unchanged)
 export const getBlogEntries = async () => {
   const GET_ALL_ENTRIES = gql`
-    query GetAllBlogs {
-      blogEntries(first: 100) {
+    query GetAllBlogs($first: Int!, $skip: Int!) {
+      blogEntries(first: $first, skip: $skip, orderBy: timestamp_DESC) {
         title
         content
         timestamp
@@ -348,17 +348,29 @@ export const getBlogEntries = async () => {
     }
   `;
 
-  try {
+  const allEntries: any[] = [];
+  const batchSize = 100;
+  let skip = 0;
+  let hasMore = true;
+
+  while (hasMore) {
     const result = await client.query({
       query: GET_ALL_ENTRIES,
+      variables: { first: batchSize, skip },
       fetchPolicy: "network-only",
     });
 
-    return result.data.blogEntries;
-  } catch (error) {
-    console.error("Error fetching entries:", error);
-    throw error;
+    const entries = result.data.blogEntries;
+    allEntries.push(...entries);
+
+    if (entries.length < batchSize) {
+      hasMore = false;
+    } else {
+      skip += batchSize;
+    }
   }
+
+  return allEntries;
 };
 
 export const createPlantEntry = async (
