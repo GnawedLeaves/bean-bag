@@ -88,7 +88,7 @@ const AgendaPage = () => {
   const handleGetAllAgenda = async () => {
     setActionLoading(true);
     try {
-      const agendaRef = collection(db, "anniAppAgendaItems");
+      const agendaRef = collection(db, "anniAppAgendaItemsDemo");
       const snapshot = await getDocs(agendaRef);
       const data = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -143,7 +143,7 @@ const AgendaPage = () => {
         updatedOn: Timestamp.now(),
       };
       const docRef = await addDoc(
-        collection(db, "anniAppAgendaItems"),
+        collection(db, "anniAppAgendaItemsDemo"),
         newItem
       );
       setNewContent("");
@@ -156,7 +156,7 @@ const AgendaPage = () => {
 
   const handleEditAgenda = async (id: string, newContent: string) => {
     try {
-      const agendaDoc = doc(db, "anniAppAgendaItems", id);
+      const agendaDoc = doc(db, "anniAppAgendaItemsDemo", id);
       await updateDoc(agendaDoc, {
         content: newContent,
         updatedOn: Timestamp.now(),
@@ -173,7 +173,7 @@ const AgendaPage = () => {
 
   const handleToggleCompleteAgenda = async (id: string, completed: boolean) => {
     try {
-      const agendaDoc = doc(db, "anniAppAgendaItems", id);
+      const agendaDoc = doc(db, "anniAppAgendaItemsDemo", id);
       await updateDoc(agendaDoc, {
         completed: !completed,
         completedOn: Timestamp.now(),

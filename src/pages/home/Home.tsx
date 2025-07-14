@@ -74,7 +74,7 @@ const Home: React.FC = () => {
 
   console.log({ user });
   const [daysTogetherCount, setDaysTogetherCount] = useState(0);
-  const [gayLevel, setGayLevel] = useState<number>(0);
+  const [luckLevel, setLuckLevel] = useState<number>(0);
   const [blogCount, setBlogCount] = useState<number>(0);
   const [distance, setDistance] = useState<string>("");
   const [apodData, setApodData] = useState<NasaApodObject>();
@@ -103,7 +103,7 @@ const Home: React.FC = () => {
   };
   const calculateGayLevels = () => {
     const percentage = Math.floor(Math.random() * 100 + 69);
-    setGayLevel(percentage);
+    setLuckLevel(percentage);
   };
   const fetchRecentEntries = async () => {
     try {
@@ -139,7 +139,7 @@ const Home: React.FC = () => {
 
   const handleGetAllAgenda = async () => {
     try {
-      const agendaRef = collection(db, "anniAppAgendaItems");
+      const agendaRef = collection(db, "anniAppAgendaItemsDemo");
       const snapshot = await getDocs(agendaRef);
       const data = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -153,7 +153,7 @@ const Home: React.FC = () => {
 
   const handleGetAllStreaks = async () => {
     try {
-      const streaksRef = collection(db, "anniAppStreak");
+      const streaksRef = collection(db, "anniAppStreakDemo");
       const snapshot = await getDocs(streaksRef);
       const data = snapshot.docs
         .map((doc) => ({
@@ -189,7 +189,7 @@ const Home: React.FC = () => {
         userId: user.id,
         isDelete: false,
       };
-      await addDoc(collection(db, "anniAppStreak"), newStreak);
+      await addDoc(collection(db, "anniAppStreakDemo"), newStreak);
       handleGetAllStreaks();
     } catch (e) {
       console.error("Error adding streak", e);
@@ -207,7 +207,7 @@ const Home: React.FC = () => {
       return;
     }
     try {
-      const streakRef = doc(db, "anniAppStreak", streak.id!);
+      const streakRef = doc(db, "anniAppStreakDemo", streak.id!);
       await updateDoc(streakRef, { streakName: newName.trim() });
       handleGetAllStreaks();
     } catch (e) {
@@ -218,7 +218,7 @@ const Home: React.FC = () => {
   const handleDeleteStreak = async (streak: StreakModel) => {
     if (!window.confirm(`Delete streak "${streak.streakName}"?`)) return;
     try {
-      const streakRef = doc(db, "anniAppStreak", streak.id!);
+      const streakRef = doc(db, "anniAppStreakDemo", streak.id!);
       await updateDoc(streakRef, { isDelete: true });
       handleGetAllStreaks();
     } catch (e) {
@@ -229,7 +229,7 @@ const Home: React.FC = () => {
   const handleResetStreak = async (streak: StreakModel) => {
     if (!window.confirm(`Reset streak "${streak.streakName}"?`)) return;
     try {
-      const streakRef = doc(db, "anniAppStreak", streak.id!);
+      const streakRef = doc(db, "anniAppStreakDemo", streak.id!);
       await updateDoc(streakRef, {
         prevDate: new Date(),
         prevPrevDate: streak.prevDate,
@@ -335,8 +335,8 @@ const Home: React.FC = () => {
             <HomeStatsCardDescription>agenda items</HomeStatsCardDescription>
           </HomeStatsCard>
           <HomeStatsCard background={token.colorBgPink}>
-            <HomeStatsCardNumber>{gayLevel}%</HomeStatsCardNumber>
-            <HomeStatsCardDescription>gay level</HomeStatsCardDescription>
+            <HomeStatsCardNumber>{luckLevel}%</HomeStatsCardNumber>
+            <HomeStatsCardDescription>luck level</HomeStatsCardDescription>
           </HomeStatsCard>{" "}
         </HomeStatsContainer>
 
@@ -367,7 +367,7 @@ const Home: React.FC = () => {
                 </Flex>
                 <Flex align="center" vertical>
                   <HomeStreakNumber>
-                    {calculateDaysDifference(streak.prevDate.toDate()) || "0"}{" "}
+                    {calculateDaysDifference(streak.prevDate?.toDate()) || "0"}{" "}
                   </HomeStreakNumber>{" "}
                   days
                 </Flex>

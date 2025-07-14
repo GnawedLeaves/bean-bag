@@ -185,7 +185,7 @@ const BlogPage: React.FC = () => {
     > = {};
     for (const entryId of entryIds) {
       const q = query(
-        collection(db, "anniAppBeansComments"),
+        collection(db, "anniAppBeansCommentsDemo"),
         where("blogEntryId", "==", entryId),
         where("isDelete", "==", false)
       );
@@ -231,7 +231,7 @@ const BlogPage: React.FC = () => {
       isDelete: false,
     };
     try {
-      await addDoc(collection(db, "anniAppBeansComments"), commentData);
+      await addDoc(collection(db, "anniAppBeansCommentsDemo"), commentData);
       setNewComment((prev) => ({ ...prev, [entryId]: "" }));
       fetchCommentsForEntries(dayEntries.map((e) => e.id));
     } catch (e) {
@@ -242,7 +242,7 @@ const BlogPage: React.FC = () => {
   const handleDeleteComment = async (commentId: string) => {
     if (!window.confirm("Delete this comment?")) return;
     try {
-      const commentRef = doc(db, "anniAppBeansComments", commentId);
+      const commentRef = doc(db, "anniAppBeansCommentsDemo", commentId);
       await updateDoc(commentRef, { isDelete: true });
       fetchCommentsForEntries(dayEntries.map((e) => e.id));
     } catch (e) {
