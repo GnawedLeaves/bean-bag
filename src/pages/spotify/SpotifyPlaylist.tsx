@@ -71,7 +71,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { onAuthStateChanged } from "firebase/auth";
 import React from "react";
 
-// Additional styled components for playlist page
 const PlaylistInfoContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -228,7 +227,6 @@ const SpotifyPlaylistDetailsPage = () => {
         ...doc.data(),
       })) as SpotifyComment[];
 
-      // Construct the review and comment objects
       const reviewsObjs = reviews.map((review) => {
         const date =
           formatFirebaseDate(review.dateAdded) ||
@@ -285,7 +283,6 @@ const SpotifyPlaylistDetailsPage = () => {
         }
       });
 
-      // Sort by date
       const sortedReviewObjs = [...reviewsObjs].sort(
         (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
       );
@@ -376,7 +373,6 @@ const SpotifyPlaylistDetailsPage = () => {
     navigate(ROUTES.SPOTIFY_TRACK.path.replace(":trackId", trackId));
   };
 
-  // Get unique artists from all tracks for dropdown
   const createArtistOptions = (): BaseOptionType[] => {
     if (!playlistDetails?.tracks?.items) return [];
 

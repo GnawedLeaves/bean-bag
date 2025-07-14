@@ -1,4 +1,3 @@
-// src/components/blog/EntryForm.tsx
 import React, { useEffect, useState } from "react";
 import {
   Form,
@@ -26,7 +25,6 @@ import { uploadImages, createBlogEntry } from "../../../services/hygraph";
 import styled from "styled-components";
 import { token } from "../../../theme";
 
-// Initialize the plugins
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -152,7 +150,6 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
       const newFiles = Array.from(e.target.files);
       setFiles((prev) => [...prev, ...newFiles]);
 
-      // Create preview URLs for images
       newFiles.forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -211,10 +208,8 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
         longitude: location.longitude,
       };
 
-      // Use the combined date time
       const dateAdded = getCombinedDateTime().toISOString();
 
-      // Create the entry with uploaded image IDs
       await createBlogEntry(
         values.title || "",
         values.content || "",
@@ -226,7 +221,6 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
       setStatus({ message: "Bean created successfully!", error: false });
       message.success("Bean created successfully!");
 
-      // Reset form
       form.resetFields();
       setFiles([]);
       setPreviewUrls([]);

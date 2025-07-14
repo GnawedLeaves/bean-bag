@@ -106,7 +106,7 @@ const BlogDraggable3DImage = ({
               border: `2px solid ${token.borderColor}`,
             }}
           />
-          {/* <BlogImagee src={src} /> */}
+
           <BlogImageDateStamp>
             {date}
             <br />

@@ -1,7 +1,6 @@
 import { data } from "react-router-dom";
 import { LocationModel, OutputLocationType } from "../types/locationTypes";
 
-// src/services/location.ts
 export interface LocationData {
   latitude: number;
   longitude: number;
@@ -34,11 +33,6 @@ export const getCurrentLocation = (): Promise<OutputLocationType> => {
           resolve(outputData);
         } catch (error) {
           console.log("error getting location");
-          // If reverse geocoding fails, just return coordinates
-          // resolve({
-          //   latitude: position.coords.latitude,
-          //   longitude: position.coords.longitude,
-          // });
         }
       },
       (error) => {

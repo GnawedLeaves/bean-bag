@@ -3,7 +3,6 @@ import { ApolloClient, InMemoryCache, gql, HttpLink } from "@apollo/client";
 const API_URL = process.env.REACT_APP_HYGRAPH_API_URL || "";
 const API_KEY = process.env.REACT_APP_HYGRAPH_API_KEY || "";
 
-// Create HTTP link
 const httpLink = new HttpLink({
   uri: API_URL,
   headers: {
@@ -16,7 +15,6 @@ export const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-// Step 1: Create asset mutation with filename
 const CREATE_ASSET = gql`
   mutation CreateAsset($fileName: String!) {
     createAsset(data: { fileName: $fileName }) {
@@ -44,7 +42,6 @@ const CREATE_ASSET = gql`
   }
 `;
 
-// Publish asset mutation
 const PUBLISH_ASSET = gql`
   mutation PublishAsset($id: ID!) {
     publishAsset(where: { id: $id }, to: PUBLISHED) {
@@ -54,7 +51,6 @@ const PUBLISH_ASSET = gql`
   }
 `;
 
-// Function to publish an asset after upload
 const publishAsset = async (id: string) => {
   try {
     const response = await client.mutate({
@@ -68,10 +64,8 @@ const publishAsset = async (id: string) => {
   }
 };
 
-// Main upload function for a single image - DEBUG VERSION
 export const uploadImage = async (file: File): Promise<string> => {
   try {
-    // Step 1: Create asset and get pre-signed URL data
     const result = await client.mutate({
       mutation: CREATE_ASSET,
       variables: {
@@ -91,14 +85,12 @@ export const uploadImage = async (file: File): Promise<string> => {
     console.log("Upload expires at:", upload.expiresAt);
     console.log("Request POST data:", upload.requestPostData);
 
-    // Check if asset creation was successful
     if (upload.status !== "ASSET_CREATE_PENDING") {
       throw new Error(
         `Asset creation failed: ${upload.error?.message || "Unknown error"}`
       );
     }
 
-    // Check if upload hasn't expired
     const expiresAt = new Date(upload.expiresAt);
     const now = new Date();
     if (now >= expiresAt) {
@@ -116,24 +108,7 @@ export const uploadImage = async (file: File): Promise<string> => {
       securityToken,
     } = upload.requestPostData;
 
-    // Log what we extracted
-    console.log("=== EXTRACTED FIELDS ===");
-    console.log("URL:", url);
-    console.log("Key:", key);
-    console.log("Algorithm:", algorithm);
-    console.log("Credential:", credential);
-    console.log("Date:", date);
-    console.log("Policy:", policy);
-    console.log("Signature:", signature);
-    console.log("Security Token:", securityToken);
-    console.log("File type:", file.type);
-    console.log("File name:", file.name);
-
-    // Step 2: Upload file using pre-signed URL
     const formData = new FormData();
-
-    // CRITICAL: Try the exact order that Hygraph/AWS expects
-    // Based on AWS S3 documentation, this is typically the correct order:
 
     if (key) formData.append("key", key);
     if (policy) formData.append("policy", policy);
@@ -143,10 +118,6 @@ export const uploadImage = async (file: File): Promise<string> => {
     if (signature) formData.append("x-amz-signature", signature);
     if (securityToken) formData.append("x-amz-security-token", securityToken);
 
-    // Don't add content-type to FormData - let AWS handle it
-    // formData.append("content-type", file.type);
-
-    // File must be added last
     formData.append("file", file);
 
     console.log("=== FORM DATA ENTRIES ===");
@@ -169,14 +140,12 @@ export const uploadImage = async (file: File): Promise<string> => {
       Array.from(formData.entries()).length
     );
 
-    // Execute the upload - don't set any headers, let browser handle it
     console.log("=== EXECUTING UPLOAD ===");
     console.log("Uploading to URL:", url);
 
     const uploadResponse = await fetch(url, {
       method: "POST",
       body: formData,
-      // Don't set any headers - FormData boundary is auto-generated
     });
 
     console.log("=== UPLOAD RESPONSE ===");
@@ -192,7 +161,6 @@ export const uploadImage = async (file: File): Promise<string> => {
       console.error("=== UPLOAD FAILED ===");
       console.error("Error response:", errorText);
 
-      // Try to parse XML error if it's from S3
       if (errorText.includes("<?xml")) {
         console.error("S3 XML Error detected");
       }
@@ -206,9 +174,8 @@ export const uploadImage = async (file: File): Promise<string> => {
     const successText = await uploadResponse.text();
     console.log("Success response:", uploadResponse);
 
-    // Step 3: Publish the asset to make it available
     console.log("Waiting for asset to process before publishing...");
-    await new Promise((resolve) => setTimeout(resolve, 3000)); // wait 3 seconds
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     await publishAsset(id);
 
     console.log(`Successfully uploaded and published asset with ID: ${id}`);
@@ -220,12 +187,10 @@ export const uploadImage = async (file: File): Promise<string> => {
   }
 };
 
-// Function to upload multiple images (replacement for your uploadImages)
 export const uploadImages = async (files: File[]): Promise<string[]> => {
   try {
     console.log(`Starting upload of ${files.length} files`);
 
-    // Upload files one by one to avoid overwhelming the API
     const imageIds: string[] = [];
 
     for (let i = 0; i < files.length; i++) {
@@ -235,7 +200,6 @@ export const uploadImages = async (files: File[]): Promise<string[]> => {
       const imageId = await uploadImage(file);
       imageIds.push(imageId);
 
-      // Small delay between uploads to be respectful to the API
       if (i < files.length - 1) {
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
@@ -250,7 +214,6 @@ export const uploadImages = async (files: File[]): Promise<string[]> => {
   }
 };
 
-// Your existing createEntry function (unchanged)
 export const createBlogEntry = async (
   title: string,
   content: string,
@@ -284,10 +247,8 @@ export const createBlogEntry = async (
   `;
 
   try {
-    // Create connections for the images
     const imageConnections = imageIds.map((id) => ({ id }));
 
-    // Create the entry
     const result = await client.mutate({
       mutation: CREATE_ENTRY,
       variables: {
@@ -305,7 +266,6 @@ export const createBlogEntry = async (
       throw new Error("Failed to create entry");
     }
 
-    // Publish the entry
     const PUBLISH_ENTRY = gql`
       mutation PublishEntry($id: ID!) {
         publishBlogEntry(where: { id: $id }, to: PUBLISHED) {
@@ -328,7 +288,6 @@ export const createBlogEntry = async (
   }
 };
 
-// Your existing getEntries function (unchanged)
 export const getBlogEntries = async () => {
   const GET_ALL_ENTRIES = gql`
     query GetAllBlogs($first: Int!, $skip: Int!) {
@@ -409,10 +368,8 @@ export const createPlantEntry = async (
   `;
 
   try {
-    // Create connections for the images
     const imageConnections = imageIds.map((id) => ({ id }));
 
-    // Create the entry
     const result = await client.mutate({
       mutation: CREATE_ENTRY,
       variables: {
@@ -431,7 +388,6 @@ export const createPlantEntry = async (
       throw new Error("Failed to create entry");
     }
 
-    // Publish the entry
     const PUBLISH_ENTRY = gql`
       mutation PublishEntry($id: ID!) {
         publishPlantEntry(where: { id: $id }, to: PUBLISHED) {
@@ -487,7 +443,6 @@ export const getPlantEntries = async () => {
   }
 };
 
-// Helper function to get asset URL from ID
 export const getAssetUrlById = async (assetId: string): Promise<string> => {
   try {
     const GET_ASSET_URL = gql`

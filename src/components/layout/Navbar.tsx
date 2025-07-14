@@ -92,7 +92,6 @@ const Navbar: React.FC = () => {
     }
   };
 
-  // Define navigation items in specific order: Home, Blog, Plants, Feedback
   const navigationItems = [
     {
       key: ROUTES.HOME.path,
@@ -133,7 +132,6 @@ const Navbar: React.FC = () => {
     },
   ];
 
-  // Mobile bottom navigation items
   const mobileMenuItems = navigationItems.map((item) => ({
     key: item.key,
     icon: item.icon,
@@ -150,7 +148,6 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      {/* Mobile Bottom Navigation */}
       <MobileBottomNav>
         <NavContainer>
           {navigationItems.map((item) => (
@@ -166,7 +163,6 @@ const Navbar: React.FC = () => {
           ))}
         </NavContainer>
       </MobileBottomNav>
-      {/* ...rest of your component (desktop nav, etc.) */}
     </>
   );
 };

@@ -126,13 +126,11 @@ const Home: React.FC = () => {
         date: formattedDate,
       })) as NasaApodObject;
 
-      // Create the transformed response with line breaks
       const transformedResponse = {
         ...response,
         explanation: addLineBreaksAfterSentences(response.explanation),
       };
 
-      // Set the transformed response, not the original
       setApodData(transformedResponse);
     } catch (e) {
       console.error("Error getting apod", e);
@@ -162,7 +160,7 @@ const Home: React.FC = () => {
           id: doc.id,
           ...(doc.data() as StreakModel),
         }))
-        .filter((streak) => !streak.isDelete); // Only include not deleted
+        .filter((streak) => !streak.isDelete);
       setStreakData(data);
     } catch (e) {
       console.error("Error getting streaks", e);
@@ -192,7 +190,7 @@ const Home: React.FC = () => {
         isDelete: false,
       };
       await addDoc(collection(db, "anniAppStreak"), newStreak);
-      handleGetAllStreaks(); // Refresh streaks
+      handleGetAllStreaks();
     } catch (e) {
       console.error("Error adding streak", e);
     }
@@ -211,7 +209,7 @@ const Home: React.FC = () => {
     try {
       const streakRef = doc(db, "anniAppStreak", streak.id!);
       await updateDoc(streakRef, { streakName: newName.trim() });
-      handleGetAllStreaks(); // Refresh streaks
+      handleGetAllStreaks();
     } catch (e) {
       console.error("Error editing streak", e);
     }
@@ -222,7 +220,7 @@ const Home: React.FC = () => {
     try {
       const streakRef = doc(db, "anniAppStreak", streak.id!);
       await updateDoc(streakRef, { isDelete: true });
-      handleGetAllStreaks(); // Refresh streaks
+      handleGetAllStreaks();
     } catch (e) {
       console.error("Error deleting streak", e);
     }
@@ -236,7 +234,7 @@ const Home: React.FC = () => {
         prevDate: new Date(),
         prevPrevDate: streak.prevDate,
       });
-      handleGetAllStreaks(); // Refresh streaks
+      handleGetAllStreaks();
     } catch (e) {
       console.error("Error resetting streak", e);
     }

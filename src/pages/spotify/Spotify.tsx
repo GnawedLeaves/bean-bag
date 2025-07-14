@@ -254,13 +254,11 @@ const SpotifyPage = () => {
         });
       });
 
-      // Group items by type for batch fetching
       const tracks = historyData.filter((item) => item.type === "track");
       const albums = historyData.filter((item) => item.type === "album");
       const artists = historyData.filter((item) => item.type === "artist");
       const playlists = historyData.filter((item) => item.type === "playlist");
 
-      // Fetch details for each type
       const [trackDetails, albumDetails, artistDetails, playlistDetails] =
         await Promise.all([
           getMultipleSpotifyTracks(
@@ -282,7 +280,6 @@ const SpotifyPage = () => {
           ),
         ]);
 
-      // Combine history data with details
       const enrichedData = historyData.map((item) => {
         let details;
         let displayName = "";
@@ -345,7 +342,6 @@ const SpotifyPage = () => {
 
   const handleGetAllReviewsAndComments = async () => {
     try {
-      // Get all reviews for user and partner
       const reviewQuery = query(
         collection(db, "anniAppSpotifyReview"),
         where("userId", "in", [user?.id, userPartner?.id])
@@ -364,7 +360,6 @@ const SpotifyPage = () => {
         } as SpotifyReview;
       });
 
-      // Get all comments
       const commentQuery = query(
         collection(db, "anniAppSpotifyReviewComment"),
         where("userId", "in", [user?.id, userPartner?.id])
@@ -386,15 +381,10 @@ const SpotifyPage = () => {
       setTotalReviews(reviews.length);
       setTotalComments(comments.length);
 
-      // const allActivity = [...reviews, ...comments].sort(
-      //   (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
-      // );
-
       const allActivity = [...comments].sort(
         (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
       );
 
-      // Group items by type for batch fetching
       const tracks: string[] = [];
       const albums: string[] = [];
       const artists: string[] = [];
@@ -407,7 +397,6 @@ const SpotifyPage = () => {
         if (activity.type === "playlist") playlists.push(activity.spotifyId);
       });
 
-      // Fetch all details in parallel
       const [trackDetails, albumDetails, artistDetails, playlistDetails] =
         await Promise.all([
           getMultipleSpotifyTracks(tracks, spotifyToken?.accessToken || ""),
@@ -420,7 +409,6 @@ const SpotifyPage = () => {
           ),
         ]);
 
-      // Enrich the activity data
       const enrichedActivity = allActivity.slice(0, 15).map((activity) => {
         let details;
         let displayName = "";

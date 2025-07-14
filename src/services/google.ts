@@ -50,10 +50,9 @@ export async function getAddressFromCoords(lat: number, lng: number) {
   const data = await response.json();
 
   if (data.status === "OK") {
-    const result = data.results[0]; // Most relevant result
+    const result = data.results[0];
     const address = result.formatted_address;
 
-    // You can extract specific components:
     let street = "",
       country = "";
     for (const component of result.address_components) {

@@ -38,7 +38,7 @@ export const RotatingCard = styled.div<{
   position: relative;
   padding: ${(props) => props.theme.paddingMed}px;
 
-  // Bottom edge
+  // bottom edge
   &::after {
     content: "";
     position: absolute;
@@ -51,7 +51,7 @@ export const RotatingCard = styled.div<{
     transform-origin: top;
   }
 
-  // Right edge
+  // right edge
   &::before {
     content: "";
     position: absolute;
@@ -65,7 +65,7 @@ export const RotatingCard = styled.div<{
     transform-origin: left;
   }
 
-  // Left edge
+  // left edge
   > .left-edge {
     content: "";
     position: absolute;
@@ -79,7 +79,7 @@ export const RotatingCard = styled.div<{
     transform-origin: right;
   }
 
-  // Top edge
+  // top edge
   > .top-edge {
     content: "";
     position: absolute;

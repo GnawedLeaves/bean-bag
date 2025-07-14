@@ -223,21 +223,19 @@ const BlogCalendar = ({
   const getMonthData = (inputDate: Dayjs) => {
     const startOfMonth = inputDate.startOf("month");
     const endOfMonth = inputDate.endOf("month");
-    const startDay = startOfMonth.day(); // 0-6, representing Sunday-Saturday
+    const startDay = startOfMonth.day();
     const daysInMonth = endOfMonth.date();
     const monthDays: MonthData[] = [];
     const dayLabels = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-    // Add empty slots for days from previous month
     for (let i = 0; i < startDay; i++) {
       monthDays.push({
         date: startOfMonth.subtract(startDay - i, "day"),
         dayLabel: dayLabels[i],
-        dayNumber: 0, // Use 0 to indicate empty day
+        dayNumber: 0,
       });
     }
 
-    // Add days of current month
     for (let i = 1; i <= daysInMonth; i++) {
       const currentDay = startOfMonth.add(i - 1, "day");
       monthDays.push({
@@ -247,13 +245,12 @@ const BlogCalendar = ({
       });
     }
 
-    // Fill remaining grid slots if needed
     const remainingDays = (7 - ((startDay + daysInMonth) % 7)) % 7;
     for (let i = 1; i <= remainingDays; i++) {
       monthDays.push({
         date: endOfMonth.add(i, "day"),
         dayLabel: dayLabels[(startDay + daysInMonth + i - 1) % 7],
-        dayNumber: 0, // Use 0 to indicate empty day
+        dayNumber: 0,
       });
     }
 

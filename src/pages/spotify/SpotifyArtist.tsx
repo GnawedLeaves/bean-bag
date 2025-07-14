@@ -58,7 +58,6 @@ import { TrackListHeader } from "./SpotifyPlaylist";
 import { onAuthStateChanged } from "firebase/auth";
 import React from "react";
 
-// Additional styled components for artist page
 const ScrollableSection = styled.div`
   max-height: 300px;
   overflow-y: auto;

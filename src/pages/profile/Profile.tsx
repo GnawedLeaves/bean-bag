@@ -113,7 +113,6 @@ const ProfilePage = ({}: ProfilePageProps) => {
   const handleImageUpload = async (file: RcFile): Promise<boolean> => {
     setIsUploading(true);
     try {
-      // Upload to CMS
       const imageIds = await uploadImages([file]);
       if (!imageIds || imageIds.length === 0) {
         throw new Error("Failed to upload image");

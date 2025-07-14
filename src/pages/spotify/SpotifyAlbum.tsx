@@ -65,7 +65,6 @@ import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage
 import { onAuthStateChanged } from "firebase/auth";
 import React from "react";
 
-// Additional styled components for album page
 const AlbumInfoContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -177,7 +176,6 @@ const SpotifyAlbumPage = () => {
         ...doc.data(),
       })) as SpotifyComment[];
 
-      // Construct the review and comment objects
       const reviewsObjs = reviews.map((review) => {
         const date =
           formatFirebaseDate(review.dateAdded) ||
@@ -234,7 +232,6 @@ const SpotifyAlbumPage = () => {
         }
       });
 
-      // Sort by date
       const sortedReviewObjs = [...reviewsObjs].sort(
         (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
       );

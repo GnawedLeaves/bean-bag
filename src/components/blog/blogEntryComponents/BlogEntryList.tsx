@@ -1,4 +1,3 @@
-// src/components/blog/EntryList.tsx
 import React from "react";
 import styled from "styled-components";
 import { gql, useQuery } from "@apollo/client";
