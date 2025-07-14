@@ -87,3 +87,46 @@ export const BlogEntryLocation = styled.div`
   color: ${(props) => props.theme.textSecondary};
   font-size: ${(props) => props.theme.fontSizeSmall}px;
 `;
+
+export const BlogCommentContainer = styled.div`
+  margin-top: 16px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+export const BlogCommentBox = styled.div`
+  border: 2px solid ${(props) => props.theme.borderColor};
+  display: flex;
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  gap: 8px;
+  padding: ${(props) => props.theme.paddingMed}px;
+`;
+
+export const BlogCommentInput = styled.input`
+  background: ${(props) => props.theme.colorBg};
+  padding: ${(props) => props.theme.paddingSmall}px;
+  flex: 1;
+  border: none;
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  border: 1px solid ${(props) => props.theme.borderColor};
+`;
+
+export const BlogCommentButton = styled.button`
+  border: none;
+  background: ${(props) => props.theme.colorBgPink};
+  padding: ${(props) => props.theme.paddingSmall}px
+    ${(props) => props.theme.paddingMed}px;
+  border: 1px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  font-size: ${(props) => props.theme.fontSizeMed}px;
+`;
+
+export const BlogCommentDeleteButton = styled.button`
+  border: none;
+  // border: 1px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  background: ${(props) => props.theme.colorBg};
+  display: flex;
+`;

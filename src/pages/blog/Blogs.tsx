@@ -11,7 +11,11 @@ import {
   Button,
   Flex,
 } from "antd";
-import { DeleteOutlined, SignatureOutlined } from "@ant-design/icons";
+import {
+  CommentOutlined,
+  DeleteOutlined,
+  SignatureOutlined,
+} from "@ant-design/icons";
 import { getBlogEntries } from "../../services/hygraph";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
@@ -20,6 +24,11 @@ import { ROUTES } from "../../routes";
 import {
   BlogBodyPage,
   BlogButton,
+  BlogCommentBox,
+  BlogCommentButton,
+  BlogCommentContainer,
+  BlogCommentDeleteButton,
+  BlogCommentInput,
   BlogEntriesContainer,
   BlogEntryContainer,
   BlogEntryContent,
@@ -61,6 +70,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
 import { BlogComment } from "../../types/blogTypes";
+import { CommentButton } from "../spotify/SpotifyStyles";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -279,7 +289,6 @@ const BlogPage: React.FC = () => {
             <BlogTopBar>
               {selectedDate.format("DD MMM")} Bean
               {dayEntries.length > 1 ? "s" : ""}
-              {/* <BlogTopBarSubtitle>we can dump our shit here!!</BlogTopBarSubtitle> */}
             </BlogTopBar>
             <BlogButton
               onClick={() => {
@@ -313,27 +322,14 @@ const BlogPage: React.FC = () => {
                       </BlogEntryLocation>
                     </Flex>
 
-                    {/* --- Comments Section --- */}
-                    <div style={{ marginTop: 16, width: "100%" }}>
-                      <div style={{ fontWeight: "bold", marginBottom: 4 }}>
-                        Comments
-                      </div>
+                    <BlogCommentContainer>
+                      <div>Comments</div>
                       <div>
                         {(comments[entry.id] || []).length === 0 && (
                           <div style={{ color: "#888" }}>No comments yet.</div>
                         )}
                         {(comments[entry.id] || []).map((comment) => (
-                          <Flex
-                            key={comment.id}
-                            align="center"
-                            gap={8}
-                            style={{
-                              marginBottom: 8,
-                              padding: 8,
-                              background: "#f7f7f7",
-                              borderRadius: 8,
-                            }}
-                          >
+                          <BlogCommentBox key={comment.id}>
                             {comment.displayPicture && (
                               <img
                                 src={comment.displayPicture}
@@ -364,20 +360,17 @@ const BlogPage: React.FC = () => {
                               <div>{comment.content}</div>
                             </div>
                             {comment.userId === user?.id && (
-                              <Button
-                                size="small"
-                                danger
+                              <BlogCommentDeleteButton
                                 onClick={() => handleDeleteComment(comment.id!)}
-                                style={{ marginLeft: 8 }}
                               >
                                 <DeleteOutlined />
-                              </Button>
+                              </BlogCommentDeleteButton>
                             )}
-                          </Flex>
+                          </BlogCommentBox>
                         ))}
                       </div>
                       <Flex gap={8} style={{ marginTop: 8 }}>
-                        <input
+                        <BlogCommentInput
                           value={newComment[entry.id] || ""}
                           onChange={(e) =>
                             setNewComment((prev) => ({
@@ -385,29 +378,19 @@ const BlogPage: React.FC = () => {
                               [entry.id]: e.target.value,
                             }))
                           }
-                          placeholder="Add a comment..."
-                          style={{
-                            flex: 1,
-                            border: "1px solid #ccc",
-                            borderRadius: 6,
-                            padding: 6,
-                            fontFamily: "inherit",
-                          }}
+                          placeholder="Write comment"
                         />
-                        <Button
-                          size="small"
-                          type="primary"
+                        <BlogCommentButton
                           onClick={() => handleAddComment(entry.id)}
                           disabled={
                             !newComment[entry.id] ||
                             !newComment[entry.id].trim()
                           }
                         >
-                          Post
-                        </Button>
+                          <CommentOutlined />
+                        </BlogCommentButton>
                       </Flex>
-                    </div>
-                    {/* --- End Comments Section --- */}
+                    </BlogCommentContainer>
                   </BlogEntryContainer>
                 ))
               )}
@@ -415,7 +398,6 @@ const BlogPage: React.FC = () => {
           </>
         ) : (
           <Flex vertical gap={16} align="center">
-            {/* <FrownOutlined /> */}
             No Beans for this date.
             <BlogButton
               onClick={() => {
