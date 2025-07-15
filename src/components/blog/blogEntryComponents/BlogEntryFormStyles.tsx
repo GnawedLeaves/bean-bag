@@ -1,4 +1,5 @@
 // src/components/blog/EntryFormStyles.ts
+import { Spin } from "antd";
 import styled from "styled-components";
 
 // Change Form to FormContainer
@@ -80,4 +81,10 @@ export const StatusMessage = styled.div<{ error?: boolean }>`
   margin-top: 1rem;
   background-color: ${(props) => (props.error ? "#ffcccc" : "#ccffcc")};
   border-radius: 4px;
+`;
+
+export const BlogEntryStyledSpinner = styled(Spin)`
+  .ant-spin-dot-item {
+    background-color: ${(props) => props.theme.colorBgPink};
+  }
 `;
