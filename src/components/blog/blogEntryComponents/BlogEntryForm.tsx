@@ -24,6 +24,7 @@ import { useLocationHook } from "../../../hooks/useLocation";
 import { uploadImages, createBlogEntry } from "../../../services/hygraph";
 import styled from "styled-components";
 import { token } from "../../../theme";
+import { BlogEntryStyledSpinner } from "./BlogEntryFormStyles";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -78,8 +79,8 @@ export const ImagePreviewContainer = styled.div`
 `;
 
 export const ImagePreview = styled.div`
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   background-size: cover;
   background-position: center;
   border: 2px solid ${(props) => props.theme.borderColor};
@@ -105,12 +106,13 @@ export const RemoveButton = styled.button`
 `;
 
 export const StatusMessage = styled.div<{ error?: boolean }>`
+  // padding: 16px;
   margin-top: 16px;
-  padding: 16px;
   border-radius: ${(props) => props.theme.borderRadius}px;
-  background: ${(props) =>
-    props.error ? props.theme.colorBgRed : props.theme.colorBgGreen};
   color: ${(props) => props.theme.text};
+  display: flex;
+  width: 100%;
+  justify-content: center;
 `;
 
 export const CustomTextArea = styled(Input.TextArea)`
@@ -150,6 +152,7 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
       const newFiles = Array.from(e.target.files);
       setFiles((prev) => [...prev, ...newFiles]);
 
+      //for image preview
       newFiles.forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -165,38 +168,58 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
     setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
+  useEffect(() => {
+    if (files.length > 0) {
+      setStatus(null);
+    }
+  }, [files]);
+
   const handleSubmit = async (values: FormValues) => {
     if (files.length === 0) {
-      message.error("Please upload at least one image.");
+      setStatus({
+        message: (
+          <span style={{ color: token.colorBgRed }}>
+            Please upload at least one image
+          </span>
+        ),
+        error: true,
+      });
       return;
     }
-
-    console.log({ values });
-
     if (!location) {
       message.error(
         "Location data is required. Please enable location services."
       );
       return;
     }
-
     try {
       setSubmitting(true);
+      // setStatus({
+      //   message: (
+      //     <Flex gap={16} align="center">
+      //       <Spin />
+      //       Uploading images...
+      //     </Flex>
+      //   ),
+      //   error: false,
+      // });
+
+      const imageIds = await uploadImages(files, (current, total, fileName) => {
+        setStatus({
+          message: (
+            <Flex gap={16} align="center">
+              <BlogEntryStyledSpinner />
+              {`Uploading ${current}/${total} images...`}
+            </Flex>
+          ),
+          error: false,
+        });
+      });
+
       setStatus({
         message: (
           <Flex gap={16} align="center">
-            <Spin />
-            Uploading images...
-          </Flex>
-        ),
-        error: false,
-      });
-
-      const imageIds = await uploadImages(files);
-      setStatus({
-        message: (
-          <Flex gap={176}>
-            <Spin />
+            <BlogEntryStyledSpinner />
             Creating Bean...
           </Flex>
         ),
@@ -269,6 +292,16 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
       .second(now.second());
   };
 
+  const getDisplayTime = () => {
+    const now = dayjs().tz("Asia/Singapore");
+    return dayjs(blogDate)
+      .tz("Asia/Singapore")
+      .hour(now.hour())
+      .minute(now.minute())
+      .second(now.second())
+      .format("DD MMM YYYY, HH:mm");
+  };
+
   return (
     <BlogUploadContainer>
       <BlogUploadBody>
@@ -334,7 +367,7 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
             <Form.Item
               label="Images"
               required
-              help="Please upload at least one image"
+              // help="Please upload at least one image"
               style={{ marginBottom: 32 }}
             >
               <BlogButton
@@ -384,21 +417,23 @@ const BlogEntryForm: React.FC<BlogEntryFormProps> = ({
               <div>
                 <Text strong>Timestamp: </Text>
                 <Text type="secondary" style={{ fontFamily: token.fontFamily }}>
-                  {getCombinedDateTime().toString()}
+                  {getDisplayTime().toString()}
                 </Text>
               </div>
             </Space>
 
-            <Form.Item>
-              <BlogButton
-                onClick={form.submit}
-                style={{ width: "100%" }}
-                disabled={locationLoading || submitting}
-              >
-                <SignatureOutlined />
-                {submitting ? "Creating Bean..." : "Create Bean"}
-              </BlogButton>
-            </Form.Item>
+            {!submitting && (
+              <Form.Item>
+                <BlogButton
+                  onClick={form.submit}
+                  style={{ width: "100%" }}
+                  disabled={locationLoading || submitting}
+                >
+                  <SignatureOutlined />
+                  {submitting ? "Creating Bean..." : "Create Bean"}
+                </BlogButton>
+              </Form.Item>
+            )}
           </Form>
 
           {status && (

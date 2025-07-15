@@ -33,6 +33,10 @@ export const getCurrentLocation = (): Promise<OutputLocationType> => {
           resolve(outputData);
         } catch (error) {
           console.log("error getting location");
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
         }
       },
       (error) => {

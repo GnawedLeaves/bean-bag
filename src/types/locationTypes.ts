@@ -28,7 +28,7 @@ export interface LocationModel {
   type: string;
 }
 
-export interface OutputLocationType extends LocationModel {
+export interface OutputLocationType extends Partial<LocationModel> {
   longitude: number;
   latitude: number;
 }

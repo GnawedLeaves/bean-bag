@@ -187,26 +187,21 @@ export const uploadImage = async (file: File): Promise<string> => {
   }
 };
 
-export const uploadImages = async (files: File[]): Promise<string[]> => {
+export const uploadImages = async (
+  files: File[],
+  onProgress?: (current: number, total: number, fileName: string) => void
+): Promise<string[]> => {
   try {
-    console.log(`Starting upload of ${files.length} files`);
-
     const imageIds: string[] = [];
-
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      console.log(`Uploading file ${i + 1}/${files.length}: ${file.name}`);
-
+      if (onProgress) onProgress(i + 1, files.length, file.name);
       const imageId = await uploadImage(file);
       imageIds.push(imageId);
-
       if (i < files.length - 1) {
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
     }
-
-    console.log(`Successfully uploaded all ${imageIds.length} images`);
-    console.log({ imageIds });
     return imageIds;
   } catch (error) {
     console.error("Error uploading multiple images:", error);
