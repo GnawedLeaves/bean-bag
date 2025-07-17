@@ -328,46 +328,55 @@ const BlogPage: React.FC = () => {
                         {(comments[entry.id] || []).length === 0 && (
                           <div style={{ color: "#888" }}>No comments yet.</div>
                         )}
-                        {(comments[entry.id] || []).map((comment) => (
-                          <BlogCommentBox key={comment.id}>
-                            {comment.displayPicture && (
-                              <img
-                                src={comment.displayPicture}
-                                alt={comment.username}
-                                style={{
-                                  width: 28,
-                                  height: 28,
-                                  borderRadius: "50%",
-                                  objectFit: "cover",
-                                }}
-                              />
-                            )}
-                            <div style={{ flex: 1 }}>
-                              <div style={{ fontWeight: 500 }}>
-                                {comment.username || "Anon"}
-                                <span
-                                  style={{
-                                    fontSize: 12,
-                                    color: "#aaa",
-                                    marginLeft: 8,
-                                  }}
-                                >
-                                  {comment.dateAdded?.toDate()
-                                    ? formatFirebaseDate(comment.dateAdded)
-                                    : ""}
-                                </span>
-                              </div>
-                              <div>{comment.content}</div>
-                            </div>
-                            {comment.userId === user?.id && (
-                              <BlogCommentDeleteButton
-                                onClick={() => handleDeleteComment(comment.id!)}
-                              >
-                                <DeleteOutlined />
-                              </BlogCommentDeleteButton>
-                            )}
-                          </BlogCommentBox>
-                        ))}
+                        <Flex vertical gap={8}>
+                          {(comments[entry.id] || [])
+                            .sort(
+                              (a, b) =>
+                                b.dateAdded.toMillis() - a.dateAdded.toMillis()
+                            )
+                            .map((comment) => (
+                              <BlogCommentBox key={comment.id}>
+                                {comment.displayPicture && (
+                                  <img
+                                    src={comment.displayPicture}
+                                    alt={comment.username}
+                                    style={{
+                                      width: 28,
+                                      height: 28,
+                                      borderRadius: "50%",
+                                      objectFit: "cover",
+                                    }}
+                                  />
+                                )}
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontWeight: 500 }}>
+                                    {comment.username || "Anon"}
+                                    <span
+                                      style={{
+                                        fontSize: 12,
+                                        color: "#aaa",
+                                        marginLeft: 8,
+                                      }}
+                                    >
+                                      {comment.dateAdded?.toDate()
+                                        ? formatFirebaseDate(comment.dateAdded)
+                                        : ""}
+                                    </span>
+                                  </div>
+                                  <div>{comment.content}</div>
+                                </div>
+                                {comment.userId === user?.id && (
+                                  <BlogCommentDeleteButton
+                                    onClick={() =>
+                                      handleDeleteComment(comment.id!)
+                                    }
+                                  >
+                                    <DeleteOutlined />
+                                  </BlogCommentDeleteButton>
+                                )}
+                              </BlogCommentBox>
+                            ))}
+                        </Flex>
                       </div>
                       <Flex gap={8} style={{ marginTop: 8 }}>
                         <BlogCommentInput
