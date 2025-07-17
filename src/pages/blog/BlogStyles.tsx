@@ -89,7 +89,7 @@ export const BlogEntryLocation = styled.div`
 `;
 
 export const BlogCommentContainer = styled.div`
-  margin-top: 16px;
+  margin-top: 8px;
   width: 100%;
   display: flex;
   flex-direction: column;
