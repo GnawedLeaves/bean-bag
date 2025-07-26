@@ -73,7 +73,7 @@ const Home: React.FC = () => {
     useUser();
 
   console.log({ user });
-  const [daysTogetherCount, setDaysTogetherCount] = useState(0);
+  const [daysTogetherCount, setDaysTogetherCount] = useState<number>(0);
   const [gayLevel, setGayLevel] = useState<number>(0);
   const [blogCount, setBlogCount] = useState<number>(0);
   const [distance, setDistance] = useState<string>("");
@@ -161,7 +161,25 @@ const Home: React.FC = () => {
           ...(doc.data() as StreakModel),
         }))
         .filter((streak) => !streak.isDelete);
-      setStreakData(data);
+      const transformedData = data.map((streak) => {
+        let isHours = false;
+        let timeDifference = calculateDaysDifference(streak.prevDate.toDate());
+        if (timeDifference < 1) {
+          const now = new Date();
+          const streakDate = streak.prevDate.toDate();
+          const timeDifferenceMs = now.getTime() - streakDate.getTime();
+          const hours = Math.floor(timeDifferenceMs / (1000 * 3600));
+          timeDifference = hours;
+          isHours = true;
+        }
+
+        return {
+          ...streak,
+          timeDifference: timeDifference,
+          isHours: isHours,
+        };
+      });
+      setStreakData(transformedData);
     } catch (e) {
       console.error("Error getting streaks", e);
     }
@@ -367,9 +385,9 @@ const Home: React.FC = () => {
                 </Flex>
                 <Flex align="center" vertical>
                   <HomeStreakNumber>
-                    {calculateDaysDifference(streak.prevDate.toDate()) || "0"}{" "}
+                    {streak.timeDifference || 0}
                   </HomeStreakNumber>{" "}
-                  days
+                  {streak.isHours ? "hours" : "days"}
                 </Flex>
 
                 <Flex gap={8} justify="space-evenly">

@@ -7,4 +7,6 @@ export interface StreakModel {
   prevPrevDate: Timestamp;
   streakName: string;
   userId: string;
+  timeDifference?: number;
+  isHours?: boolean;
 }
