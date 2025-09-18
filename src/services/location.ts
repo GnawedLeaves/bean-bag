@@ -1,4 +1,3 @@
-import { data } from "react-router-dom";
 import { LocationModel, OutputLocationType } from "../types/locationTypes";
 
 export interface LocationData {
@@ -7,6 +6,23 @@ export interface LocationData {
   city?: string;
   country?: string;
 }
+
+export const getLocationFromCoords = (
+  latitude: number,
+  longitude: number
+): Promise<LocationModel> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+      );
+      const data: LocationModel = await response.json();
+      resolve(data);
+    } catch (e) {
+      console.error("Error getting location");
+    }
+  });
+};
 
 export const getCurrentLocation = (): Promise<OutputLocationType> => {
   return new Promise((resolve, reject) => {

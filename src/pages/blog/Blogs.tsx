@@ -37,7 +37,6 @@ import {
   BlogHeroContainer,
   BlogMainPage,
   BlogTopBar,
-  BlogTopBarSubtitle,
 } from "./BlogStyles";
 import BlogCalendar from "../../components/blog/blogCalendarComponent/BlogCalendar";
 import dayjs, { Dayjs } from "dayjs";
@@ -48,10 +47,7 @@ import {
   convertISOToDDMMYYYHHmm,
   formatFirebaseDate,
 } from "../../utils/utils";
-import {
-  getAddressFromCoords,
-  getLocationDetails,
-} from "../../services/google";
+
 import BlogImages from "../../components/blog/blogImagesComponent/BlogImages";
 import {
   PageLoading,
@@ -71,6 +67,7 @@ import {
 import { db } from "../../firebase/firebase";
 import { BlogComment } from "../../types/blogTypes";
 import { CommentButton } from "../spotify/SpotifyStyles";
+import { getLocationFromCoords } from "../../services/location";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -173,9 +170,18 @@ const BlogPage: React.FC = () => {
   };
 
   const getStreetLocation = async (latitude: number, longitude: number) => {
-    const location = await getAddressFromCoords(latitude, longitude);
+    try {
+      const location = await getLocationFromCoords(latitude, longitude);
+      return {
+        street: location.address.road,
+        country: location.address.country,
+        fullAddress: location,
+      };
 
-    return location;
+      // return location;
+    } catch (e) {
+      return { street: "", country: "", fullAddress: "" };
+    }
   };
 
   const fetchCommentsForEntries = async (entryIds: string[]) => {
