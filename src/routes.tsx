@@ -60,4 +60,8 @@ export const ROUTES: Record<string, RouteConfig> = {
     path: "/agenda",
     name: "Agenda",
   },
+  HABITS: {
+    path: "/habits",
+    name: "Habits",
+  },
 } as const;

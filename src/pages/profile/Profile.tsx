@@ -89,7 +89,6 @@ const ProfilePage = ({}: ProfilePageProps) => {
         status: newStatus,
         lastUpdated: Timestamp.now(),
       });
-      console.log("newStatus updated successfully!");
       message.success("Status updated successfully!");
       setIsEditingStatus(false);
       getUserContextData();

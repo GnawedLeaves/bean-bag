@@ -23,6 +23,7 @@ import SpotifyAlbumPage from "./pages/spotify/SpotifyAlbum";
 import SpotifyPlaylistDetailsPage from "./pages/spotify/SpotifyPlaylist";
 import { ProfilePage } from "./pages/profile/Profile";
 import AgendaPage from "./pages/agenda/Agenda";
+import HabitsHomePage from "./pages/habits/HabitsHomePage";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -102,6 +103,7 @@ const App: React.FC = () => {
                   element={<SpotifyPlaylistDetailsPage />}
                 />
                 <Route path={ROUTES.AGENDA.path} element={<AgendaPage />} />
+                <Route path={ROUTES.HABITS.path} element={<HabitsHomePage />} />
               </Routes>
             </main>
           </Router>

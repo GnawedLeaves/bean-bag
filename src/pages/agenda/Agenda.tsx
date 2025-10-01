@@ -272,7 +272,7 @@ const AgendaPage = () => {
             justify="space-between"
             style={{ width: "100%" }}
           >
-            <AgendaBodyTitle>Yapping Beans</AgendaBodyTitle>
+            <AgendaBodyTitle>Items</AgendaBodyTitle>
             <SortButton
               background={token.colorBgYellow}
               onClick={() => {

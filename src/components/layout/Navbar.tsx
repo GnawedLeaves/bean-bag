@@ -14,7 +14,6 @@ import {
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
-import { token } from "../../theme";
 import styled from "styled-components";
 
 const { Header: AntHeader } = Layout;
@@ -111,6 +110,13 @@ const Navbar: React.FC = () => {
       label: "Beans",
       path: ROUTES.BLOG?.path || "/blogs",
     },
+    {
+      key: ROUTES.HABITS?.path || "/habits",
+      icon: <SpotifyOutlined />,
+      label: "Habits",
+      path: ROUTES.HABITS?.path || "/habits",
+    },
+
     // {
     //   key: ROUTES.PLANTS?.path || "/plants",
     //   icon: <SunOutlined />,
