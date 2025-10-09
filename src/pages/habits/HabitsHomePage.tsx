@@ -6,6 +6,7 @@ const HabitsHomePage = () => {
   return (
     <ThemeProvider theme={token}>
       <HabitsHomePageContainer></HabitsHomePageContainer>
+      test commit
     </ThemeProvider>
   );
 };
