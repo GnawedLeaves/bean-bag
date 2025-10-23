@@ -110,12 +110,12 @@ const Navbar: React.FC = () => {
       label: "Beans",
       path: ROUTES.BLOG?.path || "/blogs",
     },
-    {
-      key: ROUTES.HABITS?.path || "/habits",
-      icon: <SpotifyOutlined />,
-      label: "Habits",
-      path: ROUTES.HABITS?.path || "/habits",
-    },
+    // {
+    //   key: ROUTES.HABITS?.path || "/habits",
+    //   icon: <SpotifyOutlined />,
+    //   label: "Habits",
+    //   path: ROUTES.HABITS?.path || "/habits",
+    // },
 
     // {
     //   key: ROUTES.PLANTS?.path || "/plants",
@@ -123,12 +123,12 @@ const Navbar: React.FC = () => {
     //   label: "Plants",
     //   path: ROUTES.PLANTS?.path || "/plants",
     // },
-    {
-      key: ROUTES.SPOTIFY?.path || "/spotify",
-      icon: <SpotifyOutlined />,
-      label: "Beanify",
-      path: ROUTES.SPOTIFY?.path || "/spotify",
-    },
+    // {
+    //   key: ROUTES.SPOTIFY?.path || "/spotify",
+    //   icon: <SpotifyOutlined />,
+    //   label: "Beanify",
+    //   path: ROUTES.SPOTIFY?.path || "/spotify",
+    // },
 
     {
       key: ROUTES.PROFILE?.path || "/profile",

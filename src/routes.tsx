@@ -64,4 +64,8 @@ export const ROUTES: Record<string, RouteConfig> = {
     path: "/habits",
     name: "Habits",
   },
+  WATCHLIST: {
+    path: "/watchlist",
+    name: "Watch List",
+  },
 } as const;

@@ -264,3 +264,12 @@ export const HomeStreakName = styled.div`
   font-size: ${(props) => props.theme.fontSizeLg}px;
   text-align: center;
 `;
+
+export const HomeShortcutsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 24px;
+  justify-content: center;
+  margin: 24px 0;
+`;

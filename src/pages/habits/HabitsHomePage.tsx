@@ -5,7 +5,7 @@ import { HabitsHomePageContainer } from "./HabitsStyles";
 const HabitsHomePage = () => {
   return (
     <ThemeProvider theme={token}>
-      <HabitsHomePageContainer></HabitsHomePageContainer>
+      <HabitsHomePageContainer>Habits page</HabitsHomePageContainer>
     </ThemeProvider>
   );
 };

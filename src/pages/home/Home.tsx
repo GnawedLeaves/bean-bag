@@ -6,6 +6,7 @@ import {
   SignatureOutlined,
   RedoOutlined,
   DeleteOutlined,
+  SpotifyOutlined,
 } from "@ant-design/icons";
 import { getBlogEntries } from "../../services/hygraph";
 import { onAuthStateChanged } from "firebase/auth";
@@ -23,6 +24,7 @@ import {
   HomePartnerSubText,
   HomePartnerSubTitle,
   HomePartnerText,
+  HomeShortcutsContainer,
   HomeSpaceContainer,
   HomeStatsBigCard,
   HomeStatsBigCardDate,
@@ -67,6 +69,9 @@ import { getFact } from "../../services/ninjaApi/fact";
 import { FactModel } from "../../types/ninjaApiTypes";
 import { StreakModel } from "../../types/streakTypes";
 import { AgendaAddButton } from "../agenda/AgendaStyles";
+import ShortcutComponent, {
+  ShortcutComponentProps,
+} from "../../components/shortcut/Shortcut";
 
 const Home: React.FC = () => {
   const { user, userPartner, spotifyToken, loading, getUserContextData } =
@@ -293,11 +298,43 @@ const Home: React.FC = () => {
     }, 5000);
   };
 
+  const shortcutsArray = [
+    {
+      title: "Beanify",
+      icon: <SpotifyOutlined />,
+      color: token.colorBgTeal,
+      navigateLink: ROUTES.SPOTIFY.path,
+    },
+    {
+      title: "Watch List",
+      icon: "",
+      color: "",
+      navigateLink: ROUTES.WATCHLIST.path,
+    },
+    { title: "Habits", icon: "", color: "", navigateLink: ROUTES.HABITS.path },
+  ];
+
+  const onShortCutClick = (navigateLink: string) => {
+    if (navigateLink === "") return;
+    navigate(navigateLink);
+  };
   return (
     <ThemeProvider theme={token}>
       <HomePage>
         <HomeStatsContainer>
           <HomePartnerText>Home</HomePartnerText>
+          <HomeShortcutsContainer>
+            {shortcutsArray.map((shortcut, index) => (
+              <ShortcutComponent
+                key={index}
+                iconNode={shortcut.icon}
+                title={shortcut.title}
+                color={shortcut.color}
+                navigateLink={shortcut.navigateLink}
+                onClick={onShortCutClick}
+              />
+            ))}
+          </HomeShortcutsContainer>
           <HomeStatsBigCard>
             <HomeStatsBigCardDisplayPic src={user?.displayPicture} />
             <Flex vertical gap={8}>
