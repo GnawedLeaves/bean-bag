@@ -32,7 +32,7 @@ export const token = {
   colorBgLightYellow: "#FED170",
   colorBgVoliet: "#B6ACE4",
   colorBgPink: "#F2A297",
-  // colorBgPink: "#FFC1C6",
+  colorBgPink2: "#FFC1C6",
   colorBgGreen: "#ABCF82",
   colorBgTeal: "#ADD6B8",
   colorBgOrange: "#F7A374",
