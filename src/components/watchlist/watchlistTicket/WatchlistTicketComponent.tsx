@@ -1,3 +1,4 @@
+import { WatchlistModel } from "../../../types/watchListTypes";
 import {
   TicketContainer,
   TicketContainerMain,
@@ -5,12 +6,19 @@ import {
   TicketContainerWhole,
 } from "./WatchlistTicketComponentStyles";
 
-interface WatchlistTicketComponentProps {}
-const WatchlistTicketComponent = ({}: WatchlistTicketComponentProps) => {
+interface WatchlistTicketComponentProps {
+  item: WatchlistModel;
+
+  onDelete: (id: string) => void;
+}
+const WatchlistTicketComponent = ({
+  item,
+  onDelete,
+}: WatchlistTicketComponentProps) => {
   return (
     <>
       <TicketContainer>
-        <TicketContainerMain></TicketContainerMain>
+        <TicketContainerMain>{item.title}</TicketContainerMain>
         <TicketContainerTearable />
       </TicketContainer>
     </>

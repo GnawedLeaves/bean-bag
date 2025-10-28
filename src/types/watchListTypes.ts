@@ -1,10 +1,12 @@
-export interface WatchListModel {
+export interface WatchlistModel {
   dateAdded: string;
   title: string;
-  completed: boolean;
-  dateCompleted: string;
+  isWatched: boolean;
+  dateWatched: string;
+  imdbId: string;
   //put user id here
   completedBy: string;
+  id: string;
 }
 // can try calling an api to get movie data
 export interface ShowDataModel {}

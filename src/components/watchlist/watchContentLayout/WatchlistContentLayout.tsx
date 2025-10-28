@@ -6,9 +6,10 @@ const { Content } = Layout;
 const StyledContent = styled(Content)`
   background: ${(props) => props.theme.colorBg};
   display: flex;
-  align-items: center;
   flex-direction: column;
   padding: ${(props) => props.theme.paddingSmall}px;
+  width: 100%;
+  min-height: 100vh;
 `;
 
 export const WatchListContentLayout: React.FC<{

@@ -40,6 +40,7 @@ export const WatchListBigSearchContainer = styled.div`
   justify-content: center;
   align-items: center;
   gap: 16px;
+  width: 100%;
 `;
 
 export const WatchListSearchResults = styled.div`
@@ -49,7 +50,6 @@ export const WatchListSearchResults = styled.div`
   border: 2px solid ${(props) => props.theme.borderColor};
   gap: 16px;
   width: 100%;
-  max-height: 200px;
 `;
 
 export const WatchListSearchResultsEmpty = styled(WatchListSearchResults)`
@@ -58,6 +58,7 @@ export const WatchListSearchResultsEmpty = styled(WatchListSearchResults)`
 
 export const WatchListSearchResultsImg = styled.img`
   width: 100px;
+  height: 150px;
   border: 2px solid ${(props) => props.theme.borderColor};
 `;
 
@@ -66,6 +67,7 @@ export const WatchListSearchResultsContent = styled.div`
   flex-direction: column;
   gap: 8px;
   justify-content: space-around;
+  width: 100%;
 `;
 
 export const WatchListSearchResultsContentTitle = styled.div`
