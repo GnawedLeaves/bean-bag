@@ -1,10 +1,11 @@
 import styled from "styled-components";
 import { AppTheme } from "../../theme";
+import style from "antd/es/affix/style";
 declare module "styled-components" {
   export interface DefaultTheme extends AppTheme {}
 }
 
-export const TicketContainer2 = styled.div`
+export const TicketContainerExperiment = styled.div`
   position: relative;
   width: 200px;
   height: 100px;
@@ -26,7 +27,7 @@ export const TicketContainer2 = styled.div`
   background-repeat: no-repeat;
 `;
 
-export const TicketContainer = styled.div`
+export const TicketContainerWhole = styled.div`
   position: relative;
   width: 200px;
   height: 100px;
@@ -41,4 +42,38 @@ export const TicketContainer = styled.div`
       right;
   background-size: 50% 100%;
   background-repeat: no-repeat;
+`;
+export const TicketContainer = styled.div`
+  display: flex;
+  width: 200px;
+`;
+export const TicketContainerMain = styled.div`
+  position: relative;
+  width: 66%;
+  height: 100px;
+  border-radius: 8px;
+  background: radial-gradient(
+    circle 16px at left center,
+    transparent 99%,
+    ${(props) => props.theme.colorTicketBg}
+  );
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  padding: ${(props) => props.theme.paddingSmall}px;
+`;
+
+export const TicketContainerTearable = styled.div`
+  position: relative;
+  width: 33%;
+  height: 100px;
+  border-radius: 8px;
+  background: radial-gradient(
+    circle 16px at right center,
+    transparent 99%,
+    ${(props) => props.theme.colorTicketBg}
+  );
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  padding: ${(props) => props.theme.paddingSmall}px;
+  // border-left: 3px dotted red;
 `;

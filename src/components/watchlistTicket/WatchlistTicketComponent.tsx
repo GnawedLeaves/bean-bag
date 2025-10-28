@@ -1,14 +1,18 @@
 import {
   TicketContainer,
-  TicketContainer2,
+  TicketContainerMain,
+  TicketContainerTearable,
+  TicketContainerWhole,
 } from "./WatchlistTicketComponentStyles";
 
-const WatchlistTicketComponent = () => {
+interface WatchlistTicketComponentProps {}
+const WatchlistTicketComponent = ({}: WatchlistTicketComponentProps) => {
   return (
     <>
-      <TicketContainer></TicketContainer>
-
-      <TicketContainer2 />
+      <TicketContainer>
+        <TicketContainerMain></TicketContainerMain>
+        <TicketContainerTearable />
+      </TicketContainer>
     </>
   );
 };
