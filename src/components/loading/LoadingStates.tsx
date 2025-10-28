@@ -31,9 +31,12 @@ const ImageLoadingContainer = styled.div`
   border: 2px solid ${(props) => props.theme.borderColor};
 `;
 
-const StyledSpinner = styled(Spin)`
+const StyledSpinner = styled(Spin)<{
+  color?: string;
+}>`
   .ant-spin-dot-item {
-    background-color: ${(props) => props.theme.colorBgLightYellow};
+    background-color: ${(props) =>
+      props.color ? props.color : props.theme.colorBgLightYellow};
   }
 `;
 
@@ -49,15 +52,19 @@ const BlogEntryLoadingContainer = styled.div`
   height: 200px;
 `;
 
-export const PageLoading = () => (
+interface SpinnerProps {
+  color?: string;
+}
+
+export const PageLoading = ({ color }: SpinnerProps) => (
   <LoadingContainer>
-    <StyledSpinner size="large" />
+    <StyledSpinner size="large" color={color} />
   </LoadingContainer>
 );
 
-export const ImageLoading = () => (
+export const ImageLoading = ({ color }: SpinnerProps) => (
   <ImageLoadingContainer>
-    <StyledSpinner size="default" />
+    <StyledSpinner size="default" color={color} />
   </ImageLoadingContainer>
 );
 
@@ -66,6 +73,10 @@ export const BlogEntryLoading = () => (
     <StyledSpinner size="default" />
   </BlogEntryLoadingContainer>
 );
+
+export const CustomSpin = ({ color }: SpinnerProps) => {
+  return <StyledSpinner size="default" color={color} />;
+};
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 export const SpinnerIcon = () => <Spin indicator={antIcon} />;

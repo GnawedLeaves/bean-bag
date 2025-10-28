@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { AppTheme } from "../../theme";
+import { AppTheme } from "../../../theme";
 import style from "antd/es/affix/style";
 declare module "styled-components" {
   export interface DefaultTheme extends AppTheme {}
@@ -60,6 +60,7 @@ export const TicketContainerMain = styled.div`
   background-size: 100% 100%;
   background-repeat: no-repeat;
   padding: ${(props) => props.theme.paddingSmall}px;
+  box-shadow: 5px 4px 5px -4px rgba(156, 156, 156, 0.75);
 `;
 
 export const TicketContainerTearable = styled.div`
@@ -67,13 +68,14 @@ export const TicketContainerTearable = styled.div`
   width: 33%;
   height: 100px;
   border-radius: 8px;
-  background: radial-gradient(
-    circle 16px at right center,
-    transparent 99%,
-    ${(props) => props.theme.colorTicketBg}
-  );
+  background: ${(props) => props.theme.colorTicketBg};
+  // background: radial-gradient(
+  //   circle 16px at right center,
+  //   transparent 99%,
+  //   ${(props) => props.theme.colorTicketBg}
+  // );
   background-size: 100% 100%;
   background-repeat: no-repeat;
   padding: ${(props) => props.theme.paddingSmall}px;
-  // border-left: 3px dotted red;
+  box-shadow: 5px 4px 5px -4px rgba(156, 156, 156, 0.75);
 `;

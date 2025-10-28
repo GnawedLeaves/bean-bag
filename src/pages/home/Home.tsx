@@ -7,6 +7,7 @@ import {
   RedoOutlined,
   DeleteOutlined,
   SpotifyOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import { getBlogEntries } from "../../services/hygraph";
 import { onAuthStateChanged } from "firebase/auth";
@@ -306,11 +307,16 @@ const Home: React.FC = () => {
     },
     {
       title: "Watch List",
-      icon: "",
-      color: "",
+      icon: <EyeOutlined />,
+      color: token.colorBgGreen,
       navigateLink: ROUTES.WATCHLIST.path,
     },
-    { title: "Habits", icon: "", color: "", navigateLink: ROUTES.HABITS.path },
+    {
+      title: "Habits",
+      icon: "",
+      color: token.colorBgBlue,
+      navigateLink: ROUTES.HABITS.path,
+    },
   ];
 
   const onShortCutClick = (navigateLink: string) => {

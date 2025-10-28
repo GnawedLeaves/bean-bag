@@ -1,46 +1,202 @@
-import { Button, Input } from "antd";
-import WatchlistTicketComponent from "../../components/watchlistTicket/WatchlistTicketComponent";
-import { TicketsContainer } from "./WatchListPageStyles";
+import { Button, ConfigProvider, Flex, Input, Select, Spin } from "antd";
+import WatchlistTicketComponent from "../../components/watchlist/watchlistTicket/WatchlistTicketComponent";
+import {
+  SearchContainer,
+  TicketsContainer,
+  WatchListBigSearchContainer,
+  WatchlistSearchButton,
+  WatchListSearchResults,
+  WatchListSearchResultsContent,
+  WatchListSearchResultsContentTitle,
+  WatchListSearchResultsEmpty,
+  WatchListSearchResultsImg,
+} from "./WatchListPageStyles";
 import { useState } from "react";
 import { getOmdbMovie } from "../../services/omdb";
+import { OmdbDataModel } from "../../types/watchListTypes";
+import { BaseOptionType } from "antd/es/select";
+import { token } from "../../theme";
+import { ThemeProvider } from "styled-components";
+import { WatchListContentLayout } from "../../components/watchlist/watchContentLayout/WatchlistContentLayout";
+import {
+  CustomSpin,
+  ImageLoading,
+} from "../../components/loading/LoadingStates";
 
 const WatchListPage = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [year, setYear] = useState<string>("2020");
+  const [movieData, setMovieData] = useState<OmdbDataModel | undefined>(
+    undefined
+  );
+  const [error, setError] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState(false);
 
   const handleGetMovie = async () => {
-    if (searchTerm !== "") {
-      console.log("clicking", searchTerm);
+    if (searchTerm === "") return;
 
-      const response = await getOmdbMovie({
-        searchTeam: searchTerm,
-        year: year,
-      });
+    setLoading(true);
+    setError(undefined);
+    setMovieData(undefined);
+
+    const { data, error } = await getOmdbMovie({
+      searchTeam: searchTerm,
+    });
+
+    if (error) {
+      setError(error);
+    } else if (data) {
+      setMovieData(data);
+    }
+    setLoading(false);
+  };
+
+  const handleResetSearch = () => {
+    setError(undefined);
+    setLoading(false);
+    setMovieData(undefined);
+    setSearchTerm("");
+  };
+
+  const handleAddMovieToDb = () => {
+    if (!movieData) return;
+  };
+
+  const renderLoadingAndError = () => {
+    if (loading)
+      return (
+        <WatchListSearchResultsEmpty>
+          <CustomSpin color={token.colorBgGreen} />
+        </WatchListSearchResultsEmpty>
+      );
+    if (!loading && error) {
+      return <WatchListSearchResultsEmpty>{error}</WatchListSearchResultsEmpty>;
     }
   };
+
   return (
-    <div>
-      Watch list page
-      <Input
-        required
-        onChange={(e) => {
-          setSearchTerm(e.target.value);
-        }}
-      />
-      <Button
-        onClick={() => {
-          handleGetMovie();
-        }}
-      >
-        Search
-      </Button>
-      <TicketsContainer>
-        <WatchlistTicketComponent />
-        <WatchlistTicketComponent />
-        <WatchlistTicketComponent />
-        <WatchlistTicketComponent />
-      </TicketsContainer>
-    </div>
+    <ConfigProvider
+      theme={{
+        components: {
+          Input: {
+            fontFamily: token.fontFamily,
+          },
+        },
+      }}
+    >
+      <ThemeProvider theme={token}>
+        <WatchListContentLayout>
+          <div>
+            <h2>Watch list page</h2>
+            <WatchListBigSearchContainer>
+              <SearchContainer>
+                <Input
+                  allowClear
+                  style={{
+                    border: `2px solid ${token.borderColor}`,
+                    borderRadius: token.borderRadius,
+                    background: token.colorBg,
+                    fontFamily: "monospace",
+                  }}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onClear={handleResetSearch}
+                  type="text"
+                  value={searchTerm}
+                  placeholder="Search for movie or show"
+                  maxLength={50}
+                />
+                <WatchlistSearchButton onClick={handleGetMovie}>
+                  Search
+                </WatchlistSearchButton>
+              </SearchContainer>
+
+              {movieData && (
+                <WatchListSearchResults>
+                  <WatchListSearchResultsImg src={movieData.Poster} />
+                  <WatchListSearchResultsContent>
+                    <WatchListSearchResultsContentTitle>
+                      {movieData.Title} ({movieData.Year})
+                    </WatchListSearchResultsContentTitle>
+                    <div>
+                      {movieData.Runtime} • {movieData.imdbRating}/10 rating
+                    </div>
+                    <div> {movieData.Actors}</div>
+                    <Flex gap={8}>
+                      <WatchlistSearchButton
+                        width="100%"
+                        background={token.colorBg}
+                      >
+                        Details
+                      </WatchlistSearchButton>
+                      <WatchlistSearchButton width="100%">
+                        Add
+                      </WatchlistSearchButton>
+                    </Flex>
+                  </WatchListSearchResultsContent>
+                </WatchListSearchResults>
+              )}
+              {renderLoadingAndError()}
+            </WatchListBigSearchContainer>
+
+            <TicketsContainer>
+              <WatchlistTicketComponent />
+              <WatchlistTicketComponent />
+              <WatchlistTicketComponent />
+              <WatchlistTicketComponent />
+            </TicketsContainer>
+
+            {loading && <CustomSpin color={token.colorBgGreen} />}
+
+            {movieData && (
+              <div
+                style={{
+                  marginTop: "24px",
+                  padding: "16px",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                }}
+              >
+                <h3>
+                  {movieData.Title} ({movieData.Year})
+                </h3>
+                <img
+                  src={movieData.Poster}
+                  alt={movieData.Title}
+                  style={{
+                    width: "150px",
+                    borderRadius: "8px",
+                    marginBottom: "8px",
+                  }}
+                />
+                <p>
+                  <strong>Genre:</strong> {movieData.Genre}
+                </p>
+                <p>
+                  <strong>Director:</strong> {movieData.Director}
+                </p>
+                <p>
+                  <strong>Actors:</strong> {movieData.Actors}
+                </p>
+                <p>
+                  <strong>Plot:</strong> {movieData.Plot}
+                </p>
+                <p>
+                  <strong>IMDB Rating:</strong> {movieData.imdbRating}
+                </p>
+                <p>
+                  <strong>Awards:</strong> {movieData.Awards}
+                </p>
+                <p>
+                  <strong>Runtime:</strong> {movieData.Runtime}
+                </p>
+                <p>
+                  <strong>Country:</strong> {movieData.Country}
+                </p>
+              </div>
+            )}
+          </div>
+        </WatchListContentLayout>
+      </ThemeProvider>
+    </ConfigProvider>
   );
 };
 

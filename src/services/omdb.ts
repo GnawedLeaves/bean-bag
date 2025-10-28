@@ -10,20 +10,25 @@ const API_OMDB_URL = process.env.REACT_APP_OMDB_API_URL || "";
 export const getOmdbMovie = async ({
   searchTeam,
   year,
-}: getOmdbMovieParams): Promise<OmdbDataModel | undefined> => {
+}: getOmdbMovieParams): Promise<{ data?: OmdbDataModel; error?: string }> => {
   if (API_OMDB_URL === "") {
-    console.error("No omdb link ");
-    return undefined;
+    return { error: "No OMDB API URL configured" };
   }
   let url = API_OMDB_URL + `&t=${searchTeam}`;
   if (year) {
     url += `&y=${year}`;
   }
 
-  console.log({ url, year });
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
 
-  const response = await fetch(url);
+    if (data.Response === "False") {
+      return { error: data.Error || "Movie not found" };
+    }
 
-  console.log({ response });
-  return response.json();
+    return { data };
+  } catch (error) {
+    return { error: "Failed to fetch movie data" };
+  }
 };
