@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import { AppTheme } from "../../../theme";
-import style from "antd/es/affix/style";
 declare module "styled-components" {
   export interface DefaultTheme extends AppTheme {}
 }
@@ -45,12 +44,12 @@ export const TicketContainerWhole = styled.div`
 `;
 export const TicketContainer = styled.div`
   display: flex;
-  width: 200px;
+  width: 320px;
+  height: 120px;
 `;
 export const TicketContainerMain = styled.div`
   position: relative;
-  width: 66%;
-  height: 100px;
+  width: 85%;
   border-radius: 8px;
   background: radial-gradient(
     circle 16px at left center,
@@ -61,12 +60,17 @@ export const TicketContainerMain = styled.div`
   background-repeat: no-repeat;
   padding: ${(props) => props.theme.paddingSmall}px;
   box-shadow: 5px 4px 5px -4px rgba(156, 156, 156, 0.75);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding-left: 24px;
 `;
 
 export const TicketContainerTearable = styled.div`
   position: relative;
-  width: 33%;
-  height: 100px;
+  width: 15%;
   border-radius: 8px;
   background: ${(props) => props.theme.colorTicketBg};
   // background: radial-gradient(
@@ -78,4 +82,24 @@ export const TicketContainerTearable = styled.div`
   background-repeat: no-repeat;
   padding: ${(props) => props.theme.paddingSmall}px;
   box-shadow: 5px 4px 5px -4px rgba(156, 156, 156, 0.75);
+  writing-mode: vertical-rl; /* top-to-bottom, right-to-left */
+  text-orientation: mixed;
+  text-align: center;
+`;
+
+export const TicketContentContainer = styled.div`
+  border: 2px solid ${(props) => props.theme.borderColor};
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+`;
+
+export const TicketNumber = styled.div`
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
 `;

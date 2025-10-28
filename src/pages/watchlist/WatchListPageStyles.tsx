@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 import { AppTheme } from "../../theme";
 declare module "styled-components" {
   export interface DefaultTheme extends AppTheme {}
@@ -73,4 +73,25 @@ export const WatchListSearchResultsContent = styled.div`
 export const WatchListSearchResultsContentTitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeLg}px;
   font-weight: bold;
+`;
+
+const rotation3dAnimation = keyframes`
+  0% {
+    transform: perspective(800px) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(800px) rotateY(360deg);
+  }
+`;
+
+export const WatchListTicketComponentWrapper = styled.div`
+  position: absolute;
+  transform: rotate(-10deg) scale(0.8);
+  bottom: 30px;
+  right: -90px;
+  z-index: 1;
+`;
+
+export const WatchListPosterWrapper = styled.div`
+  position: relative;
 `;

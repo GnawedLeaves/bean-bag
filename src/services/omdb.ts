@@ -32,3 +32,33 @@ export const getOmdbMovie = async ({
     return { error: "Failed to fetch movie data" };
   }
 };
+
+interface GetOmdbMovieByIdParams {
+  imdbId: string;
+}
+
+export const getOmdbMovieByImdbId = async ({
+  imdbId,
+}: GetOmdbMovieByIdParams): Promise<{
+  data?: OmdbDataModel;
+  error?: string;
+}> => {
+  if (API_OMDB_URL === "") {
+    return { error: "No OMDB API URL configured" };
+  }
+
+  const url = API_OMDB_URL + `&i=${imdbId}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.Response === "False") {
+      return { error: data.Error || "Movie not found" };
+    }
+
+    return { data };
+  } catch (error) {
+    return { error: "Failed to fetch movie data" };
+  }
+};

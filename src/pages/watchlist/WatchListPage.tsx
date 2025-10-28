@@ -13,12 +13,14 @@ import {
   SearchContainer,
   TicketsContainer,
   WatchListBigSearchContainer,
+  WatchListPosterWrapper,
   WatchlistSearchButton,
   WatchListSearchResults,
   WatchListSearchResultsContent,
   WatchListSearchResultsContentTitle,
   WatchListSearchResultsEmpty,
   WatchListSearchResultsImg,
+  WatchListTicketComponentWrapper,
 } from "./WatchListPageStyles";
 import { useEffect, useMemo, useState } from "react";
 import { getOmdbMovie } from "../../services/omdb";
@@ -42,6 +44,7 @@ import {
 import { db } from "../../firebase/firebase";
 import { AgendaItemType } from "../agenda/Agenda";
 import { NoticeType } from "antd/es/message/interface";
+import WatchlistPoster from "../../components/watchlist/watchlistPoster/WatchListPoster";
 
 const WatchListPage = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -124,6 +127,7 @@ const WatchListPage = () => {
       imdbId: movieData.imdbID,
       isWatched: false,
       dateAdded: Timestamp.now(),
+      posterUrl: movieData.Poster,
     };
     try {
       const docRef = await addDoc(collection(db, "anniAppWatchlist"), newItem);
@@ -220,12 +224,6 @@ const WatchListPage = () => {
                   <Flex gap={8}>
                     <WatchlistSearchButton
                       width="100%"
-                      background={token.colorBg}
-                    >
-                      Details
-                    </WatchlistSearchButton>
-                    <WatchlistSearchButton
-                      width="100%"
                       onClick={() => {
                         if (!isMovieExists) handleAddWatchlistItem();
                       }}
@@ -252,11 +250,16 @@ const WatchListPage = () => {
           <TicketsContainer>
             {watchListData.map((item) => {
               return (
-                <WatchlistTicketComponent
-                  key={item.id}
-                  item={item}
-                  onDelete={() => handleDeleteWatchlistItem(item.id)}
-                />
+                <WatchListPosterWrapper>
+                  <WatchlistPoster url={item.posterUrl} item={item} />
+                  <WatchListTicketComponentWrapper>
+                    <WatchlistTicketComponent
+                      key={item.id}
+                      item={item}
+                      onDelete={() => handleDeleteWatchlistItem(item.id)}
+                    />
+                  </WatchListTicketComponentWrapper>
+                </WatchListPosterWrapper>
               );
             })}
           </TicketsContainer>

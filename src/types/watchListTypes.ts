@@ -1,11 +1,11 @@
+import { Timestamp } from "firebase/firestore";
 export interface WatchlistModel {
-  dateAdded: string;
+  dateAdded: Timestamp;
+  posterUrl: string;
   title: string;
   isWatched: boolean;
-  dateWatched: string;
+  dateWatched: Timestamp;
   imdbId: string;
-  //put user id here
-  completedBy: string;
   id: string;
 }
 // can try calling an api to get movie data
