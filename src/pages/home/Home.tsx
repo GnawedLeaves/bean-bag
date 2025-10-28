@@ -126,10 +126,9 @@ const Home: React.FC = () => {
     const formattedDate = today.toISOString().split("T")[0];
 
     try {
-      const response = (await getAstronomyPictureOfTheDay({
-        thumbs: true,
-        date: formattedDate,
-      })) as NasaApodObject;
+      const response = (await getAstronomyPictureOfTheDay(
+        {}
+      )) as NasaApodObject;
 
       const transformedResponse = {
         ...response,
@@ -479,7 +478,7 @@ const Home: React.FC = () => {
             </Flex>
             <Flex gap={8} align="center">
               <InfoCircleOutlined />
-              Check back every day for a new picture!
+              See you tmr for the next picture!
             </Flex>
           </HomeSpaceContainer>
         ) : (
