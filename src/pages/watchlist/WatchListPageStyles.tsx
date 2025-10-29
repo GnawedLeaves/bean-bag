@@ -92,7 +92,7 @@ export const WatchListTicketComponentWrapper = styled.div<{
   position: absolute;
   transform: rotate(${(props) => props.rotation}) scale(0.8);
   bottom: 30px;
-  right: -90px;
+  left: -90px;
   z-index: 1;
 `;
 

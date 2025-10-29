@@ -10,6 +10,7 @@ const StyledContent = styled(Content)`
   padding: ${(props) => props.theme.paddingSmall}px;
   width: 100%;
   min-height: 100vh;
+  overflow: hidden;
 `;
 
 export const WatchListContentLayout: React.FC<{
