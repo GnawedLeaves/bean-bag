@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 import { AppTheme } from "../../../theme";
 declare module "styled-components" {
   export interface DefaultTheme extends AppTheme {}
@@ -68,7 +68,19 @@ export const TicketContainerMain = styled.div`
   padding-left: 24px;
 `;
 
-export const TicketContainerTearable = styled.div`
+const tearingAnimation = keyframes`
+0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(30deg);
+  }
+`;
+
+export const TicketContainerTearable = styled.div<{
+  tearing: boolean;
+  isTeared: boolean;
+}>`
   position: relative;
   width: 15%;
   border-radius: 8px;
@@ -82,9 +94,22 @@ export const TicketContainerTearable = styled.div`
   background-repeat: no-repeat;
   padding: ${(props) => props.theme.paddingSmall}px;
   box-shadow: 5px 4px 5px -4px rgba(156, 156, 156, 0.75);
-  writing-mode: vertical-rl; /* top-to-bottom, right-to-left */
+  writing-mode: sideways-lr; /* top-to-bottom, right-to-left */
   text-orientation: mixed;
   text-align: center;
+  transform-origin: bottom right;
+  ${(props) =>
+    props.tearing &&
+    !props.isTeared &&
+    css`
+      animation: ${tearingAnimation} 2s ease-in-out forwards;
+    `}
+
+  ${(props) =>
+    props.isTeared
+      ? ` transform: rotate(30deg);`
+      : `
+       transform: rotate(0deg);`}
 `;
 
 export const TicketContentContainer = styled.div`

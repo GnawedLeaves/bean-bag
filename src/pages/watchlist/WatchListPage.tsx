@@ -40,6 +40,7 @@ import {
   Timestamp,
   deleteDoc,
   doc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
 import { AgendaItemType } from "../agenda/Agenda";
@@ -107,10 +108,13 @@ const WatchListPage = () => {
     try {
       const agendaRef = collection(db, "anniAppWatchlist");
       const snapshot = await getDocs(agendaRef);
-      const data = snapshot.docs.map((doc) => ({
-        ...(doc.data() as WatchlistModel),
-      }));
-      console.log({ data });
+      const data = snapshot.docs.map(
+        (doc) =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          } as WatchlistModel)
+      );
       setWatchListData(data);
     } catch (e) {
       console.error("Error getting watch list");
@@ -167,6 +171,20 @@ const WatchListPage = () => {
         (watchListItem) => watchListItem.imdbId === movieData.imdbID
       );
   }, [movieData, watchListData]);
+
+  const handleOnWatched = async (id: string) => {
+    try {
+      await updateDoc(doc(db, "anniAppWatchlist", id), {
+        isWatched: true,
+        dateWatched: Timestamp.now(),
+      });
+      await handleGetAllWatchList();
+      // handleShowMessage("Marked as watched", "success");
+    } catch (e) {
+      console.error("Error updating watch list item", e);
+      handleShowMessage("Update failed", "error");
+    }
+  };
 
   return (
     <ConfigProvider
@@ -248,15 +266,20 @@ const WatchListPage = () => {
           </WatchListBigSearchContainer>
 
           <TicketsContainer>
-            {watchListData.map((item) => {
+            {watchListData.map((item, index) => {
               return (
-                <WatchListPosterWrapper>
-                  <WatchlistPoster url={item.posterUrl} item={item} />
-                  <WatchListTicketComponentWrapper>
+                <WatchListPosterWrapper key={index}>
+                  <WatchlistPoster
+                    url={item.posterUrl}
+                    item={item}
+                    onDelete={handleDeleteWatchlistItem}
+                  />
+                  <WatchListTicketComponentWrapper rotation="">
                     <WatchlistTicketComponent
                       key={item.id}
                       item={item}
                       onDelete={() => handleDeleteWatchlistItem(item.id)}
+                      onWatched={handleOnWatched}
                     />
                   </WatchListTicketComponentWrapper>
                 </WatchListPosterWrapper>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "../../contexts/UserContext";
 import { ThemeProvider } from "styled-components";
 import { token } from "../../theme";
-import { Button, Flex, Input, Spin } from "antd";
+import { Button, ConfigProvider, Flex, Input, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes";
 import {
@@ -499,230 +499,251 @@ const SpotifyPage = () => {
   }
 
   return (
-    <ThemeProvider theme={token}>
-      <SpotifyMain>
-        <SpotifyHeroContainer>
-          <SpotifyHeroTitle>MUSIC</SpotifyHeroTitle>
-          <SpotifyHeroSubtitle>
-            So that we can rate and comment on each other's music
-          </SpotifyHeroSubtitle>
-        </SpotifyHeroContainer>
+    <ConfigProvider
+      theme={{
+        components: {
+          Input: {
+            fontFamily: token.fontFamily,
+          },
+        },
+      }}
+    >
+      <ThemeProvider theme={token}>
+        <SpotifyMain>
+          <SpotifyHeroContainer>
+            <SpotifyHeroTitle>MUSIC</SpotifyHeroTitle>
+            <SpotifyHeroSubtitle>
+              So that we can rate and comment on each other's music
+            </SpotifyHeroSubtitle>
+          </SpotifyHeroContainer>
 
-        <SpotifyMainBodyContainer>
-          <SpotifySearchContainer>
-            <SpotifySearchTitle>Search</SpotifySearchTitle>
-            <SpotifySearchSubtitle>
-              Begin by pasting a link to a track, artist, album or playlist
-            </SpotifySearchSubtitle>
-            <Flex gap={8} style={{ width: "100%", marginTop: 8 }}>
-              <Input
-                allowClear
-                disabled={isTrackLoading}
-                placeholder="Link to album, track, artist or playlist "
-                onChange={(e) => {
-                  setErrorMessage("");
-                  setInputTrackLink(e.target.value);
-                }}
-                onFocus={() => {
-                  setErrorMessage("");
-                }}
-                style={{
-                  borderColor: token.borderColor,
-                  border: "2px solid",
-                  borderRadius: token.borderRadius,
-                  height: 40,
-                  fontFamily: token.fontFamily,
-                }}
-              />
-              <SpotifySearchButton
-                onClick={() => {
-                  handleGoToSpotifyDetails();
-                }}
-              >
-                {isTrackLoading ? <Spin size="default" /> : <SearchOutlined />}
-              </SpotifySearchButton>
-            </Flex>
-            {errorMessage !== "" && (
-              <div style={{ color: token.colorBgRed }}>{errorMessage}</div>
-            )}
-          </SpotifySearchContainer>
-          <Flex gap={16} wrap="wrap" style={{ width: "100%" }} justify="center">
-            {recentsLoading ? (
-              <>
-                <LoadingCardContainer>
-                  <SpinnerIcon />
-                </LoadingCardContainer>
-                <LoadingCardContainer>
-                  <SpinnerIcon />
-                </LoadingCardContainer>
-              </>
-            ) : (
-              <>
-                <StatsCard background={token.colorBgPink}>
-                  <StatsCardNumber>{totalReviews}</StatsCardNumber>
-                  <StatsCardDescription>Ratings added</StatsCardDescription>
-                </StatsCard>
-                <StatsCard background={token.colorBgYellow}>
-                  <StatsCardNumber>{totalComments}</StatsCardNumber>
-                  <StatsCardDescription>Comments written</StatsCardDescription>
-                </StatsCard>
-              </>
-            )}
-          </Flex>
-
-          <RecentReviewedContainer>
-            <RecentReviewedTitle>
-              Recently Reviewed / Commented
-            </RecentReviewedTitle>
-            {recentsLoading ? (
-              <Flex vertical gap={8} justify="center">
-                {[1, 2, 3].map((i) => (
-                  <LoadingCardContainer key={i}>
+          <SpotifyMainBodyContainer>
+            <SpotifySearchContainer>
+              <SpotifySearchTitle>Search</SpotifySearchTitle>
+              <SpotifySearchSubtitle>
+                Begin by pasting a link to a track, artist, album or playlist
+              </SpotifySearchSubtitle>
+              <Flex gap={8} style={{ width: "100%", marginTop: 8 }}>
+                <Input
+                  allowClear
+                  disabled={isTrackLoading}
+                  placeholder="Link to album, track, artist or playlist "
+                  onChange={(e) => {
+                    setErrorMessage("");
+                    setInputTrackLink(e.target.value);
+                  }}
+                  onFocus={() => {
+                    setErrorMessage("");
+                  }}
+                  style={{
+                    borderColor: token.borderColor,
+                    border: "2px solid",
+                    borderRadius: token.borderRadius,
+                    height: 40,
+                    background: token.colorBg,
+                  }}
+                />
+                <SpotifySearchButton
+                  onClick={() => {
+                    handleGoToSpotifyDetails();
+                  }}
+                >
+                  {isTrackLoading ? (
+                    <Spin size="default" />
+                  ) : (
+                    <SearchOutlined />
+                  )}
+                </SpotifySearchButton>
+              </Flex>
+              {errorMessage !== "" && (
+                <div style={{ color: token.colorBgRed }}>{errorMessage}</div>
+              )}
+            </SpotifySearchContainer>
+            <Flex
+              gap={16}
+              wrap="wrap"
+              style={{ width: "100%" }}
+              justify="center"
+            >
+              {recentsLoading ? (
+                <>
+                  <LoadingCardContainer>
                     <SpinnerIcon />
                   </LoadingCardContainer>
-                ))}
-              </Flex>
-            ) : (
-              <Flex vertical gap={8} justify="center">
-                {enrichedActivity.map((activity) => (
-                  <SpotifyRecentlyContainer
-                    key={activity.id}
-                    onClick={() => {
-                      const route =
-                        activity.type === "track"
-                          ? ROUTES.SPOTIFY_TRACK.path.replace(
-                              ":trackId",
-                              activity.spotifyId
-                            )
-                          : activity.type === "album"
-                          ? ROUTES.SPOTIFY_ALBUM.path.replace(
-                              ":albumId",
-                              activity.spotifyId
-                            )
-                          : activity.type === "artist"
-                          ? ROUTES.SPOTIFY_ARTIST.path.replace(
-                              ":artistId",
-                              activity.spotifyId
-                            )
-                          : ROUTES.SPOTIFY_PLAYLIST.path.replace(
-                              ":playlistId",
-                              activity.spotifyId
-                            );
-                      navigate(route);
-                    }}
-                  >
-                    <Flex gap={8} align="center">
-                      <SpotifyRecentlyImg
-                        src={activity.userDisplayImg}
-                        alt=""
-                      />
-                      <Flex vertical gap={4}>
+                  <LoadingCardContainer>
+                    <SpinnerIcon />
+                  </LoadingCardContainer>
+                </>
+              ) : (
+                <>
+                  <StatsCard background={token.colorBgPink}>
+                    <StatsCardNumber>{totalReviews}</StatsCardNumber>
+                    <StatsCardDescription>Ratings added</StatsCardDescription>
+                  </StatsCard>
+                  <StatsCard background={token.colorBgYellow}>
+                    <StatsCardNumber>{totalComments}</StatsCardNumber>
+                    <StatsCardDescription>
+                      Comments written
+                    </StatsCardDescription>
+                  </StatsCard>
+                </>
+              )}
+            </Flex>
+
+            <RecentReviewedContainer>
+              <RecentReviewedTitle>
+                Recently Reviewed / Commented
+              </RecentReviewedTitle>
+              {recentsLoading ? (
+                <Flex vertical gap={8} justify="center">
+                  {[1, 2, 3].map((i) => (
+                    <LoadingCardContainer key={i}>
+                      <SpinnerIcon />
+                    </LoadingCardContainer>
+                  ))}
+                </Flex>
+              ) : (
+                <Flex vertical gap={8} justify="center">
+                  {enrichedActivity.map((activity) => (
+                    <SpotifyRecentlyContainer
+                      key={activity.id}
+                      onClick={() => {
+                        const route =
+                          activity.type === "track"
+                            ? ROUTES.SPOTIFY_TRACK.path.replace(
+                                ":trackId",
+                                activity.spotifyId
+                              )
+                            : activity.type === "album"
+                            ? ROUTES.SPOTIFY_ALBUM.path.replace(
+                                ":albumId",
+                                activity.spotifyId
+                              )
+                            : activity.type === "artist"
+                            ? ROUTES.SPOTIFY_ARTIST.path.replace(
+                                ":artistId",
+                                activity.spotifyId
+                              )
+                            : ROUTES.SPOTIFY_PLAYLIST.path.replace(
+                                ":playlistId",
+                                activity.spotifyId
+                              );
+                        navigate(route);
+                      }}
+                    >
+                      <Flex gap={8} align="center">
+                        <SpotifyRecentlyImg
+                          src={activity.userDisplayImg}
+                          alt=""
+                        />
+                        <Flex vertical gap={4}>
+                          <SpotifyRecentlyTitle>
+                            {activity.displayName}
+                          </SpotifyRecentlyTitle>
+                          <ItemSubtitle>
+                            {activity.type !== "artist" && activity.artist}{" "}
+                          </ItemSubtitle>
+                          <ItemSubtitle>
+                            {activity.username} •
+                            {formatFirebaseDate(activity.dateAdded)}
+                          </ItemSubtitle>
+                        </Flex>
+                      </Flex>
+                      {activity.activityType === "review" ? (
+                        <SpotifyRecentlyIconContainer>
+                          <StarOutlined />
+                        </SpotifyRecentlyIconContainer>
+                      ) : (
+                        <SpotifyRecentlyIconContainer>
+                          <CommentOutlined />
+                        </SpotifyRecentlyIconContainer>
+                      )}{" "}
+                    </SpotifyRecentlyContainer>
+                  ))}
+                </Flex>
+              )}
+            </RecentReviewedContainer>
+
+            <RecentReviewedContainer>
+              <RecentReviewedTitle>Recent Searches</RecentReviewedTitle>
+              {historyLoading ? (
+                <Flex
+                  gap={16}
+                  wrap="wrap"
+                  style={{ width: "100%" }}
+                  justify="center"
+                >
+                  {[1, 2, 3, 4].map((i) => (
+                    <LoadingHistoryContainer key={i}>
+                      <SpinnerIcon />
+                    </LoadingHistoryContainer>
+                  ))}
+                </Flex>
+              ) : (
+                <Flex
+                  gap={16}
+                  wrap="wrap"
+                  style={{ width: "100%" }}
+                  justify="center"
+                >
+                  {enrichedSearchHistory.slice(0, 100).map((item) => (
+                    <SpotifyHistoryItemContainer
+                      key={item.id}
+                      onClick={() => {
+                        const route =
+                          item.type === "track"
+                            ? ROUTES.SPOTIFY_TRACK.path.replace(
+                                ":trackId",
+                                item.spotifyId
+                              )
+                            : item.type === "album"
+                            ? ROUTES.SPOTIFY_ALBUM.path.replace(
+                                ":albumId",
+                                item.spotifyId
+                              )
+                            : item.type === "artist"
+                            ? ROUTES.SPOTIFY_ARTIST.path.replace(
+                                ":artistId",
+                                item.spotifyId
+                              )
+                            : ROUTES.SPOTIFY_PLAYLIST.path.replace(
+                                ":playlistId",
+                                item.spotifyId
+                              );
+                        navigate(route);
+                      }}
+                    >
+                      {item.type === "track" && (
+                        <SpotifyHistoryTrackImg src={item.imageUrl} alt="" />
+                      )}
+
+                      {item.type === "artist" && (
+                        <SpotifyHistoryArtistImg src={item.imageUrl} alt="" />
+                      )}
+
+                      {item.type === "album" ||
+                        (item.type === "playlist" && (
+                          <SpotifyHistoryAlbumImg src={item.imageUrl} alt="" />
+                        ))}
+
+                      <Flex gap={8} align="center" vertical>
                         <SpotifyRecentlyTitle>
-                          {activity.displayName}
+                          {item.displayName}
                         </SpotifyRecentlyTitle>
                         <ItemSubtitle>
-                          {activity.type !== "artist" && activity.artist}{" "}
-                        </ItemSubtitle>
-                        <ItemSubtitle>
-                          {activity.username} •
-                          {formatFirebaseDate(activity.dateAdded)}
+                          {item.username} • {item.dateAdded}
+                          {/* • {item.artist} • {item.type} •{" "} */}
                         </ItemSubtitle>
                       </Flex>
-                    </Flex>
-                    {activity.activityType === "review" ? (
-                      <SpotifyRecentlyIconContainer>
-                        <StarOutlined />
-                      </SpotifyRecentlyIconContainer>
-                    ) : (
-                      <SpotifyRecentlyIconContainer>
-                        <CommentOutlined />
-                      </SpotifyRecentlyIconContainer>
-                    )}{" "}
-                  </SpotifyRecentlyContainer>
-                ))}
-              </Flex>
-            )}
-          </RecentReviewedContainer>
-
-          <RecentReviewedContainer>
-            <RecentReviewedTitle>Recent Searches</RecentReviewedTitle>
-            {historyLoading ? (
-              <Flex
-                gap={16}
-                wrap="wrap"
-                style={{ width: "100%" }}
-                justify="center"
-              >
-                {[1, 2, 3, 4].map((i) => (
-                  <LoadingHistoryContainer key={i}>
-                    <SpinnerIcon />
-                  </LoadingHistoryContainer>
-                ))}
-              </Flex>
-            ) : (
-              <Flex
-                gap={16}
-                wrap="wrap"
-                style={{ width: "100%" }}
-                justify="center"
-              >
-                {enrichedSearchHistory.slice(0, 100).map((item) => (
-                  <SpotifyHistoryItemContainer
-                    key={item.id}
-                    onClick={() => {
-                      const route =
-                        item.type === "track"
-                          ? ROUTES.SPOTIFY_TRACK.path.replace(
-                              ":trackId",
-                              item.spotifyId
-                            )
-                          : item.type === "album"
-                          ? ROUTES.SPOTIFY_ALBUM.path.replace(
-                              ":albumId",
-                              item.spotifyId
-                            )
-                          : item.type === "artist"
-                          ? ROUTES.SPOTIFY_ARTIST.path.replace(
-                              ":artistId",
-                              item.spotifyId
-                            )
-                          : ROUTES.SPOTIFY_PLAYLIST.path.replace(
-                              ":playlistId",
-                              item.spotifyId
-                            );
-                      navigate(route);
-                    }}
-                  >
-                    {item.type === "track" && (
-                      <SpotifyHistoryTrackImg src={item.imageUrl} alt="" />
-                    )}
-
-                    {item.type === "artist" && (
-                      <SpotifyHistoryArtistImg src={item.imageUrl} alt="" />
-                    )}
-
-                    {item.type === "album" ||
-                      (item.type === "playlist" && (
-                        <SpotifyHistoryAlbumImg src={item.imageUrl} alt="" />
-                      ))}
-
-                    <Flex gap={8} align="center" vertical>
-                      <SpotifyRecentlyTitle>
-                        {item.displayName}
-                      </SpotifyRecentlyTitle>
-                      <ItemSubtitle>
-                        {item.username} • {item.dateAdded}
-                        {/* • {item.artist} • {item.type} •{" "} */}
-                      </ItemSubtitle>
-                    </Flex>
-                  </SpotifyHistoryItemContainer>
-                ))}
-              </Flex>
-            )}
-          </RecentReviewedContainer>
-        </SpotifyMainBodyContainer>
-      </SpotifyMain>
-    </ThemeProvider>
+                    </SpotifyHistoryItemContainer>
+                  ))}
+                </Flex>
+              )}
+            </RecentReviewedContainer>
+          </SpotifyMainBodyContainer>
+        </SpotifyMain>
+      </ThemeProvider>
+    </ConfigProvider>
   );
 };
 

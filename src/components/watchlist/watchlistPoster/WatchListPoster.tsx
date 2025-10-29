@@ -1,4 +1,4 @@
-import { Image } from "antd";
+import { Button, Image } from "antd";
 import {
   WatchListPoster,
   WatchListPosterBack,
@@ -8,13 +8,16 @@ import {
 import { useState } from "react";
 import { getOmdbMovie, getOmdbMovieByImdbId } from "../../../services/omdb";
 import { OmdbDataModel, WatchlistModel } from "../../../types/watchListTypes";
+import { WatchlistSearchButton } from "../../../pages/watchlist/WatchListPageStyles";
+import { token } from "../../../theme";
 
 interface WatchlistPosterProps {
   url: string;
   item: WatchlistModel;
+  onDelete: (id: string) => void;
 }
 
-const WatchlistPoster = ({ url, item }: WatchlistPosterProps) => {
+const WatchlistPoster = ({ url, item, onDelete }: WatchlistPosterProps) => {
   const [flipped, setFlipped] = useState<boolean>(false);
   const [movieData, setMovieData] = useState<OmdbDataModel | undefined>(
     undefined
@@ -24,9 +27,6 @@ const WatchlistPoster = ({ url, item }: WatchlistPosterProps) => {
       const { data, error } = await getOmdbMovie({
         searchTeam: item.title,
       });
-      // const { data, error } = await getOmdbMovieByImdbId({
-      //   imdbId: item.imdbId,
-      // });
 
       if (error) {
         // setError(error);
@@ -52,12 +52,6 @@ const WatchlistPoster = ({ url, item }: WatchlistPosterProps) => {
                 overflow: "hidden",
               }}
             >
-              {/* <Image
-                src={movieData.Poster}
-                alt={movieData.Title}
-                width={100}
-                style={{ alignSelf: "center" }}
-              /> */}
               <h3 style={{ margin: 0 }}>
                 {movieData.Title} ({movieData.Year})
               </h3>
@@ -77,6 +71,15 @@ const WatchlistPoster = ({ url, item }: WatchlistPosterProps) => {
           ) : (
             <div>Loading...</div>
           )}
+          <WatchlistSearchButton
+            background={token.colorBgPink}
+            width="100%"
+            onClick={() => {
+              onDelete(item.id);
+            }}
+          >
+            Delete
+          </WatchlistSearchButton>
         </WatchListPosterBack>
       </WatchListPosterInner>
     </WatchListPosterContainer>

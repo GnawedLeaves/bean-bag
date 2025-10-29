@@ -66,4 +66,5 @@ export const WatchListPosterBack = styled.div<{
   backface-visibility: hidden;
   border: 2px solid ${(props) => props.theme.borderColor};
   background: ${(props) => props.theme.colorBg};
+  padding: ${(props) => props.theme.paddingMed}px;
 `;

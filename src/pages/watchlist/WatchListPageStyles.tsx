@@ -84,7 +84,9 @@ const rotation3dAnimation = keyframes`
   }
 `;
 
-export const WatchListTicketComponentWrapper = styled.div`
+export const WatchListTicketComponentWrapper = styled.div<{
+  rotation: string;
+}>`
   position: absolute;
   transform: rotate(-10deg) scale(0.8);
   bottom: 30px;
