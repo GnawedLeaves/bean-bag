@@ -13,6 +13,8 @@ import {
   SearchContainer,
   TicketsContainer,
   WatchListBigSearchContainer,
+  WatchListHeroContainer,
+  WatchListHeroTitle,
   WatchListPosterWrapper,
   WatchlistSearchButton,
   WatchListSearchResults,
@@ -57,6 +59,12 @@ const WatchListPage = () => {
   const [firebaseLoading, setFirebaseLoading] = useState<boolean>(false);
   const [watchListData, setWatchListData] = useState<WatchlistModel[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
+  const [rotationArray, setRotationArray] = useState<string[]>([]);
+  const [generatedIds, setGeneratedIds] = useState<Set<string>>(new Set());
+  // view filter: show both, only watched, or only unwatched
+  const [viewFilter, setViewFilter] = useState<
+    "both" | "watched" | "unwatched"
+  >("both");
 
   const handleShowMessage = (message: string, type?: NoticeType) => {
     if (!message || message === "") return;
@@ -186,6 +194,73 @@ const WatchListPage = () => {
     }
   };
 
+  const generateRotationForTickets = () => {
+    const newRotations: string[] = [...rotationArray];
+    let hasNewItems = false;
+
+    watchListData.forEach((item, index) => {
+      if (!generatedIds.has(item.id)) {
+        const random = Math.floor(Math.random() * 20) - 10;
+        newRotations[index] = random + "deg";
+        generatedIds.add(item.id);
+        hasNewItems = true;
+      }
+    });
+
+    // Only update state if we have new items
+    if (hasNewItems) {
+      setRotationArray(newRotations);
+    }
+  };
+
+  useEffect(() => {
+    generateRotationForTickets();
+  }, [watchListData]);
+
+  // derive the displayed list according to viewFilter and default sorting: unwatched first,
+  // within each group sort by dateAdded descending (latest first)
+  const displayedWatchList = useMemo(() => {
+    const getTime = (ts: any) => {
+      if (!ts) return null;
+      if (typeof ts.toDate === "function") return ts.toDate().getTime();
+      const d = new Date(ts as any);
+      return isNaN(d.getTime()) ? null : d.getTime();
+    };
+
+    // filter first if user requested only watched/unwatched
+    let items = [...watchListData];
+    if (viewFilter === "watched") items = items.filter((i) => i.isWatched);
+    if (viewFilter === "unwatched") items = items.filter((i) => !i.isWatched);
+
+    // default behavior: when showing both, place unwatched first then watched
+    if (viewFilter === "both") {
+      const unwatched = items
+        .filter((i) => !i.isWatched)
+        .sort((a, b) => {
+          const ta = getTime(a.dateAdded) ?? 0;
+          const tb = getTime(b.dateAdded) ?? 0;
+          return tb - ta; // latest first
+        });
+
+      const watched = items
+        .filter((i) => i.isWatched)
+        .sort((a, b) => {
+          const ta = getTime(a.dateAdded) ?? 0;
+          const tb = getTime(b.dateAdded) ?? 0;
+          return tb - ta;
+        });
+
+      return [...unwatched, ...watched];
+    }
+
+    // if not both, simply sort the filtered list by dateAdded desc
+    return items.sort((a, b) => {
+      const ta = getTime(a.dateAdded) ?? 0;
+      const tb = getTime(b.dateAdded) ?? 0;
+      return tb - ta;
+    });
+  }, [watchListData, viewFilter]);
+
   return (
     <ConfigProvider
       theme={{
@@ -198,13 +273,20 @@ const WatchListPage = () => {
             colorBorder: token.borderColor,
             fontFamily: token.fontFamily,
           },
+          Select: {
+            colorBgContainer: token.colorBg, // background color
+            colorBorder: token.borderColor, // border color
+            optionSelectedBg: token.colorBgGreen, // background when selected
+            controlHeight: 38, // height
+            borderRadius: token.borderRadius,
+          },
         },
       }}
     >
       <ThemeProvider theme={token}>
         {contextHolder}
-        <WatchListContentLayout>
-          <h2>Watch list page</h2>
+        <WatchListHeroContainer>
+          <WatchListHeroTitle>Watch List </WatchListHeroTitle>
           <WatchListBigSearchContainer>
             <SearchContainer>
               <Input
@@ -264,9 +346,42 @@ const WatchListPage = () => {
             )}
             {renderLoadingAndError()}
           </WatchListBigSearchContainer>
+        </WatchListHeroContainer>
+        <WatchListContentLayout>
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              marginBottom: 12,
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ fontWeight: 600 }}>View:</div>
+            <WatchlistSearchButton
+              onClick={() =>
+                setViewFilter((prev) =>
+                  prev === "both"
+                    ? "unwatched"
+                    : prev === "unwatched"
+                    ? "watched"
+                    : "both"
+                )
+              }
+              background={token.colorBg}
+              style={{ width: 160 }}
+              title="Click to cycle: Both → Unwatched → Watched"
+            >
+              {viewFilter === "both"
+                ? "Both"
+                : viewFilter === "unwatched"
+                ? "Unwatched"
+                : "Watched"}
+            </WatchlistSearchButton>
+          </div>
 
           <TicketsContainer>
-            {watchListData.map((item, index) => {
+            {displayedWatchList.map((item, index) => {
               return (
                 <WatchListPosterWrapper key={index}>
                   <WatchlistPoster
@@ -274,7 +389,9 @@ const WatchListPage = () => {
                     item={item}
                     onDelete={handleDeleteWatchlistItem}
                   />
-                  <WatchListTicketComponentWrapper rotation="">
+                  <WatchListTicketComponentWrapper
+                    rotation={rotationArray[index]}
+                  >
                     <WatchlistTicketComponent
                       key={item.id}
                       item={item}
@@ -285,6 +402,7 @@ const WatchListPage = () => {
                 </WatchListPosterWrapper>
               );
             })}
+            {displayedWatchList.length === 0 && "No items yet"}
           </TicketsContainer>
         </WatchListContentLayout>
       </ThemeProvider>

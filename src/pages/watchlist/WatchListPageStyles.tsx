@@ -1,12 +1,13 @@
 import styled, { css, keyframes } from "styled-components";
 import { AppTheme } from "../../theme";
+import e from "express";
 declare module "styled-components" {
   export interface DefaultTheme extends AppTheme {}
 }
 
 export const TicketsContainer = styled.div`
   display: flex;
-  gap: 16px;
+  gap: 32px;
   flex-wrap: wrap;
   width: 100%;
   justify-content: center;
@@ -50,6 +51,7 @@ export const WatchListSearchResults = styled.div`
   border: 2px solid ${(props) => props.theme.borderColor};
   gap: 16px;
   width: 100%;
+  background: ${(props) => props.theme.colorBg};
 `;
 
 export const WatchListSearchResultsEmpty = styled(WatchListSearchResults)`
@@ -88,7 +90,7 @@ export const WatchListTicketComponentWrapper = styled.div<{
   rotation: string;
 }>`
   position: absolute;
-  transform: rotate(-10deg) scale(0.8);
+  transform: rotate(${(props) => props.rotation}) scale(0.8);
   bottom: 30px;
   right: -90px;
   z-index: 1;
@@ -96,4 +98,26 @@ export const WatchListTicketComponentWrapper = styled.div<{
 
 export const WatchListPosterWrapper = styled.div`
   position: relative;
+`;
+
+export const WatchListHeroContainer = styled.div`
+  background: ${(props) => props.theme.colorBgGreen};
+  border: 2px solid ${(props) => props.theme.borderColor};
+  border-bottom-left-radius: 32px;
+  border-bottom-right-radius: 32px;
+  width: 100%;
+  border-top: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: ${(props) => props.theme.paddingLg}px;
+  transition: 0.3s;
+  transition: max-height 0.6s ease;
+  gap: 32px;
+`;
+
+export const WatchListHeroTitle = styled.div`
+  font-size: ${(props) => props.theme.fontSizeHuge}px;
+  font-weight: bold;
 `;
