@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { AppTheme } from "../../theme";
 declare module "styled-components" {
   export interface DefaultTheme extends AppTheme {}
@@ -145,4 +145,35 @@ export const AgendaContentContainer = styled.div`
 export const AgendaBodyTitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeLgg}px;
   font-weight: bold;
+`;
+
+export const PopoverStyles = createGlobalStyle`
+  .agenda-delete-popover {
+    .ant-popover-inner {
+      background-color: ${(props) => props.theme.colorBg};
+      border: 2px solid ${(props) => props.theme.borderColor};
+      border-radius: ${(props) => props.theme.borderRadius}px;
+      padding: ${(props) => props.theme.paddingMed}px;
+    }
+
+    .ant-popover-message-title {
+      font-family: 'Josefin Sans', sans-serif;
+      color: ${(props) => props.theme.text};
+      font-weight: bold;
+    }
+
+    /* Styling the 'Yes' and 'No' buttons */
+    .ant-btn-primary {
+      background-color: ${(props) => props.theme.colorBgOrange} !important;
+      border-color: ${(props) => props.theme.borderColor} !important;
+      border-radius: 4px;
+     color: ${(props) => props.theme.text};
+     padding: ${(props) => props.theme.paddingSmall}px;
+    }
+
+    .ant-popover-arrow::before {
+      background: ${(props) => props.theme.colorBg} !important;
+      border: 1px solid ${(props) => props.theme.borderColor};
+    }
+  }
 `;

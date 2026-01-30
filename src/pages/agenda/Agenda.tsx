@@ -1,12 +1,14 @@
 import {
+  DeleteOutlined,
   EditOutlined,
-  SignatureOutlined
+  SignatureOutlined,
 } from "@ant-design/icons";
-import { Flex, Input } from "antd";
+import { Flex, Input, Popconfirm } from "antd";
 import { onAuthStateChanged } from "firebase/auth";
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDocs,
   Timestamp,
@@ -34,7 +36,8 @@ import {
   AgendaStatsCard,
   AgendaStatsCardDescription,
   AgendaStatsCardNumber,
-  AgendaTitle
+  AgendaTitle,
+  PopoverStyles,
 } from "./AgendaStyles";
 
 export interface AgendaItemType {
@@ -62,12 +65,10 @@ const AgendaPage = () => {
 
   const [agendaItems, setAgendaItems] = useState<ViewAgendaItem[]>([]);
   const [newContent, setNewContent] = useState("");
-  const [actionLoading, setActionLoading] = useState<boolean>(false);
   const [outstandingItems, setOutstandingItems] = useState<ViewAgendaItem[]>(
-    []
+    [],
   );
   const [completedItems, setCompletedItems] = useState<ViewAgendaItem[]>([]);
-  const [sortingOrder, setSortingOrder] = useState<string[]>([]);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -81,7 +82,6 @@ const AgendaPage = () => {
   }, [navigate]);
 
   const handleGetAllAgenda = async () => {
-    setActionLoading(true);
     try {
       const agendaRef = collection(db, "anniAppAgendaItems");
       const snapshot = await getDocs(agendaRef);
@@ -95,20 +95,16 @@ const AgendaPage = () => {
         completedOn: formatFirebaseDate(item.completedOn),
       }));
 
-     
-        const sorted = [...cleaned].sort((a, b) => {
-          if (a.completed !== b.completed) {
-            return a.completed ? 1 : -1;
-          }
+      const sorted = [...cleaned].sort((a, b) => {
+        if (a.completed !== b.completed) {
+          return a.completed ? 1 : -1;
+        }
 
-          const dateA = new Date(a.addedOn).getTime();
-          const dateB = new Date(b.addedOn).getTime();
-          return dateB - dateA;
-        });
-        setAgendaItems(sorted);
-        setActionLoading(false);
-       
-      
+        const dateA = new Date(a.addedOn).getTime();
+        const dateB = new Date(b.addedOn).getTime();
+        return dateB - dateA;
+      });
+      setAgendaItems(sorted);
     } catch (e) {
       console.error("Error getting agenda items", e);
     }
@@ -121,16 +117,15 @@ const AgendaPage = () => {
         addedOn: Timestamp.now(),
         completed: false,
         content: newContent,
-        user: user?.id, // Replace with current user ID if using auth
+        user: user?.id,
         updatedOn: Timestamp.now(),
       };
       const docRef = await addDoc(
         collection(db, "anniAppAgendaItems"),
-        newItem
+        newItem,
       );
       setNewContent("");
       await handleGetAllAgenda();
-      // setSortingOrder((prev) => [docRef.id, ...prev]);
     } catch (e) {
       console.error("Error adding agenda item", e);
     }
@@ -144,12 +139,20 @@ const AgendaPage = () => {
         updatedOn: Timestamp.now(),
       });
       await handleGetAllAgenda();
-      setSortingOrder((prev) => {
-        const filtered = prev.filter((itemId) => itemId !== id);
-        return [id, ...filtered];
-      });
     } catch (e) {
       console.error("Error editing agenda item", e);
+    }
+  };
+
+  const handleDeleteAgenda = async (id?: string) => {
+    if (!id) return;
+    try {
+      const agendaDoc = doc(db, "anniAppAgendaItems", id);
+      await deleteDoc(agendaDoc);
+      //update local state instead
+      setAgendaItems((prev) => prev.filter((item) => item.id !== id));
+    } catch (e) {
+      console.error("Error deleting agenda ");
     }
   };
 
@@ -169,7 +172,7 @@ const AgendaPage = () => {
 
   const getOutstandingAgendas = () => {
     const outstanding = agendaItems.filter(
-      (agenda) => agenda.completed === false
+      (agenda) => agenda.completed === false,
     );
     setOutstandingItems(outstanding);
   };
@@ -178,7 +181,6 @@ const AgendaPage = () => {
     const completed = agendaItems.filter((agenda) => agenda.completed === true);
     setCompletedItems(completed);
   };
-
 
   /**
    * @deprecated Sorting function removed for now 30 Jan 2026
@@ -195,7 +197,6 @@ const AgendaPage = () => {
     });
 
     setAgendaItems(sorted);
-    setSortingOrder(sorted.map((item) => item.id!));
   };
 
   useEffect(() => {
@@ -208,18 +209,13 @@ const AgendaPage = () => {
   useEffect(() => {
     const fetchAndInit = async () => {
       await handleGetAllAgenda();
-      setSortingOrder((prev) => {
-        if (prev.length === 0) {
-          return agendaItems.map((item) => item.id!);
-        }
-        return prev;
-      });
     };
     fetchAndInit();
   }, []);
 
   return (
     <ThemeProvider theme={token}>
+      <PopoverStyles />
       <AgendaMain>
         <AgendaHeroContainer>
           <AgendaTitle>AGENDA</AgendaTitle>
@@ -322,7 +318,7 @@ const AgendaPage = () => {
                     background={
                       item.completed ? token.colorBgGreen : token.colorBgYellow
                     }
-                    show={item.completed}
+                    // show={item.completed}
                     onClick={() => {
                       const newText = prompt("Edit agenda", item.content);
                       if (newText) handleEditAgenda(item.id!, newText);
@@ -330,6 +326,25 @@ const AgendaPage = () => {
                   >
                     <EditOutlined />
                   </AgendaEditButton>
+
+                  <Popconfirm
+                    title="Delete agenda item"
+                    description="Are you sure you want to delete this agenda item?"
+                    onConfirm={() => handleDeleteAgenda(item.id)}
+                    okText="Yes"
+                    cancelText="No"
+                    overlayClassName="agenda-delete-popover"
+                  >
+                    <AgendaEditButton
+                      background={
+                        item.completed
+                          ? token.colorBgGreen
+                          : token.colorBgYellow
+                      }
+                    >
+                      <DeleteOutlined />
+                    </AgendaEditButton>
+                  </Popconfirm>
                 </Flex>
               );
             })}
