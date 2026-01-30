@@ -1,11 +1,6 @@
-import styled, { keyframes, css } from "styled-components";
-import { AppTheme } from "../../theme";
-import {
-  addLineBreaksAfterSentences,
-  formatFirebaseDate,
-} from "../../utils/utils";
-import style from "antd/es/affix/style";
 import { Image } from "antd";
+import styled, { css, keyframes } from "styled-components";
+import { AppTheme } from "../../theme";
 declare module "styled-components" {
   export interface DefaultTheme extends AppTheme {}
 }
@@ -132,6 +127,8 @@ export const HomeBigCardRefreshButton = styled.div<RefreshButtonProps>`
   justify-content: center;
   background: ${(props) => props.theme.colorBgLightYellow};
   cursor: pointer;
+  color: ${props => props.theme.text};
+
   ${(props) =>
     props.isSpinning &&
     css`
@@ -241,6 +238,8 @@ export const StreakButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+  color: ${props => props.theme.text};
+  
 `;
 
 export const HomeStreakNumber = styled.div`

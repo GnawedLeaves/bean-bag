@@ -65,11 +65,6 @@ const GlobalStyle = createGlobalStyle`
     -webkit-appearance: none;
   }
 
-  button, a {
-    /* Prevent iOS from changing text color on tap/focus */
-    -webkit-tap-highlight-color: transparent;
-    text-decoration: none;
-  }
 `;
 
 const MessagingHandler: React.FC = () => {

@@ -75,6 +75,8 @@ export const AgendaAddButton = styled.button`
   align-items: center;
   justify-content: center;
   display: flex;
+  color: ${props => props.theme.text};
+
 `;
 
 export const SortButton = styled(AgendaAddButton)<AgendaItemProps>`
@@ -136,6 +138,8 @@ export const AgendaEditButton = styled.button<AgendaEditButtonProps>`
   transition: 0.3s;
   pointer-events: ${(props) => (props.show ? "none" : "")};
   opacity: ${(props) => (props.show ? 0 : 1)};
+  color: ${props => props.theme.text};
+
 `;
 
 export const AgendaContentContainer = styled.div`

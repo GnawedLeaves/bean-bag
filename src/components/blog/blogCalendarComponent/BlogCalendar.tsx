@@ -1,14 +1,14 @@
-import dayjs, { Dayjs } from "dayjs";
-import weekday from "dayjs/plugin/weekday";
-import weekOfYear from "dayjs/plugin/weekOfYear";
-import { useEffect, useState } from "react";
-import styled from "styled-components";
 import {
   InfoCircleOutlined,
   LeftOutlined,
   RightOutlined,
 } from "@ant-design/icons";
 import { Flex } from "antd";
+import dayjs, { Dayjs } from "dayjs";
+import weekday from "dayjs/plugin/weekday";
+import weekOfYear from "dayjs/plugin/weekOfYear";
+import { useEffect, useState } from "react";
+import styled from "styled-components";
 dayjs.extend(weekday);
 dayjs.extend(weekOfYear);
 
@@ -142,6 +142,7 @@ export const ExpandButton = styled.button`
   border-radius: ${(props) => props.theme.borderRadius}px;
   padding: ${(props) => props.theme.paddingSmall}px
     ${(props) => props.theme.paddingMed}px;
+  color: ${props => props.theme.text};
 
   transition: 0.3s;
 `;
