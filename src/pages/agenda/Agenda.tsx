@@ -1,5 +1,25 @@
-import React, { useEffect, useState } from "react";
+import {
+  EditOutlined,
+  SignatureOutlined
+} from "@ant-design/icons";
+import { Flex, Input } from "antd";
+import { onAuthStateChanged } from "firebase/auth";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  Timestamp,
+  updateDoc,
+} from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
+import { useUser } from "../../contexts/UserContext";
+import { auth, db } from "../../firebase/firebase";
+import { ROUTES } from "../../routes";
+import { token } from "../../theme";
+import { formatFirebaseDate } from "../../utils/utils";
 import {
   AgendaAddButton,
   AgendaBodyContainer,
@@ -14,32 +34,8 @@ import {
   AgendaStatsCard,
   AgendaStatsCardDescription,
   AgendaStatsCardNumber,
-  AgendaTitle,
-  SortButton,
+  AgendaTitle
 } from "./AgendaStyles";
-import { token } from "../../theme";
-import {
-  collection,
-  Timestamp,
-  getDocs,
-  addDoc,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
-import { auth, db } from "../../firebase/firebase";
-import { useUser } from "../../contexts/UserContext";
-import { onAuthStateChanged } from "firebase/auth";
-import { ROUTES } from "../../routes";
-import { useNavigate } from "react-router-dom";
-import {
-  CloseOutlined,
-  EditOutlined,
-  ReloadOutlined,
-  SignatureOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
-import { Flex, Input, Spin } from "antd";
-import { formatFirebaseDate } from "../../utils/utils";
 
 export interface AgendaItemType {
   id?: string;
@@ -72,7 +68,6 @@ const AgendaPage = () => {
   );
   const [completedItems, setCompletedItems] = useState<ViewAgendaItem[]>([]);
   const [sortingOrder, setSortingOrder] = useState<string[]>([]);
-  const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -100,7 +95,7 @@ const AgendaPage = () => {
         completedOn: formatFirebaseDate(item.completedOn),
       }));
 
-      if (isFirstLoad) {
+     
         const sorted = [...cleaned].sort((a, b) => {
           if (a.completed !== b.completed) {
             return a.completed ? 1 : -1;
@@ -112,21 +107,8 @@ const AgendaPage = () => {
         });
         setAgendaItems(sorted);
         setActionLoading(false);
-        setIsFirstLoad(false);
-      } else {
-        const sorted = [...cleaned].sort((a, b) => {
-          const indexA = sortingOrder.indexOf(a.id!);
-          const indexB = sortingOrder.indexOf(b.id!);
-          if (indexA === -1 && indexB === -1) return 0;
-          if (indexA === -1) return 1;
-          if (indexB === -1) return -1;
-          return indexA - indexB;
-        });
-
-        setAgendaItems(sorted);
-
-        setActionLoading(false);
-      }
+       
+      
     } catch (e) {
       console.error("Error getting agenda items", e);
     }
@@ -148,7 +130,7 @@ const AgendaPage = () => {
       );
       setNewContent("");
       await handleGetAllAgenda();
-      setSortingOrder((prev) => [docRef.id, ...prev]);
+      // setSortingOrder((prev) => [docRef.id, ...prev]);
     } catch (e) {
       console.error("Error adding agenda item", e);
     }
@@ -189,16 +171,18 @@ const AgendaPage = () => {
     const outstanding = agendaItems.filter(
       (agenda) => agenda.completed === false
     );
-    console.log({ outstanding });
     setOutstandingItems(outstanding);
   };
 
   const getCompletedAgendas = () => {
     const completed = agendaItems.filter((agenda) => agenda.completed === true);
-    console.log({ completed });
     setCompletedItems(completed);
   };
 
+
+  /**
+   * @deprecated Sorting function removed for now 30 Jan 2026
+   */
   const handleSortItems = () => {
     const sorted = [...agendaItems].sort((a, b) => {
       if (a.completed !== b.completed) {
@@ -210,8 +194,6 @@ const AgendaPage = () => {
       return dateB - dateA;
     });
 
-    console.log({ sorted });
-
     setAgendaItems(sorted);
     setSortingOrder(sorted.map((item) => item.id!));
   };
@@ -220,7 +202,6 @@ const AgendaPage = () => {
     if (agendaItems.length > 0) {
       getOutstandingAgendas();
       getCompletedAgendas();
-      // handleSortItems();
     }
   }, [agendaItems]);
 
@@ -273,7 +254,7 @@ const AgendaPage = () => {
             style={{ width: "100%" }}
           >
             <AgendaBodyTitle>Items</AgendaBodyTitle>
-            <SortButton
+            {/* <SortButton
               background={token.colorBgYellow}
               onClick={() => {
                 handleSortItems();
@@ -281,7 +262,7 @@ const AgendaPage = () => {
             >
               <ReloadOutlined />
               Sort items
-            </SortButton>
+            </SortButton> */}
           </Flex>
 
           <Flex gap={8}>
