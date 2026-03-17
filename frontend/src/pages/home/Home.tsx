@@ -74,12 +74,12 @@ import {
   StreakButton,
   StreakContainer,
 } from "./HomeStyles";
+import { UserSubscription } from "../../types/pushNotifsTypes";
 
 const Home: React.FC = () => {
   const { user, userPartner, spotifyToken, loading, getUserContextData } =
     useUser();
 
-  console.log({ user });
   const [daysTogetherCount, setDaysTogetherCount] = useState<number>(0);
   const [gayLevel, setGayLevel] = useState<number>(0);
   const [blogCount, setBlogCount] = useState<number>(0);
@@ -92,6 +92,7 @@ const Home: React.FC = () => {
   const anniversaryDate = new Date("2024-06-14");
   const [agendaLength, setAgendaLength] = useState<number>(0);
   const [streakData, setStreakData] = useState<StreakModel[]>([]);
+  const [pushNotifUsers, setPushNotifUsers] = useState<UserSubscription[]>([]);
 
   const calculateDaysTogether = () => {
     const anniversaryDate = new Date("2024-06-14");
@@ -112,6 +113,17 @@ const Home: React.FC = () => {
     const percentage = Math.floor(Math.random() * 100 + 69);
     setGayLevel(percentage);
   };
+
+  const fetchPushNotifUsers = async () => {
+    const streaksRef = collection(db, "anniAppPushSubscriptions");
+    const snapshot = await getDocs(streaksRef);
+    const data = snapshot.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as UserSubscription),
+      }))
+    setPushNotifUsers(data)
+  }
   const fetchRecentEntries = async () => {
     try {
       const results = await getBlogEntries();
@@ -272,6 +284,7 @@ const Home: React.FC = () => {
     getAPOD();
     handleGetFact();
     handleGetAllStreaks();
+    fetchPushNotifUsers()
   }, []);
 
   useEffect(() => {
@@ -290,6 +303,16 @@ const Home: React.FC = () => {
       setDistance(distance);
     }
   }, [user, userPartner]);
+
+  useEffect(() => {
+    if (user && pushNotifUsers) {
+      const res = pushNotifUsers.find((userSubscription) => userSubscription.userId === user.id);
+      if (!res) {
+        handlePushTest(user.id)
+      }
+    }
+  }
+    , [user, pushNotifUsers])
 
   const handleRefresh = () => {
     setIsSpinning(true);
@@ -325,25 +348,14 @@ const Home: React.FC = () => {
     navigate(navigateLink);
   };
 
-  const [subStatus, setSubStatus] = useState<
-    "idle" | "loading" | "success" | "error"
-  >("idle");
 
-  const [subError, setSubError] = useState<string>("");
-  const handlePushTest = async () => {
-    if (!user?.id) return alert("No user ID found");
+  const handlePushTest = async (userId: string) => {
 
-    setSubStatus("loading");
-    setSubError("");
     try {
-      const res = await subscribePushNotifs(user.id);
-      setSubStatus("success");
-      setTimeout(() => setSubStatus("idle"), 3000);
+      console.log(`Testing push notifications for user: ${userId}`);
+      const res = await subscribePushNotifs(userId);
     } catch (error) {
-      setSubStatus("error");
-      setSubError(
-        error instanceof Error ? error.message : "Unknown error occurred",
-      );
+
       console.error("Subscription failed", error);
     }
   };
@@ -407,42 +419,17 @@ const Home: React.FC = () => {
               </HomeStatsBigCardDate>
             </Flex>
           </HomeStatsBigCard>
-          <Flex>
-            {subStatus === "error" && subError && (
-              <div
-                style={{
-                  color: "#ff4d4f",
-                  fontSize: "12px",
-                  padding: "8px",
-                  backgroundColor: "#fff1f0",
-                  borderRadius: "4px",
-                  textAlign: "center",
-                }}
-              >
-                {subError}
-              </div>
-            )}
-          </Flex>
+
           <HomeStatsCard
-            background={subStatus === "success" ? "#52c41a" : token.colorBgBlue}
-            onClick={handlePushTest}
+            onClick={() => {
+              if (user) {
+                handlePushTest(user.id)
+
+              }
+            }}
             style={{ cursor: "pointer", transition: "all 0.3s" }}
           >
-            <HomeStatsCardNumber>
-              {subStatus === "loading" && <LoadingOutlined spin />}
-              {subStatus === "idle" && <BellOutlined />}
-              {subStatus === "success" && <CheckCircleOutlined />}
-              {subStatus === "error" && "!"}
-            </HomeStatsCardNumber>
-            <HomeStatsCardDescription>
-              {subStatus === "loading"
-                ? "Subscribing..."
-                : subStatus === "success"
-                  ? "Subscribed!"
-                  : subStatus === "error"
-                    ? "Failed"
-                    : "Enable Push"}
-            </HomeStatsCardDescription>
+            Click to active
           </HomeStatsCard>
           <HomeStatsCard background={token.colorBgGreen}>
             <HomeStatsCardNumber>{daysTogetherCount}</HomeStatsCardNumber>

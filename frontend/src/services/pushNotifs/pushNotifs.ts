@@ -15,7 +15,11 @@ export function urlBase64ToUint8Array(base64String: string) {
 
 export const subscribePushNotifs = async (userId: string) => {
   try {
-    await navigator.serviceWorker.register("/sw.js", {
+    if (!VAPID_PUBLIC_KEY) {
+      throw new Error("VAPID public key is not configured. Check REACT_APP_VAPID_PUBLIC_KEY environment variable.");
+    }
+
+    const registration = await navigator.serviceWorker.register("/sw.js", {
       scope: "/",
     });
 
@@ -26,12 +30,11 @@ export const subscribePushNotifs = async (userId: string) => {
       throw new Error("Push notification permission denied");
     }
 
-    // 4. Subscribe using the 'activeRegister'
     const subscription = await activeRegister.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
     });
-    // 4. Send to your backend
+
     await fetch(`${BACKEND_URL}/subscribe`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
