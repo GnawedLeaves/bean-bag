@@ -66,7 +66,7 @@ app.post('/hygraph-webhook', async (req, res) => {
   try {
     const notificationPayload = JSON.stringify({
       title: 'New Bean!',
-      body: `${data.username || 'Someone'} just added a new bean entry!`,
+      body: `Someone just added a new bean entry!`,
       url: `/blogs`
     });
 
