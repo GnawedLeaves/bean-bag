@@ -1,13 +1,11 @@
 // src/App.tsx
-import React, { useEffect } from "react";
+import React from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 
 import { ApolloProvider } from "@apollo/client";
-import { getToken, onMessage } from "firebase/messaging";
 import Navbar from "./components/layout/Navbar";
 import { UserProvider } from "./contexts/UserContext";
-import { messaging } from "./firebase/firebase";
 import AgendaPage from "./pages/agenda/Agenda";
 import BlogPage from "./pages/blog/Blogs";
 import BlogUploadPage from "./pages/blog/BlogUpload";
@@ -67,50 +65,11 @@ const GlobalStyle = createGlobalStyle`
 
 `;
 
-const MessagingHandler: React.FC = () => {
-  useEffect(() => {
-    const setupNotifications = async () => {
-      try {
-        // 1. Request Permission
-        const permission = await Notification.requestPermission();
-        
-        if (permission === "granted") {
-          // 2. Get Token (Replace with your actual VAPID key)
-          const token = await getToken(messaging, {
-            vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY, 
-          });
-
-          if (token) {
-            console.log("FCM Token:", token);
-            // TODO: Save this token to your DB (e.g., Firestore) associated with the user
-          }
-        }
-      } catch (error) {
-        console.error("An error occurred while retrieving token:", error);
-      }
-    };
-
-    setupNotifications();
-
-    // 3. Handle Foreground Messages
-    const unsubscribe = onMessage(messaging, (payload) => {
-      console.log("Message received in foreground: ", payload);
-      // Optional: Trigger a custom toast notification here
-      alert(`${payload.notification?.title}: ${payload.notification?.body}`);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  return null; 
-};
-
 const App: React.FC = () => {
   return (
     <ApolloProvider client={client}>
       <ThemeProvider theme={token}>
         <UserProvider>
-        <MessagingHandler />
           <Router>
             <GlobalStyle />
             <Navbar />

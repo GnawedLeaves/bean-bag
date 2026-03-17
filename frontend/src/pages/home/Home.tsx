@@ -1,21 +1,47 @@
-import React, { useEffect, useState } from "react";
-import { Flex, Spin } from "antd";
 import {
-  ReloadOutlined,
-  InfoCircleOutlined,
-  SignatureOutlined,
-  RedoOutlined,
+  BellOutlined,
+  CheckCircleOutlined,
   DeleteOutlined,
-  SpotifyOutlined,
   EyeOutlined,
+  InfoCircleOutlined,
+  LoadingOutlined,
+  RedoOutlined,
+  ReloadOutlined,
+  SignatureOutlined,
+  SpotifyOutlined,
 } from "@ant-design/icons";
-import { getBlogEntries } from "../../services/hygraph";
+import { Flex, Spin } from "antd";
+import dayjs from "dayjs";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "../../firebase/firebase";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ROUTES } from "../../routes";
-import { token } from "../../theme";
 import { ThemeProvider } from "styled-components";
+import ShortcutComponent from "../../components/shortcut/Shortcut";
+import { useUser } from "../../contexts/UserContext";
+import { auth, db } from "../../firebase/firebase";
+import { ROUTES } from "../../routes";
+import { getBlogEntries } from "../../services/hygraph";
+import { getAstronomyPictureOfTheDay } from "../../services/nasa";
+import { getFact } from "../../services/ninjaApi/fact";
+import { subscribePushNotifs } from "../../services/pushNotifs/pushNotifs";
+import { token } from "../../theme";
+import { NasaApodObject } from "../../types/nasaTypes";
+import { FactModel } from "../../types/ninjaApiTypes";
+import { StreakModel } from "../../types/streakTypes";
+import {
+  addLineBreaksAfterSentences,
+  calculateDistance,
+  formatFirebaseDate,
+} from "../../utils/utils";
+import { AgendaItemType } from "../agenda/Agenda";
+import { AgendaAddButton } from "../agenda/AgendaStyles";
 import {
   HomeBigCardRefreshButton,
   HomeFactContainer,
@@ -48,31 +74,6 @@ import {
   StreakButton,
   StreakContainer,
 } from "./HomeStyles";
-import { useUser } from "../../contexts/UserContext";
-import {
-  addLineBreaksAfterSentences,
-  calculateDistance,
-  formatFirebaseDate,
-} from "../../utils/utils";
-import dayjs from "dayjs";
-import { getAstronomyPictureOfTheDay } from "../../services/nasa";
-import { NasaApodObject } from "../../types/nasaTypes";
-import {
-  collection,
-  getDocs,
-  addDoc,
-  doc,
-  updateDoc,
-  deleteDoc,
-} from "firebase/firestore";
-import { AgendaItemType } from "../agenda/Agenda";
-import { getFact } from "../../services/ninjaApi/fact";
-import { FactModel } from "../../types/ninjaApiTypes";
-import { StreakModel } from "../../types/streakTypes";
-import { AgendaAddButton } from "../agenda/AgendaStyles";
-import ShortcutComponent, {
-  ShortcutComponentProps,
-} from "../../components/shortcut/Shortcut";
 
 const Home: React.FC = () => {
   const { user, userPartner, spotifyToken, loading, getUserContextData } =
@@ -100,7 +101,7 @@ const Home: React.FC = () => {
 
   const calculateDaysDifference = (
     startDate: Date,
-    endDate: Date = new Date()
+    endDate: Date = new Date(),
   ): number => {
     const start = new Date(startDate).setHours(0, 0, 0, 0);
     const end = new Date(endDate).setHours(0, 0, 0, 0);
@@ -128,7 +129,7 @@ const Home: React.FC = () => {
 
     try {
       const response = (await getAstronomyPictureOfTheDay(
-        {}
+        {},
       )) as NasaApodObject;
 
       const transformedResponse = {
@@ -222,7 +223,7 @@ const Home: React.FC = () => {
   const handleEditStreak = async (streak: StreakModel) => {
     const newName = prompt(
       "Edit streak name (max 20 chars):",
-      streak.streakName
+      streak.streakName,
     );
     if (!newName || !newName.trim()) return;
     if (newName.trim().length > 20) {
@@ -323,6 +324,30 @@ const Home: React.FC = () => {
     if (navigateLink === "") return;
     navigate(navigateLink);
   };
+
+  const [subStatus, setSubStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+
+  const [subError, setSubError] = useState<string>("");
+  const handlePushTest = async () => {
+    if (!user?.id) return alert("No user ID found");
+
+    setSubStatus("loading");
+    setSubError("");
+    try {
+      const res = await subscribePushNotifs(user.id);
+      setSubStatus("success");
+      setTimeout(() => setSubStatus("idle"), 3000);
+    } catch (error) {
+      setSubStatus("error");
+      setSubError(
+        error instanceof Error ? error.message : "Unknown error occurred",
+      );
+      console.error("Subscription failed", error);
+    }
+  };
+
   return (
     <ThemeProvider theme={token}>
       <HomePage>
@@ -382,6 +407,43 @@ const Home: React.FC = () => {
               </HomeStatsBigCardDate>
             </Flex>
           </HomeStatsBigCard>
+          <Flex>
+            {subStatus === "error" && subError && (
+              <div
+                style={{
+                  color: "#ff4d4f",
+                  fontSize: "12px",
+                  padding: "8px",
+                  backgroundColor: "#fff1f0",
+                  borderRadius: "4px",
+                  textAlign: "center",
+                }}
+              >
+                {subError}
+              </div>
+            )}
+          </Flex>
+          <HomeStatsCard
+            background={subStatus === "success" ? "#52c41a" : token.colorBgBlue}
+            onClick={handlePushTest}
+            style={{ cursor: "pointer", transition: "all 0.3s" }}
+          >
+            <HomeStatsCardNumber>
+              {subStatus === "loading" && <LoadingOutlined spin />}
+              {subStatus === "idle" && <BellOutlined />}
+              {subStatus === "success" && <CheckCircleOutlined />}
+              {subStatus === "error" && "!"}
+            </HomeStatsCardNumber>
+            <HomeStatsCardDescription>
+              {subStatus === "loading"
+                ? "Subscribing..."
+                : subStatus === "success"
+                  ? "Subscribed!"
+                  : subStatus === "error"
+                    ? "Failed"
+                    : "Enable Push"}
+            </HomeStatsCardDescription>
+          </HomeStatsCard>
           <HomeStatsCard background={token.colorBgGreen}>
             <HomeStatsCardNumber>{daysTogetherCount}</HomeStatsCardNumber>
             <HomeStatsCardDescription>days togther</HomeStatsCardDescription>
