@@ -90,26 +90,41 @@ app.post('/hygraph-webhook', async (req, res) => {
   }
 });
 
-app.post('/test-send-notification', (req, res) => {
-  const notificationPayload = JSON.stringify({
-    title: req.body.title || 'Default Title',
-    body: req.body.body || 'Default message body',
-    url: '/dashboard'
-  });
-  
+app.post('/test-send-notification', async (req, res) => {
+  try {
+    const notificationPayload = JSON.stringify({
+      title: req.body.title || 'Default Title',
+      body: req.body.body || 'Default message body',
+      url: '/dashboard'
+    });
 
-  const promises = subscriptions.map(sub => 
-    webpush.sendNotification(sub, notificationPayload)
-      .catch(err => {
-        console.error("Error sending to endpoint:", sub.endpoint, err);
-        // If the subscription is expired or invalid, remove it
-        if (err.statusCode === 404 || err.statusCode === 410) {
-          subscriptions = subscriptions.filter(s => s.endpoint !== sub.endpoint);
-        }
-      })
-  );
+    // 1. Fetch the actual subscriptions from Firestore
+    const snapshot = await db.collection('push_subscriptions').get();
+    
+    if (snapshot.empty) {
+      return res.status(200).json({ message: 'No subscribers found in database.' });
+    }
 
-  Promise.all(promises).then(() => res.json({ message: 'Notifications sent!' }));
+    const promises = snapshot.docs.map(doc => {
+      const sub = doc.data();
+      // Ensure the sub object has endpoint, keys, etc.
+      return webpush.sendNotification(sub, notificationPayload)
+        .catch(async (err) => {
+          console.error("Error sending to endpoint:", sub.endpoint, err);
+          if (err.statusCode === 404 || err.statusCode === 410) {
+            // Delete the expired token from Firestore
+            await db.collection('push_subscriptions').doc(doc.id).delete();
+          }
+        });
+    });
+
+    await Promise.all(promises);
+    res.json({ message: 'Notifications processed!' });
+
+  } catch (err) {
+    console.error("Server Crash Error:", err);
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
+  }
 });
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
