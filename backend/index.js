@@ -99,7 +99,7 @@ app.post('/test-send-notification', async (req, res) => {
     });
 
     // 1. Fetch the actual subscriptions from Firestore
-    const snapshot = await db.collection('push_subscriptions').get();
+    const snapshot = await db.collection('anniAppPushSubscriptions').get();
     
     if (snapshot.empty) {
       return res.status(200).json({ message: 'No subscribers found in database.' });
@@ -113,7 +113,7 @@ app.post('/test-send-notification', async (req, res) => {
           console.error("Error sending to endpoint:", sub.endpoint, err);
           if (err.statusCode === 404 || err.statusCode === 410) {
             // Delete the expired token from Firestore
-            await db.collection('push_subscriptions').doc(doc.id).delete();
+            await db.collection('anniAppPushSubscriptions').doc(doc.id).delete();
           }
         });
     });
