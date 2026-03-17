@@ -96,10 +96,13 @@ const SpotifyTrackPage = () => {
   const [comments, setComments] = useState<CommentObj[]>([]);
   const [newComment, setNewComment] = useState<string>("");
 
+  const [localSongCounter, setLocalSongCounter] = useState<number>(0);
+
   const handleGetTrackDetails = async () => {
     if (currentPlaying) {
       setTrackDetails(currentPlaying.item);
       setCurrentlyPlayingDetails(currentPlaying);
+      setLocalSongCounter(currentPlaying.progress_ms);
     } else {
       if (!trackId || !spotifyToken?.accessToken) return;
       const response = await getSpotifyTrack(
@@ -107,6 +110,7 @@ const SpotifyTrackPage = () => {
         spotifyToken?.accessToken,
       );
       setTrackDetails(response);
+      setLocalSongCounter(0);
     }
   };
 
@@ -317,11 +321,16 @@ const SpotifyTrackPage = () => {
 
   useEffect(() => {
     if (!loading && trackId) {
-      handleGetTrackDetails();
       handleGetReviewsAndComments(trackId);
       scrollToTop();
     }
-  }, [loading, currentPlaying]);
+  }, [loading]);
+
+  useEffect(() => {
+    if (currentPlaying) {
+      handleGetTrackDetails();
+    }
+  }, [currentPlaying]);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (!currentUser) {
@@ -338,6 +347,21 @@ const SpotifyTrackPage = () => {
     if (res < 8) return 8;
     else return res;
   };
+
+  useEffect(() => {
+    if (!currentlyPlayingDetails?.is_playing) return;
+    const interval = setInterval(() => {
+      setLocalSongCounter((prev) => {
+        const next = prev + 1000;
+        if (next > currentlyPlayingDetails?.item.duration_ms) {
+          return prev;
+        }
+        return next;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [currentlyPlayingDetails]);
 
   return (
     <ThemeProvider theme={token}>
@@ -369,7 +393,7 @@ const SpotifyTrackPage = () => {
             <Flex justify="space-between">
               <SpotifyBarInnerContainerText>
                 {currentlyPlayingDetails
-                  ? convertMsToSeconds(currentlyPlayingDetails.progress_ms)
+                  ? formatMilliseconds(localSongCounter)
                   : "0:00"}
               </SpotifyBarInnerContainerText>
               <SpotifyBarInnerContainerText>
@@ -383,7 +407,7 @@ const SpotifyTrackPage = () => {
                   convertMsToSeconds(trackDetails?.duration_ms) || 60
                 }
                 progressPercentage={calculateProgressPercentage(
-                  currentlyPlayingDetails?.progress_ms || 0,
+                  localSongCounter,
                   trackDetails?.duration_ms,
                 )}
               />
