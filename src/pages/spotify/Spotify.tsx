@@ -25,6 +25,7 @@ import { useUser } from "../../contexts/UserContext";
 import { auth, db } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
 import {
+  disconnectSpotify,
   exchangeCodeForToken,
   getCurrentlyPlaying,
   getMultipleSpotifyAlbums,
@@ -56,6 +57,7 @@ import {
   LoadingHistoryContainer,
   RecentReviewedContainer,
   RecentReviewedTitle,
+  SpotifyDisconnectButton,
   SpotifyHeroContainer,
   SpotifyHeroSubtitle,
   SpotifyHeroTitle,
@@ -603,6 +605,10 @@ const SpotifyPage = () => {
   if (loading) {
     return <PageLoading />;
   }
+  const handleDisconnect = () => {
+    disconnectSpotify();
+    setAccessToken(null); // triggers UI to show "Connect" button again
+  };
 
   return (
     <ConfigProvider
@@ -875,6 +881,11 @@ const SpotifyPage = () => {
                 </Flex>
               )}
             </RecentReviewedContainer>
+            <Flex>
+              <SpotifyDisconnectButton onClick={handleDisconnect}>
+                Disconnect Spotify
+              </SpotifyDisconnectButton>
+            </Flex>
           </SpotifyMainBodyContainer>
         </SpotifyMain>
       </ThemeProvider>

@@ -1,12 +1,18 @@
 import { Flex, Input, message, Upload } from "antd";
+import { RcFile } from "antd/es/upload/interface";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import { doc, Timestamp, updateDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ImageLoading,
+  PageLoading,
+} from "../../components/loading/LoadingStates";
+import { useUser } from "../../contexts/UserContext";
 import { auth, db } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { doc, Timestamp, updateDoc } from "firebase/firestore";
-import { UploadChangeParam } from "antd/es/upload";
-import { RcFile, UploadFile } from "antd/es/upload/interface";
+import { getAssetUrlById, uploadImages } from "../../services/hygraph";
+import { token } from "../../theme";
 import {
   ProfileButton,
   ProfileDisplayName,
@@ -17,14 +23,6 @@ import {
   ProfileMainContainer,
   ProfileSubtitle,
 } from "./ProfileStyles";
-import { useUser } from "../../contexts/UserContext";
-import { token } from "../../theme";
-import { getAssetUrlById, uploadImages } from "../../services/hygraph";
-import {
-  PageLoading,
-  ImageLoading,
-} from "../../components/loading/LoadingStates";
-import React from "react";
 
 interface ProfilePageProps {}
 const ProfilePage = ({}: ProfilePageProps) => {

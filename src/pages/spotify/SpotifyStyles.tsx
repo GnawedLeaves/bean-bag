@@ -244,8 +244,8 @@ export const SpotifyBarInnerContainer = styled.div<{ trackDuration: number }>`
   background-size: 200% 100%;
   height: 30px;
   width: 10%;
-  animation: ${widthAnimation} ${(props) => props.trackDuration}s linear
-      infinite,
+  animation:
+    ${widthAnimation} ${(props) => props.trackDuration}s linear infinite,
     ${gradientAnimation} 5s ease-in-out infinite;
 `;
 export const SpotifyBarInnerContainerText = styled.span`
@@ -309,6 +309,7 @@ export const SpotifyMainBodyContainer = styled.div`
   align-items: center;
   gap: 32px;
   padding-top: ${(props) => props.theme.paddingLg}px;
+  padding-bottom: ${(props) => props.theme.paddingLg}px;
 `;
 
 export const SpotifySearchContainer = styled.div`
@@ -335,6 +336,10 @@ export const SpotifySearchButton = styled.button`
   align-items: center;
   justify-content: center;
   display: flex;
+`;
+
+export const SpotifyDisconnectButton = styled(SpotifySearchButton)`
+  background: ${(props) => props.theme.colorBgPink};
 `;
 
 interface StatsCardProps {
