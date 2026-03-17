@@ -100,6 +100,35 @@ export interface SpotifyTrack {
   is_local: boolean;
 }
 
+export interface SpotifyContext {
+  external_urls: {
+    spotify: string;
+  };
+  href: string;
+  type: string;
+  uri: string;
+}
+
+export interface SpotifyActions {
+  disallows: {
+    resuming?: boolean;
+    toggling_repeat_context?: boolean;
+    toggling_shuffle?: boolean;
+    toggling_repeat_track?: boolean;
+    transferring_playback?: boolean;
+  };
+}
+
+export interface SpotifyCurrentPlaying {
+  timestamp: number;
+  context: SpotifyContext | null;
+  progress_ms: number | null;
+  item: SpotifyTrack | null;
+  currently_playing_type: "track" | "episode" | "ad" | "unknown";
+  actions: SpotifyActions;
+  is_playing: boolean;
+}
+
 export type SpotifyLinkInfo = {
   id: string;
   type: "track" | "album" | "artist" | "playlist";

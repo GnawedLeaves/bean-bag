@@ -21,8 +21,8 @@ import React, {
 import { auth, db } from "../firebase/firebase";
 import { useLocationHook } from "../hooks/useLocation";
 import { getSpotifyAuthToken } from "../services/spotify/authSpotify";
+import { exchangeCodeForToken } from "../services/spotify/spotify";
 import { SpotifyAuthToken } from "../types/spotifyTypes";
-
 interface UserData {
   id: string;
   name: string;
@@ -144,6 +144,39 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("error updating location in user context", e);
     }
   };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+
+    if (!code) return;
+
+    const processSpotifyAuth = async (authCode: string) => {
+      try {
+        const tokenData = await exchangeCodeForToken(authCode);
+
+        localStorage.setItem("spotify_access_token", tokenData.access_token);
+        localStorage.setItem("spotify_refresh_token", tokenData.refresh_token);
+        localStorage.setItem(
+          "spotify_token_expiry",
+          String(Date.now() + tokenData.expires_in * 1000),
+        );
+
+        setSpotifyToken({
+          accessToken: tokenData.access_token,
+          refreshToken: tokenData.refresh_token,
+          expiresIn: tokenData.expires_in,
+        });
+
+        // Clean up URL
+        window.history.replaceState({}, document.title, "/spotify");
+      } catch (err) {
+        console.error("Spotify auth failed:", err);
+      }
+    };
+
+    processSpotifyAuth(code);
+  }, []);
 
   return (
     <UserContext.Provider
