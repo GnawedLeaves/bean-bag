@@ -33,6 +33,7 @@ import {
 import { token } from "../../theme";
 import {
   SpotifyComment,
+  SpotifyCurrentPlaying,
   SpotifyReview,
   SpotifyTrack,
 } from "../../types/spotifyTypes";
@@ -67,6 +68,7 @@ import {
   SpotifyShareButton,
   SpotifyTrackPlayButton,
 } from "./SpotifyStyles";
+import { useCurrentTrack } from "./utils/useCurrentTrack";
 
 interface ReviewObj extends SpotifyReview {
   username: string;
@@ -83,16 +85,29 @@ interface CommentObj extends SpotifyComment {
 const SpotifyTrackPage = () => {
   const { trackId } = useParams();
   const { user, userPartner, spotifyToken, loading } = useUser();
+  const { currentPlaying, isLoading, error } = useCurrentTrack(
+    spotifyToken?.accessToken || null,
+  );
   const navigate = useNavigate();
-  const [trackDetails, setTrackDetails] = useState<SpotifyTrack>();
+  const [trackDetails, setTrackDetails] = useState<SpotifyTrack | null>();
+  const [currentlyPlayingDetails, setCurrentlyPlayingDetails] =
+    useState<SpotifyCurrentPlaying | null>();
   const [reviews, setReviews] = useState<ReviewObj[]>([]);
   const [comments, setComments] = useState<CommentObj[]>([]);
   const [newComment, setNewComment] = useState<string>("");
 
   const handleGetTrackDetails = async () => {
-    if (!trackId || !spotifyToken?.accessToken) return;
-    const response = await getSpotifyTrack(trackId, spotifyToken?.accessToken);
-    setTrackDetails(response);
+    if (currentPlaying) {
+      setTrackDetails(currentPlaying.item);
+      setCurrentlyPlayingDetails(currentPlaying);
+    } else {
+      if (!trackId || !spotifyToken?.accessToken) return;
+      const response = await getSpotifyTrack(
+        trackId,
+        spotifyToken?.accessToken,
+      );
+      setTrackDetails(response);
+    }
   };
 
   const handleGetReviewsAndComments = async (spotifyId: string) => {
@@ -306,7 +321,7 @@ const SpotifyTrackPage = () => {
       handleGetReviewsAndComments(trackId);
       scrollToTop();
     }
-  }, [loading]);
+  }, [loading, currentPlaying]);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (!currentUser) {
@@ -316,6 +331,13 @@ const SpotifyTrackPage = () => {
     });
     return () => unsubscribe();
   }, [navigate]);
+
+  const calculateProgressPercentage = (current: number, total?: number) => {
+    if (!total || total === 0) return 0;
+    const res = (current / total) * 100;
+    if (res < 8) return 8;
+    else return res;
+  };
 
   return (
     <ThemeProvider theme={token}>
@@ -342,11 +364,14 @@ const SpotifyTrackPage = () => {
             })}
           </SpoitfyTrackSubTitle>
 
-          {/* <SpotifyFeaturedImg src={trackDetails?.album.images[0].url} /> */}
           <Draggable3DImage url={trackDetails?.album.images[0].url ?? ""} />
           <BarBigContainer>
             <Flex justify="space-between">
-              <SpotifyBarInnerContainerText>0:00</SpotifyBarInnerContainerText>
+              <SpotifyBarInnerContainerText>
+                {currentlyPlayingDetails
+                  ? convertMsToSeconds(currentlyPlayingDetails.progress_ms)
+                  : "0:00"}
+              </SpotifyBarInnerContainerText>
               <SpotifyBarInnerContainerText>
                 {formatMilliseconds(trackDetails?.duration_ms)}
               </SpotifyBarInnerContainerText>
@@ -357,6 +382,10 @@ const SpotifyTrackPage = () => {
                 trackDuration={
                   convertMsToSeconds(trackDetails?.duration_ms) || 60
                 }
+                progressPercentage={calculateProgressPercentage(
+                  currentlyPlayingDetails?.progress_ms || 0,
+                  trackDetails?.duration_ms,
+                )}
               />
             </SpotifyBarContainer>
           </BarBigContainer>

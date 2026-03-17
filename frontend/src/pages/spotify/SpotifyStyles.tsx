@@ -230,7 +230,10 @@ const gradientAnimation = keyframes`
   }
 `;
 
-export const SpotifyBarInnerContainer = styled.div<{ trackDuration: number }>`
+export const SpotifyBarInnerContainer = styled.div<{
+  trackDuration: number;
+  progressPercentage: number;
+}>`
   border: 2px solid ${(props) => props.theme.borderColor};
   border-radius: ${(props) => props.theme.borderRadius}px;
   background: linear-gradient(
@@ -243,11 +246,11 @@ export const SpotifyBarInnerContainer = styled.div<{ trackDuration: number }>`
   );
   background-size: 200% 100%;
   height: 30px;
-  width: 10%;
-  animation:
-    ${widthAnimation} ${(props) => props.trackDuration}s linear infinite,
-    ${gradientAnimation} 5s ease-in-out infinite;
+  width: ${(props) => props.progressPercentage}%;
+  animation: ${gradientAnimation} 5s ease-in-out infinite;
+  transition: width 0.1s linear;
 `;
+
 export const SpotifyBarInnerContainerText = styled.span`
   color: ${(props) => props.theme.textSecondary};
 `;

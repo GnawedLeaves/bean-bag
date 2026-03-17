@@ -122,7 +122,7 @@ export interface SpotifyActions {
 export interface SpotifyCurrentPlaying {
   timestamp: number;
   context: SpotifyContext | null;
-  progress_ms: number | null;
+  progress_ms: number;
   item: SpotifyTrack | null;
   currently_playing_type: "track" | "episode" | "ad" | "unknown";
   actions: SpotifyActions;
