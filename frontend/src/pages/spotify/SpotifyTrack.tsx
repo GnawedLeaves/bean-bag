@@ -99,7 +99,7 @@ const SpotifyTrackPage = () => {
   const [localSongCounter, setLocalSongCounter] = useState<number>(0);
 
   const handleGetTrackDetails = async () => {
-    if (currentPlaying) {
+    if (currentPlaying && trackId === currentPlaying.item.id) {
       setTrackDetails(currentPlaying.item);
       setCurrentlyPlayingDetails(currentPlaying);
       setLocalSongCounter(currentPlaying.progress_ms);
