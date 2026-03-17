@@ -41,6 +41,7 @@ interface UserContextType {
   loading: boolean;
   getUserContextData: () => void;
   setSpotifyToken: Dispatch<SetStateAction<SpotifyAuthToken | null>>;
+  disconnectSpotify: () => void;
 }
 
 const UserContext = createContext<UserContextType>({
@@ -50,6 +51,7 @@ const UserContext = createContext<UserContextType>({
   loading: true,
   getUserContextData: () => {},
   setSpotifyToken: () => {},
+  disconnectSpotify: () => {},
 });
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -178,6 +180,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     processSpotifyAuth(code);
   }, []);
 
+  const disconnectSpotify = () => {
+    localStorage.removeItem("spotify_access_token");
+    localStorage.removeItem("spotify_refresh_token");
+    localStorage.removeItem("spotify_token_expiry");
+    setSpotifyToken(null);
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -187,6 +196,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         loading,
         getUserContextData,
         setSpotifyToken,
+        disconnectSpotify,
       }}
     >
       {children}

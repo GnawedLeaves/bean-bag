@@ -25,7 +25,6 @@ import { useUser } from "../../contexts/UserContext";
 import { auth, db } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
 import {
-  disconnectSpotify,
   getMultipleSpotifyAlbums,
   getMultipleSpotifyArtists,
   getMultipleSpotifyTracks,
@@ -79,7 +78,7 @@ import {
 import { useCurrentTrack } from "./utils/useCurrentTrack";
 
 const SpotifyPage = () => {
-  const { user, userPartner, spotifyToken, loading, setSpotifyToken } =
+  const { user, userPartner, spotifyToken, loading, disconnectSpotify } =
     useUser();
   const handleConnectSpotify = () => {
     window.location.href = getSpotifyAuthUrl();

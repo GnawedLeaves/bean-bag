@@ -302,9 +302,3 @@ export const getValidAccessToken = async (): Promise<string> => {
 
   return token;
 };
-
-export const disconnectSpotify = () => {
-  localStorage.removeItem("spotify_access_token");
-  localStorage.removeItem("spotify_refresh_token");
-  localStorage.removeItem("spotify_token_expiry");
-};
