@@ -83,6 +83,8 @@ app.post('/hygraph-webhook', async (req, res) => {
     });
 
     await Promise.all(notifications);
+    console.log("hygraph notifs sent!!")
+
     res.status(200).json({ message: 'Notifications processed' });
   } catch (err) {
     console.error('Webhook error:', err);
@@ -119,6 +121,7 @@ app.post('/test-send-notification', async (req, res) => {
     });
 
     await Promise.all(promises);
+    console.log("test notifs sent!!")
     res.json({ message: 'Notifications processed!' });
 
   } catch (err) {
