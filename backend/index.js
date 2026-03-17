@@ -54,7 +54,7 @@ app.post('/subscribe', async (req, res) => {
 app.post('/hygraph-webhook', async (req, res) => {
 
   //check header for secret
-  const secret = req.headers['HygraphSecret'];
+  const secret = req.headers['hygraphsecret'];
   if (secret !== process.env.HYGRAPH_WEBHOOK_SECRET) {
     console.error("Unauthorized webhook attempt blocked.");
     return res.status(401).send('Unauthorizedd!!!!');
