@@ -539,7 +539,7 @@ const SpotifyPage = () => {
                 >
                   Connect Spotify
                 </SpotifySearchButton>
-              ) : currentPlaying?.item ? (
+              ) : currentPlaying?.is_playing && currentPlaying.item ? (
                 <div>
                   <img
                     src={currentPlaying.item.album.images[0]?.url}
