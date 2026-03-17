@@ -67,7 +67,7 @@ app.post('/hygraph-webhook', async (req, res) => {
     const notificationPayload = JSON.stringify({
       title: 'New Bean!',
       body: `${data.username || 'Someone'} just added a new bean entry!`,
-      url: `/spotify/track/${data.spotifyId}`
+      url: `/blogs`
     });
 
     const snapshot = await db.collection('push_subscriptions').get();
@@ -100,7 +100,6 @@ app.post('/test-send-notification', async (req, res) => {
       url: '/dashboard'
     });
 
-    // 1. Fetch the actual subscriptions from Firestore
     const snapshot = await db.collection('anniAppPushSubscriptions').get();
     
     if (snapshot.empty) {
@@ -109,12 +108,10 @@ app.post('/test-send-notification', async (req, res) => {
 
     const promises = snapshot.docs.map(doc => {
       const sub = doc.data();
-      // Ensure the sub object has endpoint, keys, etc.
       return webpush.sendNotification(sub, notificationPayload)
         .catch(async (err) => {
           console.error("Error sending to endpoint:", sub.endpoint, err);
           if (err.statusCode === 404 || err.statusCode === 410) {
-            // Delete the expired token from Firestore
             await db.collection('anniAppPushSubscriptions').doc(doc.id).delete();
           }
         });
