@@ -22,7 +22,9 @@ app.get("/", async (req,res) => {
     message: "Server is very healthy",
     timestamp: new Date().toISOString(),
     uptime: process.uptime() + "s" 
+
   });
+
 })
 
 // --- ENDPOINT: SAVE SUBSCRIPTION TO FIRESTORE ---
@@ -55,7 +57,7 @@ app.post('/hygraph-webhook', async (req, res) => {
   const secret = req.headers['HygraphSecret'];
   if (secret !== process.env.HYGRAPH_WEBHOOK_SECRET) {
     console.error("Unauthorized webhook attempt blocked.");
-    return res.status(401).send('Unauthorized');
+    return res.status(401).send('Unauthorizedd!!!!');
   }
   const { data, operation } = req.body;
 
