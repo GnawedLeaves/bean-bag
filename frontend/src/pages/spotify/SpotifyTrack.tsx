@@ -406,10 +406,12 @@ const SpotifyTrackPage = () => {
                 trackDuration={
                   convertMsToSeconds(trackDetails?.duration_ms) || 60
                 }
-                progressPercentage={calculateProgressPercentage(
-                  localSongCounter,
-                  trackDetails?.duration_ms,
-                )}
+                progressPercentage={
+                  calculateProgressPercentage(
+                    localSongCounter,
+                    trackDetails?.duration_ms,
+                  ) ?? 8
+                }
                 isPlaying={currentPlaying?.is_playing ?? false}
               />
             </SpotifyBarContainer>

@@ -269,20 +269,17 @@ const ProfilePage = ({}: ProfilePageProps) => {
       </Flex>
 
       <Flex vertical gap={32} align="center">
-        {showAskNotfis ? (
-          isFetchingLoading ? (
-            <CustomSpin />
-          ) : (
-            <NotifButton
-              onClick={() => {
-                handlePushTest();
-              }}
-            >
-              Enable notifications
-            </NotifButton>
-          )
+        {!showAskNotfis && <> Notifications enabled!</>}
+        {isFetchingLoading ? (
+          <CustomSpin />
         ) : (
-          <> Notifications enabled!</>
+          <NotifButton
+            onClick={() => {
+              handlePushTest();
+            }}
+          >
+            Enable notifications
+          </NotifButton>
         )}
 
         <ProfileButton
