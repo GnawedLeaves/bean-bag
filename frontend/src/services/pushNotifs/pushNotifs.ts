@@ -45,7 +45,6 @@ export const subscribePushNotifs = async (userId: string) => {
     console.log("Successfully subscribed to push notifications!");
   } catch (error) {
     console.error("Subscription failed:", error);
-    return error;
     throw error;
   }
 };
