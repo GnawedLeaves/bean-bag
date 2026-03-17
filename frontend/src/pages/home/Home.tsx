@@ -329,17 +329,21 @@ const Home: React.FC = () => {
     "idle" | "loading" | "success" | "error"
   >("idle");
 
+  const [subError, setSubError] = useState<string>("");
   const handlePushTest = async () => {
     if (!user?.id) return alert("No user ID found");
 
     setSubStatus("loading");
+    setSubError("");
     try {
-      await subscribePushNotifs(user.id);
+      const res = await subscribePushNotifs(user.id);
       setSubStatus("success");
-      // Reset to idle after 3 seconds to show it's done
       setTimeout(() => setSubStatus("idle"), 3000);
     } catch (error) {
       setSubStatus("error");
+      setSubError(
+        error instanceof Error ? error.message : "Unknown error occurred",
+      );
       console.error("Subscription failed", error);
     }
   };
@@ -403,6 +407,22 @@ const Home: React.FC = () => {
               </HomeStatsBigCardDate>
             </Flex>
           </HomeStatsBigCard>
+          <Flex>
+            {subStatus === "error" && subError && (
+              <div
+                style={{
+                  color: "#ff4d4f",
+                  fontSize: "12px",
+                  padding: "8px",
+                  backgroundColor: "#fff1f0",
+                  borderRadius: "4px",
+                  textAlign: "center",
+                }}
+              >
+                {subError}
+              </div>
+            )}
+          </Flex>
           <HomeStatsCard
             background={subStatus === "success" ? "#52c41a" : token.colorBgBlue}
             onClick={handlePushTest}

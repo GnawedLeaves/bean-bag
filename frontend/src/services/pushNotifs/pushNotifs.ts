@@ -1,5 +1,6 @@
 const VAPID_PUBLIC_KEY = process.env.REACT_APP_VAPID_PUBLIC_KEY || "";
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL =
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
 export function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -44,6 +45,7 @@ export const subscribePushNotifs = async (userId: string) => {
     console.log("Successfully subscribed to push notifications!");
   } catch (error) {
     console.error("Subscription failed:", error);
+    return error;
     throw error;
   }
 };
