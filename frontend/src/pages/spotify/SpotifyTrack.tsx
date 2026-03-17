@@ -410,6 +410,7 @@ const SpotifyTrackPage = () => {
                   localSongCounter,
                   trackDetails?.duration_ms,
                 )}
+                isPlaying={currentPlaying?.is_playing ?? false}
               />
             </SpotifyBarContainer>
           </BarBigContainer>

@@ -233,6 +233,7 @@ const gradientAnimation = keyframes`
 export const SpotifyBarInnerContainer = styled.div<{
   trackDuration: number;
   progressPercentage: number;
+  isPlaying: boolean;
 }>`
   border: 2px solid ${(props) => props.theme.borderColor};
   border-radius: ${(props) => props.theme.borderRadius}px;
@@ -247,7 +248,8 @@ export const SpotifyBarInnerContainer = styled.div<{
   background-size: 200% 100%;
   height: 30px;
   width: ${(props) => props.progressPercentage}%;
-  animation: ${gradientAnimation} 5s ease-in-out infinite;
+  animation: ${(props) => props.isPlaying && gradientAnimation} 5s ease-in-out
+    infinite;
   transition: width 0.1s linear;
 `;
 
