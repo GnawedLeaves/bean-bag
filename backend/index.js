@@ -109,11 +109,19 @@ app.post('/hygraph-webhook', async (req, res) => {
       return res.status(404).json({ message: 'Blog entry not found' });
     }
 
-    
+    console.log({blogEntry})
+
+    // Get the first image URL if available
+    const iconUrl = blogEntry.images && blogEntry.images.length > 0 
+      ? blogEntry.images[0].url 
+      : undefined;
+
     const notificationPayload = JSON.stringify({
-      title: 'New Bean!',
+      title: 'New Bean! yee',
       body: blogEntry.title || 'Someone just added a new bean entry!',
-      url: `/blogs`
+      icon: iconUrl, // Add custom icon
+      badge: iconUrl, // Badge icon for smaller displays
+      url: `/blogs/${blogId}`
     });
 
     const snapshot = await db.collection('anniAppPushSubscriptions').get();
@@ -134,13 +142,14 @@ app.post('/hygraph-webhook', async (req, res) => {
     });
 
     await Promise.all(notifications);
-    console.log("hygraph notifs sent!!");
+    console.log("hygraph notifs sent!!", blogEntry.title);
     res.status(200).json({ message: 'hygraph notifications processed' });
   } catch (err) {
     console.error('Webhook error:', err);
     res.status(500).send('Internal Server Error');
   }
 });
+// ...existing code...
 
 app.post('/test-send-notification', async (req, res) => {
   try {
