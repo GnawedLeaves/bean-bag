@@ -210,7 +210,7 @@ export const getMultipleSpotifyAlbums = async (
 };
 
 // Add this to your services/spotify/spotify.ts
-const REDIRECT_URI = "https://localhost:3000/spotify"; // Must match dashboard
+const REDIRECT_URI = "https://tnmanniapp.netlify.app/spotify";
 const SCOPES = ["user-read-currently-playing", "user-read-playback-state"];
 
 export const getSpotifyAuthUrl = () => {
