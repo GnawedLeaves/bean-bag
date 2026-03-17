@@ -17,8 +17,8 @@ webpush.setVapidDetails(
   process.env.PRIVATE_VAPID_KEY
 );
 
-const HYGRAPH_API_URL = process.env.REACT_APP_HYGRAPH_API_URL || '';
-const HYGRAPH_API_KEY = process.env.REACT_APP_HYGRAPH_API_KEY || '';
+const HYGRAPH_API_KEY = process.env.HYGRAPH_API_KEY || '';
+const HYGRAPH_API_URL = process.env.HYGRAPH_API_URL || '';
 
 // Function to fetch blog entry by ID from Hygraph
 const getBlogEntryById = async (blogId) => {
@@ -117,7 +117,7 @@ app.post('/hygraph-webhook', async (req, res) => {
       : undefined;
 
     const notificationPayload = JSON.stringify({
-      title: 'New Bean! yee',
+      title: 'New Bean!',
       body: blogEntry.title || 'Someone just added a new bean entry!',
       icon: iconUrl, // Add custom icon
       badge: iconUrl, // Badge icon for smaller displays
