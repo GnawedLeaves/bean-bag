@@ -35,6 +35,7 @@ import {
   getSpotifyAuthUrl,
   getSpotifyPlaylist,
   getSpotifyTrack,
+  getValidAccessToken,
 } from "../../services/spotify/spotify";
 import { token } from "../../theme";
 import {
@@ -108,7 +109,13 @@ const SpotifyPage = () => {
     const processAuth = async (authCode: string) => {
       try {
         const tokenData = await exchangeCodeForToken(authCode);
-
+        localStorage.setItem("spotify_access_token", tokenData.access_token);
+        localStorage.setItem("spotify_refresh_token", tokenData.refresh_token);
+        localStorage.setItem(
+          "spotify_token_expiry",
+          String(Date.now() + tokenData.expires_in * 1000),
+        );
+        setAccessToken(tokenData.access_token);
         setSpotifyToken({
           accessToken: tokenData.access_token,
           refreshToken: tokenData.refresh_token,
@@ -129,6 +136,55 @@ const SpotifyPage = () => {
       detectCurrentSong(spotifyToken.accessToken);
     }
   }, [spotifyToken?.accessToken]);
+
+  const [accessToken, setAccessToken] = useState<string | null>(
+    localStorage.getItem("spotify_access_token"),
+  );
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+
+    if (code && !accessToken) {
+      exchangeCodeForToken(code).then((data) => {
+        localStorage.setItem("spotify_access_token", data.access_token);
+        localStorage.setItem("spotify_refresh_token", data.refresh_token);
+        setAccessToken(data.access_token);
+        window.history.replaceState({}, "", "/spotify");
+      });
+    }
+  }, []);
+
+  const [currentTrack, setCurrentTrack] = useState<any>(null);
+
+  useEffect(() => {
+    if (!accessToken) return;
+
+    const fetchNowPlaying = async () => {
+      try {
+        const token = await getValidAccessToken(); // always fresh
+        const data = await getCurrentlyPlaying(token);
+        if (data?.item) {
+          setCurrentTrack(data.item);
+        } else {
+          setCurrentTrack(null);
+        }
+      } catch (err: any) {
+        if (err.response?.status === 401) {
+          // Token refresh itself failed — user needs to re-authenticate
+          localStorage.removeItem("spotify_access_token");
+          localStorage.removeItem("spotify_refresh_token");
+          localStorage.removeItem("spotify_token_expiry");
+          setAccessToken(null); // triggers the "Connect Spotify" button to reappear
+        }
+      }
+    };
+
+    fetchNowPlaying(); // Run immediately on load
+    const interval = setInterval(fetchNowPlaying, 10_000);
+    return () => clearInterval(interval);
+  }, [accessToken]);
+
   const navigate = useNavigate();
   const [inputTrackLink, setInputTrackLink] = useState<string>("");
   const [inputTrackId, setInputTrackId] = useState<string | null>("");
@@ -569,13 +625,33 @@ const SpotifyPage = () => {
 
           <SpotifyMainBodyContainer>
             <Flex>
-              <SpotifySearchButton
-                onClick={() => {
-                  handleConnectSpotify();
-                }}
-              >
-                Connect Spotify
-              </SpotifySearchButton>
+              {!accessToken ? (
+                <SpotifySearchButton
+                  onClick={() => {
+                    handleConnectSpotify();
+                  }}
+                >
+                  Connect Spotify
+                </SpotifySearchButton>
+              ) : currentTrack ? (
+                <div>
+                  <img
+                    src={currentTrack.album.images[0]?.url}
+                    alt="album art"
+                    width={80}
+                  />
+                  <p>
+                    {currentTrack.name} — {currentTrack.artists[0].name}
+                  </p>
+                  <button
+                    onClick={() => navigate(`/rate/track/${currentTrack.id}`)}
+                  >
+                    Rate this track →
+                  </button>
+                </div>
+              ) : (
+                <p>Nothing playing right now.</p>
+              )}
             </Flex>
             <SpotifySearchContainer>
               <SpotifySearchTitle>Search</SpotifySearchTitle>

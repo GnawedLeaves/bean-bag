@@ -263,3 +263,42 @@ export const getCurrentlyPlaying = async (accessToken: string) => {
     return null;
   }
 };
+
+export const refreshAccessToken = async () => {
+  const refreshToken = localStorage.getItem("spotify_refresh_token");
+  if (!refreshToken) throw new Error("No refresh token");
+
+  const params = new URLSearchParams();
+  params.append("grant_type", "refresh_token");
+  params.append("refresh_token", refreshToken);
+
+  const basicAuth = btoa(`${clientId}:${clientSecret}`);
+  const response = await axios.post(
+    "https://accounts.spotify.com/api/token",
+    params,
+    {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${basicAuth}`,
+      },
+    },
+  );
+
+  const newToken = response.data.access_token;
+  localStorage.setItem("spotify_access_token", newToken);
+  return newToken;
+};
+
+export const getValidAccessToken = async (): Promise<string> => {
+  const token = localStorage.getItem("spotify_access_token");
+  const expiry = Number(localStorage.getItem("spotify_token_expiry"));
+
+  // Refresh 60 seconds early so a token never expires mid-request
+  const isExpiredOrExpiringSoon = !expiry || Date.now() > expiry - 60_000;
+
+  if (!token || isExpiredOrExpiringSoon) {
+    return await refreshAccessToken();
+  }
+
+  return token;
+};
