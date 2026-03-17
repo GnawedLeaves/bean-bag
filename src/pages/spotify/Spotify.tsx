@@ -25,11 +25,14 @@ import { useUser } from "../../contexts/UserContext";
 import { auth, db } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
 import {
+  exchangeCodeForToken,
+  getCurrentlyPlaying,
   getMultipleSpotifyAlbums,
   getMultipleSpotifyArtists,
   getMultipleSpotifyTracks,
   getSpotifyAlbum,
   getSpotifyArtist,
+  getSpotifyAuthUrl,
   getSpotifyPlaylist,
   getSpotifyTrack,
 } from "../../services/spotify/spotify";
@@ -75,7 +78,57 @@ import {
 } from "./SpotifyStyles";
 
 const SpotifyPage = () => {
-  const { user, userPartner, spotifyToken, loading } = useUser();
+  const { user, userPartner, spotifyToken, loading, setSpotifyToken } =
+    useUser();
+  // 1. Trigger the Spotify Login
+  const handleConnectSpotify = () => {
+    window.location.href = getSpotifyAuthUrl();
+  };
+
+  // 2. Logic to sense the track and navigate
+  const detectCurrentSong = async (accessToken: string) => {
+    try {
+      const playback = await getCurrentlyPlaying(accessToken);
+      if (playback && playback.item) {
+        const trackId = playback.item.id;
+        // Automatically jump to the rating page for the active song
+        navigate(ROUTES.SPOTIFY_TRACK.path.replace(":trackId", trackId));
+      } else {
+        console.log("No active playback detected.");
+      }
+    } catch (err) {
+      console.error("Failed to detect playback", err);
+    }
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+
+    const processAuth = async (authCode: string) => {
+      try {
+        const tokenData = await exchangeCodeForToken(authCode);
+
+        setSpotifyToken({
+          accessToken: tokenData.access_token,
+          refreshToken: tokenData.refresh_token,
+          expiresIn: tokenData.expires_in,
+        });
+
+        window.history.replaceState({}, document.title, "/spotify");
+
+        await detectCurrentSong(tokenData.access_token);
+      } catch (err) {
+        console.error("Auth exchange failed", err);
+      }
+    };
+
+    if (code) {
+      processAuth(code);
+    } else if (spotifyToken?.accessToken) {
+      detectCurrentSong(spotifyToken.accessToken);
+    }
+  }, [spotifyToken?.accessToken]);
   const navigate = useNavigate();
   const [inputTrackLink, setInputTrackLink] = useState<string>("");
   const [inputTrackId, setInputTrackId] = useState<string | null>("");
@@ -516,7 +569,11 @@ const SpotifyPage = () => {
 
           <SpotifyMainBodyContainer>
             <Flex>
-              <SpotifySearchButton onClick={() => {}}>
+              <SpotifySearchButton
+                onClick={() => {
+                  handleConnectSpotify();
+                }}
+              >
                 Connect Spotify
               </SpotifySearchButton>
             </Flex>

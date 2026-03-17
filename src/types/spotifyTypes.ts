@@ -3,6 +3,7 @@ import { Timestamp } from "firebase/firestore";
 export interface SpotifyAuthToken {
   accessToken: string;
   expiresIn: number;
+  refreshToken?: string;
 }
 
 export interface SpotifyArtist {

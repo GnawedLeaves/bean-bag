@@ -6,10 +6,12 @@ import {
   SpotifyTrack,
 } from "../../types/spotifyTypes";
 
+const clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID!;
+const clientSecret = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET!;
 export const getSpotifyArtist = async (
   artistId: string,
   token: string,
-  fullUrl?: string
+  fullUrl?: string,
 ): Promise<SpotifyArtist> => {
   if (!token) throw new Error("Authentication token is required");
   const res = await fetch(
@@ -18,7 +20,7 @@ export const getSpotifyArtist = async (
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   if (!res.ok) {
@@ -32,7 +34,7 @@ export const getSpotifyArtist = async (
 export const getSpotifyTrack = async (
   trackId: string,
   token: string,
-  fullUrl?: string
+  fullUrl?: string,
 ): Promise<SpotifyTrack> => {
   if (!token) throw new Error("Authentication token is required");
   const res = await fetch(
@@ -41,7 +43,7 @@ export const getSpotifyTrack = async (
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   if (!res.ok) {
@@ -55,13 +57,13 @@ export const getSpotifyTrack = async (
 export const getMultipleSpotifyTracks = async (
   trackIds: string[],
   token: string,
-  fullUrl?: string
+  fullUrl?: string,
 ): Promise<SpotifyTrack[]> => {
   if (!trackIds.length) return [];
 
   const idsParam = trackIds.join(",");
   const url = `https://api.spotify.com/v1/tracks?ids=${encodeURIComponent(
-    idsParam
+    idsParam,
   )}`;
 
   const response = await axios.get(url, {
@@ -76,7 +78,7 @@ export const getMultipleSpotifyTracks = async (
 export const getSpotifyAlbum = async (
   albumId: string,
   token: string,
-  fullUrl?: string
+  fullUrl?: string,
 ): Promise<SpotifyAlbum> => {
   if (!token) throw new Error("Authentication token is required");
   const res = await fetch(
@@ -85,7 +87,7 @@ export const getSpotifyAlbum = async (
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   if (!res.ok) {
@@ -98,7 +100,7 @@ export const getSpotifyAlbum = async (
 export const getSpotifyPlaylist = async (
   playlistId: string,
   token: string,
-  fullUrl?: string
+  fullUrl?: string,
 ): Promise<SpotifyPlaylist> => {
   if (!token) throw new Error("Authentication token is required");
   const res = await fetch(
@@ -107,7 +109,7 @@ export const getSpotifyPlaylist = async (
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   if (!res.ok) {
@@ -121,7 +123,7 @@ export const getSpotifyPlaylist = async (
 export const getSpotifyArtistAlbums = async (
   artistId: string,
   token: string,
-  fullUrl?: string
+  fullUrl?: string,
 ): Promise<SpotifyAlbum[]> => {
   if (!token) throw new Error("Authentication token is required");
   const res = await fetch(
@@ -130,7 +132,7 @@ export const getSpotifyArtistAlbums = async (
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   if (!res.ok) {
@@ -144,7 +146,7 @@ export const getSpotifyArtistAlbums = async (
 export const getSpotifyArtistTopTracks = async (
   artistId: string,
   token: string,
-  fullUrl?: string
+  fullUrl?: string,
 ): Promise<SpotifyTrack[]> => {
   if (!token) throw new Error("Authentication token is required");
   const res = await fetch(
@@ -154,7 +156,7 @@ export const getSpotifyArtistTopTracks = async (
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   if (!res.ok) {
@@ -168,13 +170,13 @@ export const getSpotifyArtistTopTracks = async (
 export const getMultipleSpotifyArtists = async (
   artistIds: string[],
   token: string,
-  fullUrl?: string
+  fullUrl?: string,
 ): Promise<SpotifyArtist[]> => {
   if (!artistIds.length) return [];
 
   const idsParam = artistIds.join(",");
   const url = `https://api.spotify.com/v1/artists?ids=${encodeURIComponent(
-    idsParam
+    idsParam,
   )}`;
 
   const response = await axios.get(url, {
@@ -189,13 +191,13 @@ export const getMultipleSpotifyArtists = async (
 export const getMultipleSpotifyAlbums = async (
   albumIds: string[],
   token: string,
-  fullUrl?: string
+  fullUrl?: string,
 ): Promise<SpotifyAlbum[]> => {
   if (!albumIds.length) return [];
 
   const idsParam = albumIds.join(",");
   const url = `https://api.spotify.com/v1/albums?ids=${encodeURIComponent(
-    idsParam
+    idsParam,
   )}`;
 
   const response = await axios.get(url, {
@@ -205,4 +207,59 @@ export const getMultipleSpotifyAlbums = async (
   });
 
   return response.data.albums;
+};
+
+// Add this to your services/spotify/spotify.ts
+const REDIRECT_URI = "https://localhost:3000/spotify"; // Must match dashboard
+const SCOPES = ["user-read-currently-playing", "user-read-playback-state"];
+
+export const getSpotifyAuthUrl = () => {
+  const queryParams = new URLSearchParams({
+    client_id: clientId,
+    response_type: "code",
+    redirect_uri: REDIRECT_URI,
+    scope: SCOPES.join(" "),
+    show_dialog: "true",
+  });
+  return `https://accounts.spotify.com/authorize?${queryParams.toString()}`;
+};
+
+// In services/spotify/spotify.ts
+export const exchangeCodeForToken = async (code: string) => {
+  const params = new URLSearchParams();
+  params.append("grant_type", "authorization_code");
+  params.append("code", code);
+  params.append("redirect_uri", REDIRECT_URI);
+
+  const basicAuth = btoa(`${clientId}:${clientSecret}`);
+
+  const response = await axios.post(
+    "https://accounts.spotify.com/api/token",
+    params,
+    {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${basicAuth}`,
+      },
+    },
+  );
+  return response.data; // This returns access_token and refresh_token
+};
+
+// In services/spotify/spotify.ts
+export const getCurrentlyPlaying = async (accessToken: string) => {
+  try {
+    const response = await axios.get(
+      "https://api.spotify.com/v1/me/player/currently-playing",
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+
+    if (response.status === 204 || !response.data) return null;
+    return response.data; // Contains the track object
+  } catch (error) {
+    console.error("Error fetching playback", error);
+    return null;
+  }
 };

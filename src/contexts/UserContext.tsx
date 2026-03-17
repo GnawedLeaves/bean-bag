@@ -1,4 +1,3 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import {
   collection,
@@ -11,11 +10,18 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import React, {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { auth, db } from "../firebase/firebase";
-import { SpotifyAuthToken } from "../types/spotifyTypes";
-import { getSpotifyAuthToken } from "../services/spotify/authSpotify";
 import { useLocationHook } from "../hooks/useLocation";
-import e from "express";
+import { getSpotifyAuthToken } from "../services/spotify/authSpotify";
+import { SpotifyAuthToken } from "../types/spotifyTypes";
 
 interface UserData {
   id: string;
@@ -34,6 +40,7 @@ interface UserContextType {
   spotifyToken: SpotifyAuthToken | null;
   loading: boolean;
   getUserContextData: () => void;
+  setSpotifyToken: Dispatch<SetStateAction<SpotifyAuthToken | null>>;
 }
 
 const UserContext = createContext<UserContextType>({
@@ -42,6 +49,7 @@ const UserContext = createContext<UserContextType>({
   spotifyToken: null,
   loading: true,
   getUserContextData: () => {},
+  setSpotifyToken: () => {},
 });
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -55,7 +63,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<UserData | null>(null);
   const [userPartner, setUserPartner] = useState<UserData | null>(null);
   const [spotifyToken, setSpotifyToken] = useState<SpotifyAuthToken | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [flag, setFlag] = useState(false);
@@ -67,7 +75,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         try {
           const q = query(
             collection(db, "anniAppUsers"),
-            where("authId", "==", firebaseUser.uid)
+            where("authId", "==", firebaseUser.uid),
           );
           const querySnapshot = await getDocs(q);
           if (!querySnapshot.empty) {
@@ -87,7 +95,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
             } else {
               console.error(
                 "No such document with partnerId:",
-                userData.partnerId
+                userData.partnerId,
               );
             }
           }
@@ -139,7 +147,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <UserContext.Provider
-      value={{ user, userPartner, spotifyToken, loading, getUserContextData }}
+      value={{
+        user,
+        userPartner,
+        spotifyToken,
+        loading,
+        getUserContextData,
+        setSpotifyToken,
+      }}
     >
       {children}
     </UserContext.Provider>
