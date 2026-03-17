@@ -3,6 +3,7 @@ const express = require('express');
 const webpush = require('web-push');
 const cors = require('cors');
 const admin = require('firebase-admin');
+const { request } = require('graphql-request');
 
 const { db } = require('./service/firebaseAdmin');
 
@@ -16,16 +17,54 @@ webpush.setVapidDetails(
   process.env.PRIVATE_VAPID_KEY
 );
 
+const HYGRAPH_API_URL = process.env.REACT_APP_HYGRAPH_API_URL || '';
+const HYGRAPH_API_KEY = process.env.REACT_APP_HYGRAPH_API_KEY || '';
+
+// Function to fetch blog entry by ID from Hygraph
+const getBlogEntryById = async (blogId) => {
+  const query = `
+    query GetBlogEntry($id: ID!) {
+      blogEntry(where: { id: $id }) {
+        id
+        title
+        content
+        timestamp
+        images {
+          url
+          fileName
+        }
+        location {
+          latitude
+          longitude
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await request(
+      HYGRAPH_API_URL,
+      query,
+      { id: blogId },
+      {
+        Authorization: `Bearer ${HYGRAPH_API_KEY}`,
+      }
+    );
+    return data.blogEntry;
+  } catch (error) {
+    console.error('Error fetching blog entry from Hygraph:', error);
+    throw error;
+  }
+};
+
 app.get("/", async (req, res) => {
   res.status(200).json({
     status: "success",
     message: "Server is very healthy",
     timestamp: new Date().toISOString(),
     uptime: process.uptime() + "s"
-
   });
-
-})
+});
 
 // --- ENDPOINT: SAVE SUBSCRIPTION TO FIRESTORE ---
 app.post('/subscribe', async (req, res) => {
@@ -35,7 +74,6 @@ app.post('/subscribe', async (req, res) => {
     const snapshot = await db.collection('anniAppPushSubscriptions')
       .where('endpoint', '==', subscription.endpoint)
       .get();
-
 
     if (snapshot.empty) {
       await db.collection('anniAppPushSubscriptions').add({
@@ -52,24 +90,30 @@ app.post('/subscribe', async (req, res) => {
 
 // --- ENDPOINT: HYGRAPH WEBHOOK ---
 app.post('/hygraph-webhook', async (req, res) => {
-
   //check header for secret
   const secret = req.headers['hygraphsecret'];
   if (secret !== process.env.HYGRAPH_WEBHOOK_SECRET) {
     console.error("Unauthorized webhook attempt blocked.");
     return res.status(401).send('Unauthorizedd!!!!');
   }
-  const { data, operation } = req.body;
 
-  const blogId = data.id ?? ""
+  const { data, operation } = req.body;
+  const blogId = data.id ?? "";
 
   if (operation !== 'publish') return res.status(200).send('No action');
 
   try {
+    const blogEntry = await getBlogEntryById(blogId);
+
+    if (!blogEntry) {
+      return res.status(404).json({ message: 'Blog entry not found' });
+    }
+
+    
     const notificationPayload = JSON.stringify({
       title: 'New Bean!',
-      body: `Someone just added a new bean entry!`,
-      url: `/blogs/${blogId}`
+      body: blogEntry.title || 'Someone just added a new bean entry!',
+      url: `/blogs`
     });
 
     const snapshot = await db.collection('anniAppPushSubscriptions').get();
@@ -82,6 +126,7 @@ app.post('/hygraph-webhook', async (req, res) => {
       const sub = doc.data();
       return webpush.sendNotification(sub, notificationPayload)
         .catch(async (err) => {
+          console.error('Error sending notification:', err);
           if (err.statusCode === 404 || err.statusCode === 410) {
             await db.collection('anniAppPushSubscriptions').doc(doc.id).delete();
           }
@@ -89,7 +134,7 @@ app.post('/hygraph-webhook', async (req, res) => {
     });
 
     await Promise.all(notifications);
-    console.log("hygraph notifs sent!!")
+    console.log("hygraph notifs sent!!");
     res.status(200).json({ message: 'hygraph notifications processed' });
   } catch (err) {
     console.error('Webhook error:', err);
@@ -123,13 +168,13 @@ app.post('/test-send-notification', async (req, res) => {
     });
 
     await Promise.all(notifications);
-    console.log("test notifs sent!!")
+    console.log("test notifs sent!!");
     res.json({ message: 'test Notifications processed!' });
-
   } catch (err) {
     console.error("Server Crash Error:", err);
     res.status(500).json({ error: "Internal Server Error", details: err.message });
   }
 });
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
