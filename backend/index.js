@@ -19,24 +19,24 @@ webpush.setVapidDetails(
 app.get("/", async (req,res) => {
     res.status(200).json({
     status: "success",
-    message: "Server is healthy",
+    message: "Server is very healthy",
     timestamp: new Date().toISOString(),
-    uptime: process.uptime() + "s" // Tells you how long the server has been running
+    uptime: process.uptime() + "s" 
   });
 })
 
 // --- ENDPOINT: SAVE SUBSCRIPTION TO FIRESTORE ---
 app.post('/subscribe', async (req, res) => {
-  const { subscription, userId } = req.body; // Pass userId from FE
+  const { subscription, userId } = req.body; 
 
   try {
-    // Query to see if this endpoint already exists to avoid duplicates
-    const snapshot = await db.collection('push_subscriptions')
+    const snapshot = await db.collection('anniAppPushSubscriptions')
       .where('endpoint', '==', subscription.endpoint)
       .get();
 
+
     if (snapshot.empty) {
-      await db.collection('push_subscriptions').add({
+      await db.collection('anniAppPushSubscriptions').add({
         ...subscription,
         userId: userId || 'anonymous',
         createdAt: admin.firestore.FieldValue.serverTimestamp()
@@ -44,15 +44,21 @@ app.post('/subscribe', async (req, res) => {
     }
     res.status(201).json({ message: 'Subscribed successfully' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ "error when subscribing: ": err.message });
   }
 });
 
 // --- ENDPOINT: HYGRAPH WEBHOOK ---
 app.post('/hygraph-webhook', async (req, res) => {
+
+  //check header for secret
+  const secret = req.headers['HygraphSecret'];
+  if (secret !== process.env.HYGRAPH_WEBHOOK_SECRET) {
+    console.error("Unauthorized webhook attempt blocked.");
+    return res.status(401).send('Unauthorized');
+  }
   const { data, operation } = req.body;
 
-  // Only trigger on publish
   if (operation !== 'publish') return res.status(200).send('No action');
 
   try {
@@ -62,7 +68,6 @@ app.post('/hygraph-webhook', async (req, res) => {
       url: `/spotify/track/${data.spotifyId}`
     });
 
-    // Fetch ALL subscriptions from Firestore
     const snapshot = await db.collection('push_subscriptions').get();
     
     const notifications = snapshot.docs.map(doc => {
@@ -70,7 +75,6 @@ app.post('/hygraph-webhook', async (req, res) => {
       return webpush.sendNotification(sub, notificationPayload)
         .catch(async (err) => {
           if (err.statusCode === 404 || err.statusCode === 410) {
-            // Clean up expired subscriptions from Firebase
             await db.collection('push_subscriptions').doc(doc.id).delete();
           }
         });
@@ -84,5 +88,26 @@ app.post('/hygraph-webhook', async (req, res) => {
   }
 });
 
+app.post('/test-send-notification', (req, res) => {
+  const notificationPayload = JSON.stringify({
+    title: req.body.title || 'Default Title',
+    body: req.body.body || 'Default message body',
+    url: '/dashboard'
+  });
+  
+
+  const promises = subscriptions.map(sub => 
+    webpush.sendNotification(sub, notificationPayload)
+      .catch(err => {
+        console.error("Error sending to endpoint:", sub.endpoint, err);
+        // If the subscription is expired or invalid, remove it
+        if (err.statusCode === 404 || err.statusCode === 410) {
+          subscriptions = subscriptions.filter(s => s.endpoint !== sub.endpoint);
+        }
+      })
+  );
+
+  Promise.all(promises).then(() => res.json({ message: 'Notifications sent!' }));
+});
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
