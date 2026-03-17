@@ -531,7 +531,7 @@ const SpotifyPage = () => {
 
           <SpotifyMainBodyContainer>
             <Flex>
-              {!currentPlaying ? (
+              {!spotifyToken?.accessToken ? (
                 <SpotifySearchButton
                   onClick={() => {
                     handleConnectSpotify();
