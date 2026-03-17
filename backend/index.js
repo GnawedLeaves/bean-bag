@@ -121,7 +121,7 @@ app.post('/hygraph-webhook', async (req, res) => {
       body: blogEntry.title || 'Someone just added a new bean entry!',
       icon: iconUrl, // Add custom icon
       badge: iconUrl, // Badge icon for smaller displays
-      url: `/blogs/${blogId}`
+      url: `/blogs`
     });
 
     const snapshot = await db.collection('anniAppPushSubscriptions').get();
