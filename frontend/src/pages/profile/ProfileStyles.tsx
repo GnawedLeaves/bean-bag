@@ -28,6 +28,11 @@ export const ProfileButton = styled.div`
   background: ${(props) => props.theme.colorBgLightYellow};
 `;
 
+export const NotifButton = styled(ProfileButton)`
+  background: ${(props) => props.theme.colorBg};
+  width: 200px;
+`;
+
 export const ProfileHero = styled.div`
   font-size: ${(props) => props.theme.fontSizeHuge}px;
   font-weight: bold;

@@ -1,10 +1,7 @@
 import {
-  BellOutlined,
-  CheckCircleOutlined,
   DeleteOutlined,
   EyeOutlined,
   InfoCircleOutlined,
-  LoadingOutlined,
   RedoOutlined,
   ReloadOutlined,
   SignatureOutlined,
@@ -30,10 +27,10 @@ import { ROUTES } from "../../routes";
 import { getBlogEntries } from "../../services/hygraph";
 import { getAstronomyPictureOfTheDay } from "../../services/nasa";
 import { getFact } from "../../services/ninjaApi/fact";
-import { subscribePushNotifs } from "../../services/pushNotifs/pushNotifs";
 import { token } from "../../theme";
 import { NasaApodObject } from "../../types/nasaTypes";
 import { FactModel } from "../../types/ninjaApiTypes";
+import { UserSubscription } from "../../types/pushNotifsTypes";
 import { StreakModel } from "../../types/streakTypes";
 import {
   addLineBreaksAfterSentences,
@@ -74,7 +71,6 @@ import {
   StreakButton,
   StreakContainer,
 } from "./HomeStyles";
-import { UserSubscription } from "../../types/pushNotifsTypes";
 
 const Home: React.FC = () => {
   const { user, userPartner, spotifyToken, loading, getUserContextData } =
@@ -114,16 +110,6 @@ const Home: React.FC = () => {
     setGayLevel(percentage);
   };
 
-  const fetchPushNotifUsers = async () => {
-    const streaksRef = collection(db, "anniAppPushSubscriptions");
-    const snapshot = await getDocs(streaksRef);
-    const data = snapshot.docs
-      .map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as UserSubscription),
-      }))
-    setPushNotifUsers(data)
-  }
   const fetchRecentEntries = async () => {
     try {
       const results = await getBlogEntries();
@@ -284,7 +270,6 @@ const Home: React.FC = () => {
     getAPOD();
     handleGetFact();
     handleGetAllStreaks();
-    fetchPushNotifUsers()
   }, []);
 
   useEffect(() => {
@@ -303,16 +288,6 @@ const Home: React.FC = () => {
       setDistance(distance);
     }
   }, [user, userPartner]);
-
-  useEffect(() => {
-    if (user && pushNotifUsers) {
-      const res = pushNotifUsers.find((userSubscription) => userSubscription.userId === user.id);
-      if (!res) {
-        handlePushTest(user.id)
-      }
-    }
-  }
-    , [user, pushNotifUsers])
 
   const handleRefresh = () => {
     setIsSpinning(true);
@@ -346,18 +321,6 @@ const Home: React.FC = () => {
   const onShortCutClick = (navigateLink: string) => {
     if (navigateLink === "") return;
     navigate(navigateLink);
-  };
-
-
-  const handlePushTest = async (userId: string) => {
-
-    try {
-      console.log(`Testing push notifications for user: ${userId}`);
-      const res = await subscribePushNotifs(userId);
-    } catch (error) {
-
-      console.error("Subscription failed", error);
-    }
   };
 
   return (
@@ -419,18 +382,6 @@ const Home: React.FC = () => {
               </HomeStatsBigCardDate>
             </Flex>
           </HomeStatsBigCard>
-
-          <HomeStatsCard
-            onClick={() => {
-              if (user) {
-                handlePushTest(user.id)
-
-              }
-            }}
-            style={{ cursor: "pointer", transition: "all 0.3s" }}
-          >
-            Click to active
-          </HomeStatsCard>
           <HomeStatsCard background={token.colorBgGreen}>
             <HomeStatsCardNumber>{daysTogetherCount}</HomeStatsCardNumber>
             <HomeStatsCardDescription>days togther</HomeStatsCardDescription>

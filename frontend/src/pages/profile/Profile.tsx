@@ -12,8 +12,10 @@ import { useUser } from "../../contexts/UserContext";
 import { auth, db } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
 import { getAssetUrlById, uploadImages } from "../../services/hygraph";
+import { subscribePushNotifs } from "../../services/pushNotifs/pushNotifs";
 import { token } from "../../theme";
 import {
+  NotifButton,
   ProfileButton,
   ProfileDisplayName,
   ProfileDisplayPictureContainer,
@@ -141,6 +143,16 @@ const ProfilePage = ({}: ProfilePageProps) => {
     return <PageLoading />;
   }
 
+  const handlePushTest = async () => {
+    if (!user?.id) return;
+    try {
+      console.log(`Testing push notifications for user: ${user.id}`);
+      const res = await subscribePushNotifs(user.id);
+    } catch (error) {
+      console.error("Subscription failed", error);
+    }
+  };
+
   return (
     <ProfileMainContainer>
       <Flex
@@ -225,13 +237,23 @@ const ProfilePage = ({}: ProfilePageProps) => {
         )}
       </Flex>
 
-      <ProfileButton
-        onClick={() => {
-          handleSignOut();
-        }}
-      >
-        Sign Out
-      </ProfileButton>
+      <Flex vertical gap={32} align="center">
+        <NotifButton
+          onClick={() => {
+            handlePushTest();
+          }}
+        >
+          Enable notifications
+        </NotifButton>
+
+        <ProfileButton
+          onClick={() => {
+            handleSignOut();
+          }}
+        >
+          Sign Out
+        </ProfileButton>
+      </Flex>
     </ProfileMainContainer>
   );
 };
