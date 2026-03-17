@@ -1,10 +1,19 @@
 import { Flex, Input, message, Upload } from "antd";
 import { RcFile } from "antd/es/upload/interface";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, Timestamp, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  Timestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  CustomSpin,
   ImageLoading,
   PageLoading,
 } from "../../components/loading/LoadingStates";
@@ -32,16 +41,35 @@ const ProfilePage = ({}: ProfilePageProps) => {
   const { user, loading, getUserContextData } = useUser();
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingStatus, setIsEditingStatus] = useState(false);
+  const [showAskNotfis, setShowAskNotifs] = useState<boolean>(false);
 
   const [newName, setNewName] = useState(user?.name || "");
   const [newStatus, setNewStatus] = useState(user?.status || "");
 
   const [isUploading, setIsUploading] = useState(false);
+  const [isFetchingLoading, setIsFetchingLoading] = useState(false);
+
+  const fetchPushNotifsUsers = async () => {
+    if (!user) return;
+    try {
+      const q = query(
+        collection(db, "anniAppPushSubscriptions"),
+        where("userId", "==", user.id),
+      );
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        setShowAskNotifs(false);
+      } else {
+        setShowAskNotifs(true);
+      }
+    } catch (e) {}
+  };
 
   useEffect(() => {
     if (user) {
       setNewName(user.name);
       setNewStatus(user.status);
+      fetchPushNotifsUsers();
     }
   }, [user]);
 
@@ -145,9 +173,12 @@ const ProfilePage = ({}: ProfilePageProps) => {
 
   const handlePushTest = async () => {
     if (!user?.id) return;
+    setIsFetchingLoading(true);
     try {
       console.log(`Testing push notifications for user: ${user.id}`);
       const res = await subscribePushNotifs(user.id);
+      setIsFetchingLoading(false);
+      setShowAskNotifs(false);
     } catch (error) {
       console.error("Subscription failed", error);
     }
@@ -238,13 +269,21 @@ const ProfilePage = ({}: ProfilePageProps) => {
       </Flex>
 
       <Flex vertical gap={32} align="center">
-        <NotifButton
-          onClick={() => {
-            handlePushTest();
-          }}
-        >
-          Enable notifications
-        </NotifButton>
+        {showAskNotfis ? (
+          isFetchingLoading ? (
+            <CustomSpin />
+          ) : (
+            <NotifButton
+              onClick={() => {
+                handlePushTest();
+              }}
+            >
+              Enable notifications
+            </NotifButton>
+          )
+        ) : (
+          <> Notifications enabled!</>
+        )}
 
         <ProfileButton
           onClick={() => {

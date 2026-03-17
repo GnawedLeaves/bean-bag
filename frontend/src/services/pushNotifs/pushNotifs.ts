@@ -16,7 +16,9 @@ export function urlBase64ToUint8Array(base64String: string) {
 export const subscribePushNotifs = async (userId: string) => {
   try {
     if (!VAPID_PUBLIC_KEY) {
-      throw new Error("VAPID public key is not configured. Check REACT_APP_VAPID_PUBLIC_KEY environment variable.");
+      throw new Error(
+        "VAPID public key is not configured. Check REACT_APP_VAPID_PUBLIC_KEY environment variable.",
+      );
     }
 
     const registration = await navigator.serviceWorker.register("/sw.js", {
@@ -45,8 +47,11 @@ export const subscribePushNotifs = async (userId: string) => {
     });
 
     console.log("Successfully subscribed to push notifications!");
+    window.alert("Notifications enabled!");
   } catch (error) {
     console.error("Subscription failed:", error);
+    window.alert("Failed to enable notifications!");
+
     throw error;
   }
 };
