@@ -1,31 +1,48 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeftOutlined,
   CommentOutlined,
   ShareAltOutlined,
 } from "@ant-design/icons";
+import { faPlay } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Flex, Input, message, Rate, Spin } from "antd";
+import { BaseOptionType } from "antd/es/select";
+import { onAuthStateChanged } from "firebase/auth";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  Timestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import styled, { ThemeProvider } from "styled-components";
+import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
+import { useUser } from "../../contexts/UserContext";
+import { auth, db } from "../../firebase/firebase";
+import { ROUTES } from "../../routes";
+import { getSpotifyPlaylist } from "../../services/spotify/spotify";
+import { token } from "../../theme";
 import {
   SpotifyComment,
   SpotifyPlaylist,
   SpotifyReview,
 } from "../../types/spotifyTypes";
-import { useUser } from "../../contexts/UserContext";
 import {
-  getSpotifyArtist,
-  getSpotifyPlaylist,
-} from "../../services/spotify/spotify";
+  formatFirebaseDate,
+  formatMilliseconds,
+  scrollToTop,
+} from "../../utils/utils";
 import {
-  query,
-  collection,
-  where,
-  getDocs,
-  Timestamp,
-  addDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { auth, db } from "../../firebase/firebase";
-import { Flex, Input, message, Rate, Spin } from "antd";
+  ItemCard,
+  ItemImage,
+  ItemInfo,
+  ItemSubtitle,
+  ItemTitle,
+} from "./SpotifyArtist";
 import {
   CommentButton,
   CommentCard,
@@ -35,41 +52,15 @@ import {
   CommentCardName,
   SpoitfyTrackSubTitle,
   SpoitfyTrackTitle,
-  SpotifyAlbumContainer,
-  SpotifyAlbumPicture,
   SpotifyBackButton,
   SpotifyBigContainer,
   SpotifyBodyContainer,
   SpotifyFeaturedContainer,
-  SpotifyArtistImg,
   SpotifyRatingContainer,
   SpotifyRatingDisplay,
   SpotifyShareButton,
   SpotifyTrackPlayButton,
 } from "./SpotifyStyles";
-import {
-  formatFirebaseDate,
-  formatMilliseconds,
-  scrollToTop,
-} from "../../utils/utils";
-import { ThemeProvider } from "styled-components";
-import { token } from "../../theme";
-import { ROUTES } from "../../routes";
-import SpotifyDropdownComponent from "../../components/spotifyDropdown/SpotifyDropdown";
-import { BaseOptionType } from "antd/es/select";
-import styled from "styled-components";
-import {
-  ItemInfo,
-  ItemTitle,
-  ItemSubtitle,
-  ItemCard,
-  ItemImage,
-} from "./SpotifyArtist";
-import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
-import { faPlay } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { onAuthStateChanged } from "firebase/auth";
-import React from "react";
 
 const PlaylistInfoContainer = styled.div`
   display: flex;
@@ -195,7 +186,7 @@ const SpotifyPlaylistDetailsPage = () => {
     try {
       const response = await getSpotifyPlaylist(
         playlistId,
-        spotifyToken?.accessToken
+        spotifyToken?.accessToken,
       );
       setPlaylistDetails(response);
     } catch (error) {
@@ -209,7 +200,7 @@ const SpotifyPlaylistDetailsPage = () => {
     try {
       const reviewQuery = query(
         collection(db, "anniAppSpotifyReview"),
-        where("spotifyId", "==", spotifyId)
+        where("spotifyId", "==", spotifyId),
       );
       const reviewSnapshot = await getDocs(reviewQuery);
       const reviews = reviewSnapshot.docs.map((doc) => ({
@@ -219,7 +210,7 @@ const SpotifyPlaylistDetailsPage = () => {
 
       const commentQuery = query(
         collection(db, "anniAppSpotifyReviewComment"),
-        where("spotifyId", "==", spotifyId)
+        where("spotifyId", "==", spotifyId),
       );
       const commentSnapshot = await getDocs(commentQuery);
       const comments = commentSnapshot.docs.map((doc) => ({
@@ -284,11 +275,11 @@ const SpotifyPlaylistDetailsPage = () => {
       });
 
       const sortedReviewObjs = [...reviewsObjs].sort(
-        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
+        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis(),
       );
 
       const sortedCommentObjs = [...commentsObj].sort(
-        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
+        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis(),
       );
 
       setReviews(sortedReviewObjs);
@@ -328,7 +319,7 @@ const SpotifyPlaylistDetailsPage = () => {
       const reviewQuery = query(
         collection(db, "anniAppSpotifyReview"),
         where("spotifyId", "==", playlistId),
-        where("userId", "==", user.id)
+        where("userId", "==", user.id),
       );
 
       const querySnapshot = await getDocs(reviewQuery);
@@ -460,15 +451,15 @@ const SpotifyPlaylistDetailsPage = () => {
             </PlaylistInfoText>
           </PlaylistInfoContainer>
 
-          <SpotifyTrackPlayButton>
-            <a target="_blank" href={playlistDetails?.external_urls.spotify}>
+          <a target="_blank" href={playlistDetails?.external_urls.spotify}>
+            <SpotifyTrackPlayButton>
               <FontAwesomeIcon
                 icon={faPlay}
                 color={token.borderColor}
                 fontSize={32}
               />
-            </a>
-          </SpotifyTrackPlayButton>
+            </SpotifyTrackPlayButton>
+          </a>
 
           <Flex gap={8} vertical style={{ marginTop: 16 }}>
             <TrackListHeader>Rating</TrackListHeader>
@@ -529,7 +520,7 @@ const SpotifyPlaylistDetailsPage = () => {
                     <ItemTitle>{item.track.name}</ItemTitle>
                     <ItemSubtitle>
                       {item.track.artists.map((artist, i) =>
-                        i === 0 ? artist.name : ", " + artist.name
+                        i === 0 ? artist.name : ", " + artist.name,
                       )}{" "}
                       • {formatMilliseconds(item.track.duration_ms)}
                     </ItemSubtitle>

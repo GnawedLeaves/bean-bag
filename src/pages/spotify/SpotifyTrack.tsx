@@ -1,32 +1,48 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeftOutlined,
   CommentOutlined,
   ShareAltOutlined,
 } from "@ant-design/icons";
+import { faCompactDisc, faPlay } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Flex, Input, message, Rate } from "antd";
+import { BaseOptionType } from "antd/es/select";
+import { onAuthStateChanged } from "firebase/auth";
 import {
-  SpotifyComment,
-  SpotifyReview,
-  SpotifyTrack,
-} from "../../types/spotifyTypes";
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  Timestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ThemeProvider } from "styled-components";
+import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
+import SpotifyDropdownComponent from "../../components/spotifyDropdown/SpotifyDropdown";
 import { useUser } from "../../contexts/UserContext";
+import { auth, db } from "../../firebase/firebase";
+import { ROUTES } from "../../routes";
 import {
   getSpotifyAlbum,
   getSpotifyArtist,
   getSpotifyTrack,
 } from "../../services/spotify/spotify";
+import { token } from "../../theme";
 import {
-  query,
-  collection,
-  where,
-  getDocs,
-  Timestamp,
-  addDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { auth, db } from "../../firebase/firebase";
-import { Flex, Input, message, Rate } from "antd";
+  SpotifyComment,
+  SpotifyReview,
+  SpotifyTrack,
+} from "../../types/spotifyTypes";
+import {
+  convertMsToSeconds,
+  formatFirebaseDate,
+  formatMilliseconds,
+  scrollToTop,
+} from "../../utils/utils";
+import { TrackListHeader } from "./SpotifyPlaylist";
 import {
   BarBigContainer,
   CommentButton,
@@ -45,32 +61,12 @@ import {
   SpotifyBodyContainer,
   SpotifyButtonsContainer,
   SpotifyButtonSmall,
-  SpotifyButtonSmallText,
   SpotifyFeaturedContainer,
-  SpotifyArtistImg,
   SpotifyRatingContainer,
   SpotifyRatingDisplay,
-  SpotifyRatingNumber,
   SpotifyShareButton,
   SpotifyTrackPlayButton,
 } from "./SpotifyStyles";
-import {
-  convertMsToSeconds,
-  formatFirebaseDate,
-  formatMilliseconds,
-  scrollToTop,
-} from "../../utils/utils";
-import { ThemeProvider } from "styled-components";
-import { token } from "../../theme";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCompactDisc, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { ROUTES } from "../../routes";
-import SpotifyDropdownComponent from "../../components/spotifyDropdown/SpotifyDropdown";
-import { BaseOptionType } from "antd/es/select";
-import { TrackListHeader } from "./SpotifyPlaylist";
-import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
-import { onAuthStateChanged } from "firebase/auth";
-import React from "react";
 
 interface ReviewObj extends SpotifyReview {
   username: string;
@@ -103,7 +99,7 @@ const SpotifyTrackPage = () => {
     try {
       const reviewQuery = query(
         collection(db, "anniAppSpotifyReview"),
-        where("spotifyId", "==", spotifyId)
+        where("spotifyId", "==", spotifyId),
       );
       const reviewSnapshot = await getDocs(reviewQuery);
       const reviews = reviewSnapshot.docs.map((doc) => ({
@@ -113,7 +109,7 @@ const SpotifyTrackPage = () => {
 
       const commentQuery = query(
         collection(db, "anniAppSpotifyReviewComment"),
-        where("spotifyId", "==", spotifyId)
+        where("spotifyId", "==", spotifyId),
       );
       const commentSnapshot = await getDocs(commentQuery);
       const comments = commentSnapshot.docs.map((doc) => ({
@@ -180,11 +176,11 @@ const SpotifyTrackPage = () => {
 
       // sort by date
       const sortedReviewObjs = [...reviewsObjs].sort(
-        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
+        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis(),
       );
 
       const sortedCommentObjs = [...commentsObj].sort(
-        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
+        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis(),
       );
 
       setReviews(sortedReviewObjs);
@@ -224,7 +220,7 @@ const SpotifyTrackPage = () => {
       const reviewQuery = query(
         collection(db, "anniAppSpotifyReview"),
         where("spotifyId", "==", trackId),
-        where("userId", "==", user.id)
+        where("userId", "==", user.id),
       );
 
       const querySnapshot = await getDocs(reviewQuery);
@@ -269,11 +265,11 @@ const SpotifyTrackPage = () => {
     if (!spotifyToken || !trackDetails?.album.id) return;
     const response = await getSpotifyAlbum(
       trackDetails?.album.id,
-      spotifyToken.accessToken
+      spotifyToken.accessToken,
     );
     if (response) {
       navigate(
-        ROUTES.SPOTIFY_ALBUM.path.replace(":albumId", trackDetails?.album.id)
+        ROUTES.SPOTIFY_ALBUM.path.replace(":albumId", trackDetails?.album.id),
       );
     } else {
       console.log("error going to album");
@@ -373,16 +369,15 @@ const SpotifyTrackPage = () => {
               <FontAwesomeIcon icon={faCompactDisc} color={token.text} />
             </SpotifyButtonSmall>
 
-            <SpotifyTrackPlayButton>
-              <a target="_blank" href={trackDetails?.external_urls.spotify}>
+            <a target="_blank" href={trackDetails?.external_urls.spotify}>
+              <SpotifyTrackPlayButton>
                 <FontAwesomeIcon
                   icon={faPlay}
                   color={token.borderColor}
                   fontSize={32}
                 />
-              </a>
-            </SpotifyTrackPlayButton>
-
+              </SpotifyTrackPlayButton>
+            </a>
             <SpotifyDropdownComponent
               onItemClick={(option) => handleGoToArtist(option.value)}
               dropdownOptions={createArtistOptions() || []}

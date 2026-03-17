@@ -1,21 +1,40 @@
+import {
+  CommentOutlined,
+  SearchOutlined,
+  StarOutlined,
+} from "@ant-design/icons";
+import { ConfigProvider, Flex, Input, Spin } from "antd";
+import { onAuthStateChanged } from "firebase/auth";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  orderBy,
+  query,
+  Timestamp,
+  where,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { useUser } from "../../contexts/UserContext";
-import { ThemeProvider } from "styled-components";
-import { token } from "../../theme";
-import { Button, ConfigProvider, Flex, Input, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
+import { ThemeProvider } from "styled-components";
+import {
+  PageLoading,
+  SpinnerIcon,
+} from "../../components/loading/LoadingStates";
+import { useUser } from "../../contexts/UserContext";
+import { auth, db } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
 import {
-  getSpotifyAlbum,
-  getSpotifyArtist,
-  getSpotifyTrack,
-  getMultipleSpotifyTracks,
   getMultipleSpotifyAlbums,
   getMultipleSpotifyArtists,
+  getMultipleSpotifyTracks,
+  getSpotifyAlbum,
+  getSpotifyArtist,
   getSpotifyPlaylist,
+  getSpotifyTrack,
 } from "../../services/spotify/spotify";
+import { token } from "../../theme";
 import {
-  EnrichedActivity,
   EnrichedHistoryItem,
   SearchHistoryItem,
   SpotifyAlbum,
@@ -26,12 +45,13 @@ import {
   SpotifyReview,
   SpotifyTrack,
 } from "../../types/spotifyTypes";
+import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
+import { ItemSubtitle } from "./SpotifyArtist";
 import {
   LoadingCardContainer,
   LoadingHistoryContainer,
   RecentReviewedContainer,
   RecentReviewedTitle,
-  SpotifyAlbumContainer,
   SpotifyHeroContainer,
   SpotifyHeroSubtitle,
   SpotifyHeroTitle,
@@ -53,29 +73,6 @@ import {
   StatsCardDescription,
   StatsCardNumber,
 } from "./SpotifyStyles";
-import {
-  addDoc,
-  collection,
-  Timestamp,
-  query,
-  where,
-  orderBy,
-  getDocs,
-} from "firebase/firestore";
-import { auth, db } from "../../firebase/firebase";
-import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
-import { ItemTitle, ItemSubtitle } from "./SpotifyArtist";
-import {
-  CommentOutlined,
-  SearchOutlined,
-  StarOutlined,
-} from "@ant-design/icons";
-import {
-  PageLoading,
-  SpinnerIcon,
-} from "../../components/loading/LoadingStates";
-import { onAuthStateChanged } from "firebase/auth";
-import React from "react";
 
 const SpotifyPage = () => {
   const { user, userPartner, spotifyToken, loading } = useUser();
@@ -90,7 +87,7 @@ const SpotifyPage = () => {
   const [trackHistory, setTrackHistory] = useState<SearchHistoryItem[]>([]);
   const [albumHistory, setAlbumHistory] = useState<SearchHistoryItem[]>([]);
   const [playlistHistory, setPlaylistHistory] = useState<SearchHistoryItem[]>(
-    []
+    [],
   );
   const [artistHistory, setArtistHistory] = useState<SearchHistoryItem[]>([]);
   const [totalReviews, setTotalReviews] = useState<number>(0);
@@ -138,7 +135,7 @@ const SpotifyPage = () => {
       setIsTrackLoading(true);
       const response = await getSpotifyTrack(
         linkObj.id,
-        spotifyToken.accessToken
+        spotifyToken.accessToken,
       );
 
       if (response) {
@@ -157,7 +154,7 @@ const SpotifyPage = () => {
       setIsTrackLoading(true);
       const response = await getSpotifyAlbum(
         linkObj.id,
-        spotifyToken.accessToken
+        spotifyToken.accessToken,
       );
       if (response) {
         await handleAddSearchHistory("album", linkObj.id);
@@ -175,7 +172,7 @@ const SpotifyPage = () => {
       setIsTrackLoading(true);
       const response = await getSpotifyArtist(
         linkObj.id,
-        spotifyToken.accessToken
+        spotifyToken.accessToken,
       );
       if (response) {
         await handleAddSearchHistory("artist", linkObj.id);
@@ -192,13 +189,13 @@ const SpotifyPage = () => {
       setIsTrackLoading(true);
       const response = await getSpotifyPlaylist(
         linkObj.id,
-        spotifyToken.accessToken
+        spotifyToken.accessToken,
       );
       if (response) {
         await handleAddSearchHistory("playlist", linkObj.id);
         setIsTrackLoading(false);
         navigate(
-          ROUTES.SPOTIFY_PLAYLIST.path.replace(":playlistId", linkObj.id)
+          ROUTES.SPOTIFY_PLAYLIST.path.replace(":playlistId", linkObj.id),
         );
       } else {
         setIsTrackLoading(false);
@@ -220,7 +217,7 @@ const SpotifyPage = () => {
     try {
       await addDoc(
         collection(db, "anniAppSpotifySearchHistory"),
-        searchHistoryData
+        searchHistoryData,
       );
     } catch (error) {
       console.error("Failed to add comment:", error);
@@ -233,7 +230,7 @@ const SpotifyPage = () => {
       const q = query(
         searchHistoryRef,
         where("userId", "in", [user?.id, userPartner?.id]),
-        orderBy("dateAdded", "desc")
+        orderBy("dateAdded", "desc"),
       );
 
       const querySnapshot = await getDocs(q);
@@ -246,8 +243,8 @@ const SpotifyPage = () => {
           userId: data.userId,
           username:
             data.userId === user?.id
-              ? user?.name ?? "Anon"
-              : userPartner?.name ?? "Anon",
+              ? (user?.name ?? "Anon")
+              : (userPartner?.name ?? "Anon"),
           spotifyId: data.spotifyId,
           type: data.type,
           dateAdded: formatFirebaseDate(data.dateAdded),
@@ -263,20 +260,20 @@ const SpotifyPage = () => {
         await Promise.all([
           getMultipleSpotifyTracks(
             tracks.map((t) => t.spotifyId),
-            spotifyToken?.accessToken || ""
+            spotifyToken?.accessToken || "",
           ),
           getMultipleSpotifyAlbums(
             albums.map((a) => a.spotifyId),
-            spotifyToken?.accessToken || ""
+            spotifyToken?.accessToken || "",
           ),
           getMultipleSpotifyArtists(
             artists.map((a) => a.spotifyId),
-            spotifyToken?.accessToken || ""
+            spotifyToken?.accessToken || "",
           ),
           Promise.all(
             playlists.map((p) =>
-              getSpotifyPlaylist(p.spotifyId, spotifyToken?.accessToken || "")
-            )
+              getSpotifyPlaylist(p.spotifyId, spotifyToken?.accessToken || ""),
+            ),
           ),
         ]);
 
@@ -344,7 +341,7 @@ const SpotifyPage = () => {
     try {
       const reviewQuery = query(
         collection(db, "anniAppSpotifyReview"),
-        where("userId", "in", [user?.id, userPartner?.id])
+        where("userId", "in", [user?.id, userPartner?.id]),
       );
       const reviewSnapshot = await getDocs(reviewQuery);
       const reviews = reviewSnapshot.docs.map((doc) => {
@@ -362,7 +359,7 @@ const SpotifyPage = () => {
 
       const commentQuery = query(
         collection(db, "anniAppSpotifyReviewComment"),
-        where("userId", "in", [user?.id, userPartner?.id])
+        where("userId", "in", [user?.id, userPartner?.id]),
       );
       const commentSnapshot = await getDocs(commentQuery);
       const comments = commentSnapshot.docs.map((doc) => {
@@ -382,7 +379,7 @@ const SpotifyPage = () => {
       setTotalComments(comments.length);
 
       const allActivity = [...comments].sort(
-        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
+        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis(),
       );
 
       const tracks: string[] = [];
@@ -404,8 +401,8 @@ const SpotifyPage = () => {
           getMultipleSpotifyArtists(artists, spotifyToken?.accessToken || ""),
           Promise.all(
             playlists.map((p) =>
-              getSpotifyPlaylist(p, spotifyToken?.accessToken || "")
-            )
+              getSpotifyPlaylist(p, spotifyToken?.accessToken || ""),
+            ),
           ),
         ]);
 
@@ -518,6 +515,11 @@ const SpotifyPage = () => {
           </SpotifyHeroContainer>
 
           <SpotifyMainBodyContainer>
+            <Flex>
+              <SpotifySearchButton onClick={() => {}}>
+                Connect Spotify
+              </SpotifySearchButton>
+            </Flex>
             <SpotifySearchContainer>
               <SpotifySearchTitle>Search</SpotifySearchTitle>
               <SpotifySearchSubtitle>
@@ -612,22 +614,22 @@ const SpotifyPage = () => {
                           activity.type === "track"
                             ? ROUTES.SPOTIFY_TRACK.path.replace(
                                 ":trackId",
-                                activity.spotifyId
+                                activity.spotifyId,
                               )
                             : activity.type === "album"
-                            ? ROUTES.SPOTIFY_ALBUM.path.replace(
-                                ":albumId",
-                                activity.spotifyId
-                              )
-                            : activity.type === "artist"
-                            ? ROUTES.SPOTIFY_ARTIST.path.replace(
-                                ":artistId",
-                                activity.spotifyId
-                              )
-                            : ROUTES.SPOTIFY_PLAYLIST.path.replace(
-                                ":playlistId",
-                                activity.spotifyId
-                              );
+                              ? ROUTES.SPOTIFY_ALBUM.path.replace(
+                                  ":albumId",
+                                  activity.spotifyId,
+                                )
+                              : activity.type === "artist"
+                                ? ROUTES.SPOTIFY_ARTIST.path.replace(
+                                    ":artistId",
+                                    activity.spotifyId,
+                                  )
+                                : ROUTES.SPOTIFY_PLAYLIST.path.replace(
+                                    ":playlistId",
+                                    activity.spotifyId,
+                                  );
                         navigate(route);
                       }}
                     >
@@ -686,7 +688,7 @@ const SpotifyPage = () => {
                   style={{ width: "100%" }}
                   justify="center"
                 >
-                  {enrichedSearchHistory.slice(0, 100).map((item) => (
+                  {enrichedSearchHistory.slice(0, 20).map((item) => (
                     <SpotifyHistoryItemContainer
                       key={item.id}
                       onClick={() => {
@@ -694,22 +696,22 @@ const SpotifyPage = () => {
                           item.type === "track"
                             ? ROUTES.SPOTIFY_TRACK.path.replace(
                                 ":trackId",
-                                item.spotifyId
+                                item.spotifyId,
                               )
                             : item.type === "album"
-                            ? ROUTES.SPOTIFY_ALBUM.path.replace(
-                                ":albumId",
-                                item.spotifyId
-                              )
-                            : item.type === "artist"
-                            ? ROUTES.SPOTIFY_ARTIST.path.replace(
-                                ":artistId",
-                                item.spotifyId
-                              )
-                            : ROUTES.SPOTIFY_PLAYLIST.path.replace(
-                                ":playlistId",
-                                item.spotifyId
-                              );
+                              ? ROUTES.SPOTIFY_ALBUM.path.replace(
+                                  ":albumId",
+                                  item.spotifyId,
+                                )
+                              : item.type === "artist"
+                                ? ROUTES.SPOTIFY_ARTIST.path.replace(
+                                    ":artistId",
+                                    item.spotifyId,
+                                  )
+                                : ROUTES.SPOTIFY_PLAYLIST.path.replace(
+                                    ":playlistId",
+                                    item.spotifyId,
+                                  );
                         navigate(route);
                       }}
                     >
