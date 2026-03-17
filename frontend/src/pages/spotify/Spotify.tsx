@@ -507,6 +507,7 @@ const SpotifyPage = () => {
   }
   const handleDisconnect = () => {
     disconnectSpotify();
+    scrollToTop();
   };
 
   return (

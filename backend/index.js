@@ -119,8 +119,8 @@ app.post('/hygraph-webhook', async (req, res) => {
     const notificationPayload = JSON.stringify({
       title: 'New Bean!',
       body: blogEntry.title || 'Someone just added a new bean entry!',
-      icon: iconUrl, // Add custom icon
-      badge: iconUrl, // Badge icon for smaller displays
+      icon: iconUrl,
+      badge: iconUrl, 
       url: `/blogs`
     });
 

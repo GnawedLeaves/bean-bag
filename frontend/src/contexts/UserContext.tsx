@@ -185,6 +185,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.removeItem("spotify_refresh_token");
     localStorage.removeItem("spotify_token_expiry");
     setSpotifyToken(null);
+    window.alert("Spotify disconnected");
   };
 
   return (
