@@ -15,23 +15,22 @@ export function urlBase64ToUint8Array(base64String: string) {
 
 export const subscribePushNotifs = async (userId: string) => {
   try {
-    // 1. Register the worker first
-    const register = await navigator.serviceWorker.register("/sw.js", {
+    await navigator.serviceWorker.register("/sw.js", {
       scope: "/",
     });
 
-    // 2. Request permission AFTER service worker is registered
+    const activeRegister = await navigator.serviceWorker.ready;
+
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
       throw new Error("Push notification permission denied");
     }
 
-    // 3. Now subscribe using the registered service worker
-    const subscription = await register.pushManager.subscribe({
+    // 4. Subscribe using the 'activeRegister'
+    const subscription = await activeRegister.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
     });
-
     // 4. Send to your backend
     await fetch(`${BACKEND_URL}/subscribe`, {
       method: "POST",
