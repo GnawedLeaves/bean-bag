@@ -192,7 +192,7 @@ app.post('/test-send-notification', async (req, res) => {
 
 // --- ENDPOINT: ADD SPOTIFY REVIEW WITH NOTIFICATIONS ---
 app.post('/add-spotify-review', async (req, res) => {
-  const { userId, username, spotifyId, rating, trackName, artistName } = req.body;
+  const { userId, username, spotifyId, rating, trackName, artistName,type } = req.body;
 
   // Validation
   if (!userId || !spotifyId || rating === undefined) {
@@ -205,7 +205,7 @@ app.post('/add-spotify-review', async (req, res) => {
       userId: userId,
       spotifyId: spotifyId,
       dateAdded: admin.firestore.Timestamp.now(),
-      type: "track",
+      type: type,
     };
 
        const docRef = await db.collection("anniAppSpotifyReview").add(reviewData);

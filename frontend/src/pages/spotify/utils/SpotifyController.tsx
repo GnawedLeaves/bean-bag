@@ -38,7 +38,7 @@ export const useSpotifyReviewComments = ({
   const addComment = useCallback(
     async (params: AddCommentParams) => {
       setIsLoading(true);
-      const { userId, spotifyId, content, trackName, username } = params;
+      const { userId, spotifyId, content, trackName, username, type } = params;
 
       if (!content.trim() || !spotifyId || !userId || !username) {
         return;
@@ -56,6 +56,7 @@ export const useSpotifyReviewComments = ({
             content: content.trim(),
             trackName,
             username,
+            type,
           }),
         });
 
@@ -78,8 +79,15 @@ export const useSpotifyReviewComments = ({
   const addReview = useCallback(
     async (params: AddReviewParams) => {
       setIsLoading(true);
-      const { userId, spotifyId, rating, trackName, artistName, username } =
-        params;
+      const {
+        userId,
+        spotifyId,
+        rating,
+        trackName,
+        artistName,
+        username,
+        type,
+      } = params;
 
       if (!spotifyId || !userId || !username) {
         return;
@@ -98,6 +106,7 @@ export const useSpotifyReviewComments = ({
             trackName,
             artistName,
             username,
+            type,
           }),
         });
 
