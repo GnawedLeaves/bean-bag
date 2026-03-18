@@ -1,34 +1,40 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeftOutlined,
   CommentOutlined,
   ShareAltOutlined,
 } from "@ant-design/icons";
+import { Flex, Input, message, Rate } from "antd";
+import { onAuthStateChanged } from "firebase/auth";
 import {
-  SpotifyComment,
-  SpotifyReview,
-  SpotifyArtist,
-  SpotifyAlbum,
-  SpotifyTrack,
-} from "../../types/spotifyTypes";
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  Timestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import styled, { ThemeProvider } from "styled-components";
 import { useUser } from "../../contexts/UserContext";
+import { auth, db } from "../../firebase/firebase";
+import { ROUTES } from "../../routes";
 import {
   getSpotifyArtist,
   getSpotifyArtistAlbums,
   getSpotifyArtistTopTracks,
 } from "../../services/spotify/spotify";
+import { token } from "../../theme";
 import {
-  query,
-  collection,
-  where,
-  getDocs,
-  Timestamp,
-  addDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { auth, db } from "../../firebase/firebase";
-import { Flex, Input, message, Rate } from "antd";
+  SpotifyAlbum,
+  SpotifyArtist,
+  SpotifyComment,
+  SpotifyReview,
+  SpotifyTrack,
+} from "../../types/spotifyTypes";
+import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
+import { TrackListHeader } from "./SpotifyPlaylist";
 import {
   CommentButton,
   CommentCard,
@@ -40,23 +46,17 @@ import {
   SpoitfyTrackTitle,
   SpotifyAlbumContainer,
   SpotifyAlbumPicture,
+  SpotifyArtistImg,
   SpotifyBackButton,
   SpotifyBigContainer,
   SpotifyBodyContainer,
   SpotifyFeaturedContainer,
-  SpotifyArtistImg,
   SpotifyRatingContainer,
   SpotifyRatingDisplay,
   SpotifyShareButton,
 } from "./SpotifyStyles";
-import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
-import { ThemeProvider } from "styled-components";
-import { token } from "../../theme";
-import { ROUTES } from "../../routes";
-import styled from "styled-components";
-import { TrackListHeader } from "./SpotifyPlaylist";
-import { onAuthStateChanged } from "firebase/auth";
-import React from "react";
+import { useCurrentTrack } from "./utils/useCurrentTrack";
+import SpotifyPlayingBar from "./components/SpotifyPlayingBar";
 
 const ScrollableSection = styled.div`
   max-height: 300px;
@@ -144,12 +144,12 @@ const SpotifyArtistPage = () => {
   const [reviews, setReviews] = useState<ReviewObj[]>([]);
   const [comments, setComments] = useState<CommentObj[]>([]);
   const [newComment, setNewComment] = useState<string>("");
-
+  const { currentPlaying } = useCurrentTrack(spotifyToken?.accessToken || null);
   const handleGetArtistDetails = async () => {
     if (!artistId || !spotifyToken?.accessToken) return;
     const response = await getSpotifyArtist(
       artistId,
-      spotifyToken?.accessToken
+      spotifyToken?.accessToken,
     );
     setArtistDetails(response);
   };
@@ -158,7 +158,7 @@ const SpotifyArtistPage = () => {
     if (!artistId || !spotifyToken?.accessToken) return;
     const response = await getSpotifyArtistAlbums(
       artistId,
-      spotifyToken?.accessToken
+      spotifyToken?.accessToken,
     );
     if (response) {
       setArtistAlbums(response);
@@ -169,7 +169,7 @@ const SpotifyArtistPage = () => {
     if (!artistId || !spotifyToken?.accessToken) return;
     const response = await getSpotifyArtistTopTracks(
       artistId,
-      spotifyToken?.accessToken
+      spotifyToken?.accessToken,
     );
     if (response) {
       setArtistTopTracks(response);
@@ -180,7 +180,7 @@ const SpotifyArtistPage = () => {
     try {
       const reviewQuery = query(
         collection(db, "anniAppSpotifyReview"),
-        where("spotifyId", "==", spotifyId)
+        where("spotifyId", "==", spotifyId),
       );
       const reviewSnapshot = await getDocs(reviewQuery);
       const reviews = reviewSnapshot.docs.map((doc) => ({
@@ -190,7 +190,7 @@ const SpotifyArtistPage = () => {
 
       const commentQuery = query(
         collection(db, "anniAppSpotifyReviewComment"),
-        where("spotifyId", "==", spotifyId)
+        where("spotifyId", "==", spotifyId),
       );
       const commentSnapshot = await getDocs(commentQuery);
       const comments = commentSnapshot.docs.map((doc) => ({
@@ -257,11 +257,11 @@ const SpotifyArtistPage = () => {
 
       // sort by date
       const sortedReviewObjs = [...reviewsObjs].sort(
-        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
+        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis(),
       );
 
       const sortedCommentObjs = [...commentsObj].sort(
-        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis()
+        (a, b) => b.dateAdded.toMillis() - a.dateAdded.toMillis(),
       );
 
       setReviews(sortedReviewObjs);
@@ -301,7 +301,7 @@ const SpotifyArtistPage = () => {
       const reviewQuery = query(
         collection(db, "anniAppSpotifyReview"),
         where("spotifyId", "==", artistId),
-        where("userId", "==", user.id)
+        where("userId", "==", user.id),
       );
 
       const querySnapshot = await getDocs(reviewQuery);
@@ -373,6 +373,7 @@ const SpotifyArtistPage = () => {
   return (
     <ThemeProvider theme={token}>
       <SpotifyBigContainer>
+        <SpotifyPlayingBar currentPlaying={currentPlaying} />
         <SpotifyFeaturedContainer>
           <SpotifyBackButton
             onClick={() => {

@@ -1,20 +1,14 @@
-import React, { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Layout, message } from "antd";
 import {
-  HomeOutlined,
   BookOutlined,
-  ExperimentOutlined,
-  SettingOutlined,
-  SunOutlined,
-  SpotifyOutlined,
-  MehOutlined,
   CoffeeOutlined,
+  HomeOutlined,
+  MehOutlined,
 } from "@ant-design/icons";
-import { signOut } from "firebase/auth";
-import { auth } from "../../firebase/firebase";
-import { ROUTES } from "../../routes";
+import { Layout } from "antd";
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { ROUTES } from "../../routes";
 
 const { Header: AntHeader } = Layout;
 
@@ -29,6 +23,7 @@ const MobileBottomNav = styled.div`
   padding: 8px 0;
   padding-bottom: 32px;
   display: block;
+  height: 70px;
 `;
 
 const NavContainer = styled.div`
@@ -48,7 +43,9 @@ const NavItem = styled(Link)<NavItemProps>`
   align-items: center;
   text-decoration: none;
   color: rgba(255, 255, 255, 0.65);
-  transition: color 0.3s ease, background 0.3s;
+  transition:
+    color 0.3s ease,
+    background 0.3s;
   padding: 4px 8px;
   border-radius: 8px;
   min-width: 60px;
@@ -79,17 +76,6 @@ const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      message.success("Signed out successfully");
-      navigate(ROUTES.LOGIN.path);
-    } catch (error) {
-      console.error("Error signing out:", error);
-      message.error("Failed to sign out");
-    }
-  };
 
   const navigationItems = [
     {

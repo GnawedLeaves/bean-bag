@@ -47,6 +47,7 @@ import {
   SpotifyTrack,
 } from "../../types/spotifyTypes";
 import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
+import SpotifyPlayingBar from "./components/SpotifyPlayingBar";
 import { ItemSubtitle } from "./SpotifyArtist";
 import {
   LoadingCardContainer,
@@ -522,6 +523,8 @@ const SpotifyPage = () => {
     >
       <ThemeProvider theme={token}>
         <SpotifyMain>
+          <SpotifyPlayingBar currentPlaying={currentPlaying} />
+
           <SpotifyHeroContainer>
             <SpotifyHeroTitle>MUSIC</SpotifyHeroTitle>
             <SpotifyHeroSubtitle>

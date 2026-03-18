@@ -43,6 +43,7 @@ import {
   formatMilliseconds,
   scrollToTop,
 } from "../../utils/utils";
+import SpotifyPlayingBar from "./components/SpotifyPlayingBar";
 import { TrackListHeader } from "./SpotifyPlaylist";
 import {
   BarBigContainer,
@@ -273,6 +274,7 @@ const SpotifyTrackPage = () => {
       .writeText(window.location.href)
       .then(() => {
         message.success("Link copied to clipboard!");
+        window.alert("Copied to clipboard!");
       })
       .catch((err) => {
         console.error("Failed to copy URL: ", err);
@@ -366,6 +368,7 @@ const SpotifyTrackPage = () => {
   return (
     <ThemeProvider theme={token}>
       <SpotifyBigContainer>
+        <SpotifyPlayingBar currentPlaying={currentPlaying} />
         <SpotifyFeaturedContainer>
           <SpotifyBackButton
             onClick={() => {
