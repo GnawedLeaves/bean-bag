@@ -48,6 +48,7 @@ import {
 import BlogImages from "../../components/blog/blogImagesComponent/BlogImages";
 import {
   BlogEntryLoading,
+  CustomSpin,
   PageLoading,
 } from "../../components/loading/LoadingStates";
 import { useUser } from "../../contexts/UserContext";
@@ -222,7 +223,8 @@ const BlogPage: React.FC = () => {
     fetchCommentsForEntries(dayEntries.map((e) => e.id));
   };
 
-  const { addBeanComment } = BlogController({ onAddBeanComment });
+  const { addBeanComment, isLoading: isAddingBeanCommentLoading } =
+    BlogController({ onAddBeanComment });
 
   const handleAddComment = async (entryId: string) => {
     if (!newComment[entryId] || !user?.id) return;
@@ -389,9 +391,15 @@ const BlogPage: React.FC = () => {
                         />
                         <BlogCommentButton
                           onClick={() => handleAddComment(entry.id)}
-                          disabled={!newComment[entry.id]}
+                          disabled={
+                            !newComment[entry.id] || isAddingBeanCommentLoading
+                          }
                         >
-                          <CommentOutlined />
+                          {isAddingBeanCommentLoading ? (
+                            <CustomSpin />
+                          ) : (
+                            <CommentOutlined />
+                          )}
                         </BlogCommentButton>
                       </Flex>
                     </BlogCommentContainer>

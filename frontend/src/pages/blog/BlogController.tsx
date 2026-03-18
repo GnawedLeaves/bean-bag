@@ -1,5 +1,5 @@
 import { Timestamp } from "firebase/firestore";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { BlogComment } from "../../types/blogTypes";
 
 interface AddBeanCommentProps {
@@ -13,11 +13,13 @@ interface BlogControllerProps {
 }
 
 const BlogController = ({ onAddBeanComment }: BlogControllerProps) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const API_BASE_URL =
     process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
   const addBeanComment = useCallback(
     async ({ entryId, newComment, userId }: AddBeanCommentProps) => {
       if (!newComment[entryId] || !userId) return;
+      setIsLoading(true);
       const commentData: BlogComment = {
         blogEntryId: entryId,
         userId: userId,
@@ -41,15 +43,17 @@ const BlogController = ({ onAddBeanComment }: BlogControllerProps) => {
           throw new Error("Failed to add comment");
         }
         onAddBeanComment(entryId);
+        setIsLoading(false);
       } catch (e) {
         window.alert("Error adding comment from controller: " + e);
         console.error("Error adding comment", e);
+        setIsLoading(false);
       }
     },
     [onAddBeanComment],
   );
 
-  return { addBeanComment };
+  return { addBeanComment, isLoading };
 };
 
 export default BlogController;
