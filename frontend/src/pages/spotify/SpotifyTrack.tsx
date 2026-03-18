@@ -112,7 +112,6 @@ const SpotifyTrackPage = () => {
   }, [currentlyPlayingDetails, trackId]);
 
   const handleSetCurrentTrack = async () => {
-
     if (isPlayingThisTrack && currentPlaying) {
       setTrackDetails(currentPlaying.item);
       setCurrentlyPlayingDetails(currentPlaying);
@@ -317,10 +316,10 @@ const SpotifyTrackPage = () => {
   useEffect(() => {
     if (isPlayingThisTrack && currentPlaying) {
       handleSetCurrentTrack();
-    } else {
+    } else if (trackId) {
       handleGetTrackDetails()
     }
-  }, [isPlayingThisTrack, currentPlaying]);
+  }, [isPlayingThisTrack, currentPlaying, trackId]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
