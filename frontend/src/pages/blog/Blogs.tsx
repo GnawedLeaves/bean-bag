@@ -1,26 +1,24 @@
-import React, { useEffect, useState } from "react";
-import {
-  Card,
-  Typography,
-  Image,
-  Space,
-  Row,
-  Col,
-  Spin,
-  Alert,
-  Button,
-  Flex,
-} from "antd";
 import {
   CommentOutlined,
   DeleteOutlined,
   SignatureOutlined,
 } from "@ant-design/icons";
-import { getBlogEntries } from "../../services/hygraph";
+import { Alert, Flex, Typography } from "antd";
+import dayjs, { Dayjs } from "dayjs";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../firebase/firebase";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import BlogCalendar from "../../components/blog/blogCalendarComponent/BlogCalendar";
+import { auth } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
+import { getBlogEntries } from "../../services/hygraph";
+import { BlogEntry } from "../../types/blogTypes";
+import {
+  convertISOToDayjs,
+  convertISOToDDMMYYY,
+  convertISOToDDMMYYYHHmm,
+  formatFirebaseDate,
+} from "../../utils/utils";
 import {
   BlogBodyPage,
   BlogButton,
@@ -38,36 +36,25 @@ import {
   BlogMainPage,
   BlogTopBar,
 } from "./BlogStyles";
-import BlogCalendar from "../../components/blog/blogCalendarComponent/BlogCalendar";
-import dayjs, { Dayjs } from "dayjs";
-import { BlogEntry } from "../../types/blogTypes";
-import {
-  convertISOToDayjs,
-  convertISOToDDMMYYY,
-  convertISOToDDMMYYYHHmm,
-  formatFirebaseDate,
-} from "../../utils/utils";
 
-import BlogImages from "../../components/blog/blogImagesComponent/BlogImages";
-import {
-  PageLoading,
-  BlogEntryLoading,
-} from "../../components/loading/LoadingStates";
-import { useUser } from "../../contexts/UserContext";
 import {
   collection,
-  addDoc,
-  query,
-  where,
-  getDocs,
-  Timestamp,
-  updateDoc,
   doc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
 } from "firebase/firestore";
+import BlogImages from "../../components/blog/blogImagesComponent/BlogImages";
+import {
+  BlogEntryLoading,
+  PageLoading,
+} from "../../components/loading/LoadingStates";
+import { useUser } from "../../contexts/UserContext";
 import { db } from "../../firebase/firebase";
-import { BlogComment } from "../../types/blogTypes";
-import { CommentButton } from "../spotify/SpotifyStyles";
 import { getLocationFromCoords } from "../../services/location";
+import { BlogComment } from "../../types/blogTypes";
+import BlogController from "./BlogController";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -84,9 +71,10 @@ const BlogPage: React.FC = () => {
       Array<BlogComment & { username: string; displayPicture: string }>
     >
   >({});
-  const [newComment, setNewComment] = useState<Record<string, string>>({});
+  const [newComment, setNewComment] = useState<Record<string, any>>({});
   const navigate = useNavigate();
   const { user, userPartner, spotifyToken, getUserContextData } = useUser();
+
   const fetchEntries = async () => {
     try {
       setLoading(true);
@@ -124,7 +112,7 @@ const BlogPage: React.FC = () => {
   const handleCalendarDayClick = async (date: Dayjs) => {
     setSelectedDate(date);
     const filteredEntries = entries.filter((entry) =>
-      convertISOToDayjs(entry.timestamp).isSame(date, "day")
+      convertISOToDayjs(entry.timestamp).isSame(date, "day"),
     );
 
     const entriesWithLocation = await Promise.all(
@@ -132,14 +120,14 @@ const BlogPage: React.FC = () => {
         ...entry,
         streetLocation: await getStreetLocation(
           entry.location.latitude,
-          entry.location.longitude
+          entry.location.longitude,
         ),
-      }))
+      })),
     );
 
     const sortedEntries = entriesWithLocation.sort(
       (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
     );
 
     setDayEntries(sortedEntries);
@@ -147,7 +135,10 @@ const BlogPage: React.FC = () => {
 
   const handleGoToAddEntry = () => {
     navigate(
-      ROUTES.UPLOAD.path.replace(":blogDate", selectedDate.format("YYYY-MM-DD"))
+      ROUTES.UPLOAD.path.replace(
+        ":blogDate",
+        selectedDate.format("YYYY-MM-DD"),
+      ),
     );
   };
 
@@ -192,7 +183,7 @@ const BlogPage: React.FC = () => {
       const q = query(
         collection(db, "anniAppBeansComments"),
         where("blogEntryId", "==", entryId),
-        where("isDelete", "==", false)
+        where("isDelete", "==", false),
       );
       const snapshot = await getDocs(q);
       const commentsWithUser = await Promise.all(
@@ -200,7 +191,7 @@ const BlogPage: React.FC = () => {
           const comment = { id: docSnap.id, ...docSnap.data() } as BlogComment;
           const userInfo = await fetchUserInfo(comment.userId);
           return { ...comment, ...userInfo };
-        })
+        }),
       );
       commentsByEntry[entryId] = commentsWithUser;
     }
@@ -226,22 +217,21 @@ const BlogPage: React.FC = () => {
     return { username: "Anon", displayPicture: "" };
   };
 
+  const onAddBeanComment = (entryId: string) => {
+    setNewComment((prev) => ({ ...prev, [entryId]: {} }));
+    fetchCommentsForEntries(dayEntries.map((e) => e.id));
+  };
+
+  const { addBeanComment } = BlogController({ onAddBeanComment });
+
   const handleAddComment = async (entryId: string) => {
     if (!newComment[entryId] || !user?.id) return;
-    const commentData: BlogComment = {
-      blogEntryId: entryId,
+    console.log({ newComment });
+    await addBeanComment({
+      entryId,
+      newComment,
       userId: user.id,
-      content: newComment[entryId].trim(),
-      dateAdded: Timestamp.now(),
-      isDelete: false,
-    };
-    try {
-      await addDoc(collection(db, "anniAppBeansComments"), commentData);
-      setNewComment((prev) => ({ ...prev, [entryId]: "" }));
-      fetchCommentsForEntries(dayEntries.map((e) => e.id));
-    } catch (e) {
-      console.error("Error adding comment", e);
-    }
+    });
   };
 
   const handleDeleteComment = async (commentId: string) => {
@@ -337,7 +327,7 @@ const BlogPage: React.FC = () => {
                           {(comments[entry.id] || [])
                             .sort(
                               (a, b) =>
-                                b.dateAdded.toMillis() - a.dateAdded.toMillis()
+                                b.dateAdded.toMillis() - a.dateAdded.toMillis(),
                             )
                             .map((comment) => (
                               <BlogCommentBox key={comment.id}>
@@ -385,21 +375,21 @@ const BlogPage: React.FC = () => {
                       </div>
                       <Flex gap={8} style={{ marginTop: 8 }}>
                         <BlogCommentInput
-                          value={newComment[entry.id] || ""}
+                          value={newComment[entry.id]?.content || ""}
                           onChange={(e) =>
                             setNewComment((prev) => ({
                               ...prev,
-                              [entry.id]: e.target.value,
+                              [entry.id]: {
+                                content: e.target.value,
+                                blogTitle: entry.title,
+                              },
                             }))
                           }
                           placeholder="Write comment"
                         />
                         <BlogCommentButton
                           onClick={() => handleAddComment(entry.id)}
-                          disabled={
-                            !newComment[entry.id] ||
-                            !newComment[entry.id].trim()
-                          }
+                          disabled={!newComment[entry.id]}
                         >
                           <CommentOutlined />
                         </BlogCommentButton>

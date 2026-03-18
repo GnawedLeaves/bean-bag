@@ -36,4 +36,5 @@ export interface BlogComment {
   content: string;
   dateAdded: Timestamp;
   isDelete: boolean;
+  blogTitle: string;
 }

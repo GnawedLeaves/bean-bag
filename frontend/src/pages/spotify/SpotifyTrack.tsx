@@ -27,7 +27,6 @@ import {
 import { token } from "../../theme";
 import {
   SpotifyComment,
-  SpotifyCurrentPlaying,
   SpotifyReview,
   SpotifyTrack,
 } from "../../types/spotifyTypes";
@@ -109,16 +108,14 @@ const SpotifyTrackPage = () => {
     return currentPlaying?.item.id === trackId;
   }, [currentPlaying, trackId]);
 
-
   useEffect(() => {
-    console.log({ isPlayingThisTrack, currentPlaying })
+    console.log({ isPlayingThisTrack, currentPlaying });
     if (isPlayingThisTrack && currentPlaying) {
       handleSetCurrentTrack();
     } else if (trackId) {
-      handleGetTrackDetails()
+      handleGetTrackDetails();
     }
   }, [isPlayingThisTrack, currentPlaying, trackId]);
-
 
   const handleSetCurrentTrack = async () => {
     if (currentPlaying) {
@@ -128,12 +125,8 @@ const SpotifyTrackPage = () => {
   };
 
   const handleGetTrackDetails = async () => {
-
     if (!trackId || !spotifyToken?.accessToken || isPlayingThisTrack) return;
-    const response = await getSpotifyTrack(
-      trackId,
-      spotifyToken?.accessToken,
-    );
+    const response = await getSpotifyTrack(trackId, spotifyToken?.accessToken);
     setTrackDetails(response);
   };
 
@@ -320,8 +313,6 @@ const SpotifyTrackPage = () => {
     }
   }, [loading]);
 
-
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (!currentUser) {
@@ -340,7 +331,8 @@ const SpotifyTrackPage = () => {
   };
 
   useEffect(() => {
-    if (!isPlayingThisTrack || !currentPlaying) return;
+    if (!isPlayingThisTrack || !currentPlaying || !currentPlaying.is_playing)
+      return;
     const interval = setInterval(() => {
       setLocalSongCounter((prev) => {
         const next = prev + 1000;
