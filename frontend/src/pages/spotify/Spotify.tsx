@@ -534,6 +534,12 @@ const SpotifyPage = () => {
 
           <SpotifyMainBodyContainer>
             <Flex>
+              spotifyToken: {spotifyToken?.accessToken}
+              expiresIn: {spotifyToken?.expiresIn}
+              refreshToken: {spotifyToken?.refreshToken}
+              current playing: {currentPlaying?.item.name}
+            </Flex>
+            <Flex>
               {!spotifyToken?.accessToken ? (
                 <SpotifySearchButton
                   onClick={() => {
