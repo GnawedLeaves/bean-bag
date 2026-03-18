@@ -297,14 +297,18 @@ const useCurrentTrack = (accessToken: string | null) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log({ accessToken })
     if (!accessToken) return;
 
     const fetchNowPlaying = async () => {
-      // setCurrentPlaying(mock)
       try {
         setIsLoading(true);
+
         const token = await getValidAccessToken();
+        console.log({ token })
         const data = await getCurrentlyPlaying(token);
+        console.log({ data })
+
         if (data?.item) {
           setCurrentPlaying(data);
           setError(null);

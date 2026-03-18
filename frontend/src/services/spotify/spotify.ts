@@ -151,7 +151,7 @@ export const getSpotifyArtistTopTracks = async (
   if (!token) throw new Error("Authentication token is required");
   const res = await fetch(
     fullUrl ||
-      `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
+    `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -291,6 +291,7 @@ export const refreshAccessToken = async () => {
 
 export const getValidAccessToken = async (): Promise<string> => {
   const token = localStorage.getItem("spotify_access_token");
+  console.log("local storage token:", token);
   const expiry = Number(localStorage.getItem("spotify_token_expiry"));
 
   // Refresh 60 seconds early so a token never expires mid-request

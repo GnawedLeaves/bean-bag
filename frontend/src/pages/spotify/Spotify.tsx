@@ -533,11 +533,20 @@ const SpotifyPage = () => {
           </SpotifyHeroContainer>
 
           <SpotifyMainBodyContainer>
-            <Flex>
-              spotifyToken: {spotifyToken?.accessToken}
-              expiresIn: {spotifyToken?.expiresIn}
-              refreshToken: {spotifyToken?.refreshToken}
-              current playing: {currentPlaying?.item.name}
+            <Flex vertical style={{ padding: 32, overflow: "auto" }}>
+              <div>
+                spotifyToken: {spotifyToken?.accessToken}
+              </div>
+              <div>
+                expiresIn: {spotifyToken?.expiresIn}
+              </div>
+              <div>
+                refreshToken: {spotifyToken?.refreshToken}
+              </div>
+              <div>
+                current playing: {currentPlaying?.item.name}
+              </div>
+
             </Flex>
             <Flex>
               {!spotifyToken?.accessToken ? (
