@@ -49,9 +49,9 @@ const UserContext = createContext<UserContextType>({
   userPartner: null,
   spotifyToken: null,
   loading: true,
-  getUserContextData: () => {},
-  setSpotifyToken: () => {},
-  disconnectSpotify: () => {},
+  getUserContextData: () => { },
+  setSpotifyToken: () => { },
+  disconnectSpotify: () => { },
 });
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -150,12 +150,27 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
+    const error = urlParams.get("error");
+
+    // Handle Spotify auth errors
+    if (error) {
+      console.error("Spotify authorization error:", error);
+      window.alert(`Spotify authorization failed: ${error}`);
+      return;
+    }
 
     if (!code) return;
 
     const processSpotifyAuth = async (authCode: string) => {
       try {
+        console.log("Starting token exchange with code:", authCode);
         const tokenData = await exchangeCodeForToken(authCode);
+
+        if (!tokenData || !tokenData.access_token) {
+          throw new Error("No access token received from Spotify");
+        }
+
+        console.log("Token data received:", tokenData);
 
         localStorage.setItem("spotify_access_token", tokenData.access_token);
         localStorage.setItem("spotify_refresh_token", tokenData.refresh_token);
@@ -164,21 +179,28 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           String(Date.now() + tokenData.expires_in * 1000),
         );
 
+        console.log("Tokens saved to localStorage:", {
+          access: localStorage.getItem("spotify_access_token"),
+          refresh: localStorage.getItem("spotify_refresh_token"),
+          expiry: localStorage.getItem("spotify_token_expiry"),
+        });
+
         setSpotifyToken({
           accessToken: tokenData.access_token,
           refreshToken: tokenData.refresh_token,
           expiresIn: tokenData.expires_in,
         });
 
-        // Clean up URL
-        window.history.replaceState({}, document.title, "/spotify");
+        window.alert("Spotify connected successfully!");
+        window.history.replaceState({}, document.title, window.location.pathname);
       } catch (err) {
         console.error("Spotify auth failed:", err);
+        window.alert(`Spotify connection failed: ${err instanceof Error ? err.message : "Unknown error"}`);
       }
     };
 
     processSpotifyAuth(code);
-  }, []);
+  }, []); // Keep empty array - runs once on mount
 
   const disconnectSpotify = () => {
     localStorage.removeItem("spotify_access_token");

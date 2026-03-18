@@ -226,6 +226,10 @@ export const getSpotifyAuthUrl = () => {
 
 // In services/spotify/spotify.ts
 export const exchangeCodeForToken = async (code: string) => {
+  if (!clientId || !clientSecret) {
+    throw new Error("Spotify credentials (client ID/secret) are not configured");
+  }
+
   const params = new URLSearchParams();
   params.append("grant_type", "authorization_code");
   params.append("code", code);
@@ -233,17 +237,31 @@ export const exchangeCodeForToken = async (code: string) => {
 
   const basicAuth = btoa(`${clientId}:${clientSecret}`);
 
-  const response = await axios.post(
-    "https://accounts.spotify.com/api/token",
-    params,
-    {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${basicAuth}`,
+  try {
+    console.log("Exchanging code for token with redirect URI:", REDIRECT_URI);
+    const response = await axios.post(
+      "https://accounts.spotify.com/api/token",
+      params,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Basic ${basicAuth}`,
+        },
       },
-    },
-  );
-  return response.data; // This returns access_token and refresh_token
+    );
+
+    console.log("Spotify token response:", response.data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Spotify API error:", {
+        status: error.response?.status,
+        message: error.response?.data,
+      });
+      throw new Error(`Spotify API error: ${error.response?.status} - ${JSON.stringify(error.response?.data)}`);
+    }
+    throw error;
+  }
 };
 
 // In services/spotify/spotify.ts
