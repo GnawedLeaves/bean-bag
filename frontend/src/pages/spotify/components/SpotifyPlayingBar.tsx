@@ -129,7 +129,7 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
           display: currentPlaying ? "" : "none",
         }}
       >
-        <SpotifyPlayingBarContainer>
+        <SpotifyPlayingBarContainer onClick={handleNavigateToTrack}>
           <Flex align="center" justify="space-between">
             <Flex>
               <SpotifyPlayingBarTrackImg

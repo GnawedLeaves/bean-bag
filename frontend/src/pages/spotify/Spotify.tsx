@@ -542,27 +542,8 @@ const SpotifyPage = () => {
                 >
                   Connect Spotify
                 </SpotifySearchButton>
-              ) : currentPlaying?.is_playing && currentPlaying.item ? (
-                <div>
-                  <img
-                    src={currentPlaying.item.album.images[0]?.url}
-                    alt="album art"
-                    width={80}
-                  />
-                  <p>
-                    {currentPlaying.item.name} —{" "}
-                    {currentPlaying.item.artists[0].name}
-                  </p>
-                  <button
-                    onClick={() =>
-                      navigate(`/spotify/track/${currentPlaying?.item?.id}`)
-                    }
-                  >
-                    Rate this track →
-                  </button>
-                </div>
               ) : (
-                <p>Nothing playing right now.</p>
+                <></>
               )}
             </Flex>
             <SpotifySearchContainer>

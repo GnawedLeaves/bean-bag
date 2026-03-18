@@ -2,6 +2,7 @@ import {
   ArrowLeftOutlined,
   CommentOutlined,
   ShareAltOutlined,
+  SpotifyOutlined,
 } from "@ant-design/icons";
 import { faCompactDisc, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,7 +18,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
@@ -98,6 +99,10 @@ const SpotifyTrackPage = () => {
   const [newComment, setNewComment] = useState<string>("");
 
   const [localSongCounter, setLocalSongCounter] = useState<number>(0);
+
+  const isPlayingThisTrack = useMemo(() => {
+    return currentlyPlayingDetails?.item.id === trackId;
+  }, [currentlyPlayingDetails, trackId]);
 
   const handleGetTrackDetails = async () => {
     if (currentPlaying && trackId === currentPlaying.item.id) {
@@ -351,7 +356,7 @@ const SpotifyTrackPage = () => {
   };
 
   useEffect(() => {
-    if (!currentlyPlayingDetails?.is_playing) return;
+    if (!isPlayingThisTrack || !currentlyPlayingDetails) return;
     const interval = setInterval(() => {
       setLocalSongCounter((prev) => {
         const next = prev + 1000;
@@ -395,7 +400,7 @@ const SpotifyTrackPage = () => {
           <BarBigContainer>
             <Flex justify="space-between">
               <SpotifyBarInnerContainerText>
-                {currentlyPlayingDetails
+                {isPlayingThisTrack
                   ? formatMilliseconds(localSongCounter)
                   : "0:00"}
               </SpotifyBarInnerContainerText>
@@ -430,11 +435,17 @@ const SpotifyTrackPage = () => {
 
             <a target="_blank" href={trackDetails?.external_urls.spotify}>
               <SpotifyTrackPlayButton>
-                <FontAwesomeIcon
-                  icon={faPlay}
-                  color={token.borderColor}
-                  fontSize={32}
-                />
+                {isPlayingThisTrack ? (
+                  <SpotifyOutlined
+                    style={{ fontSize: 32, color: token.borderColor }}
+                  />
+                ) : (
+                  <FontAwesomeIcon
+                    icon={faPlay}
+                    color={token.borderColor}
+                    fontSize={32}
+                  />
+                )}
               </SpotifyTrackPlayButton>
             </a>
             <SpotifyDropdownComponent
