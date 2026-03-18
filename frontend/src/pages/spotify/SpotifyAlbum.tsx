@@ -8,19 +8,12 @@ import { faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Flex, Input, message, Rate } from "antd";
 import { onAuthStateChanged } from "firebase/auth";
-import {
-  addDoc,
-  collection,
-  getDocs,
-  query,
-  Timestamp,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
+import { CustomSpin } from "../../components/loading/LoadingStates";
 import { useUser } from "../../contexts/UserContext";
 import { auth, db } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
@@ -61,6 +54,7 @@ import {
   SpotifyTrackPlayButton,
 } from "./SpotifyStyles";
 import SpotifyPlayingBar from "./components/SpotifyPlayingBar";
+import { useSpotifyReviewComments } from "./utils/SpotifyController";
 import { useCurrentTrack } from "./utils/useCurrentTrack";
 
 const AlbumInfoContainer = styled.div`
@@ -146,7 +140,19 @@ const SpotifyAlbumPage = () => {
   const [comments, setComments] = useState<CommentObj[]>([]);
   const [newComment, setNewComment] = useState<string>("");
   const { currentPlaying } = useCurrentTrack(spotifyToken?.accessToken || null);
-
+  const {
+    addComment,
+    addReview,
+    isLoading: isReviewAddLoading,
+  } = useSpotifyReviewComments({
+    onCommentAdded: () => {
+      setNewComment("");
+      handleGetReviewsAndComments(albumId ?? "");
+    },
+    onReviewAdded: () => {
+      handleGetReviewsAndComments(albumId ?? "");
+    },
+  });
   const handleGetAlbumDetails = async () => {
     if (!albumId || !spotifyToken?.accessToken) return;
     const response = await getSpotifyAlbum(albumId, spotifyToken?.accessToken);
@@ -252,57 +258,28 @@ const SpotifyAlbumPage = () => {
   const handleAddComment = async () => {
     if (!newComment.trim() || !albumId || !user?.id) return;
 
-    const commentData: SpotifyComment = {
-      content: newComment.trim(),
+    addComment({
       userId: user.id,
       spotifyId: albumId,
-      dateAdded: Timestamp.now(),
+      content: newComment,
+      trackName: albumDetails?.name,
+      username: user.name || "Anonymous",
       type: "album",
-    };
-
-    try {
-      await addDoc(collection(db, "anniAppSpotifyReviewComment"), commentData);
-      setNewComment("");
-      handleGetReviewsAndComments(albumId);
-    } catch (error) {
-      console.error("Failed to add comment:", error);
-    }
+    });
   };
 
   const handleAddReview = async (rating: number) => {
     if (!albumId || !user?.id) return;
 
-    try {
-      const reviewQuery = query(
-        collection(db, "anniAppSpotifyReview"),
-        where("spotifyId", "==", albumId),
-        where("userId", "==", user.id),
-      );
-
-      const querySnapshot = await getDocs(reviewQuery);
-
-      const reviewData: SpotifyReview = {
-        rating: rating,
-        userId: user.id,
-        spotifyId: albumId,
-        dateAdded: Timestamp.now(),
-        type: "album",
-      };
-
-      if (querySnapshot.empty) {
-        await addDoc(collection(db, "anniAppSpotifyReview"), reviewData);
-      } else {
-        const docRef = querySnapshot.docs[0].ref;
-        await updateDoc(docRef, {
-          rating: rating,
-          dateAdded: Timestamp.now(),
-        });
-      }
-
-      handleGetReviewsAndComments(albumId);
-    } catch (error) {
-      console.error("Failed to add/update review:", error);
-    }
+    addReview({
+      userId: user.id,
+      spotifyId: albumId,
+      rating,
+      trackName: albumDetails?.name,
+      artistName: albumDetails?.artists[0]?.name || "Unknown Artist",
+      username: user.name,
+      type: "track",
+    });
   };
 
   const handleCopyToClipboard = () => {
@@ -498,11 +475,16 @@ const SpotifyAlbumPage = () => {
               }}
             />
             <CommentButton
+              disabled={isReviewAddLoading}
               onClick={() => {
                 handleAddComment();
               }}
             >
-              <CommentOutlined />
+              {isReviewAddLoading ? (
+                <CustomSpin color={token.text} />
+              ) : (
+                <CommentOutlined color={token.borderColor} />
+              )}
             </CommentButton>
           </Flex>
 

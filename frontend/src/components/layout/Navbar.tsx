@@ -21,7 +21,7 @@ const MobileBottomNav = styled.div`
   border-top: 2px solid #352a24;
   z-index: 1000;
   padding: 8px 0;
-  padding-bottom: 32px;
+  padding-bottom: 42px;
   display: block;
   height: 70px;
 `;

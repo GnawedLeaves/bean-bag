@@ -1,4 +1,3 @@
-import { ArrowRightOutlined } from "@ant-design/icons";
 import { Flex } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -163,9 +162,9 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
               </Flex>
             </Flex>
 
-            <GotoSongContainer onClick={handleNavigateToTrack}>
+            {/* <GotoSongContainer onClick={handleNavigateToTrack}>
               <ArrowRightOutlined />
-            </GotoSongContainer>
+            </GotoSongContainer> */}
           </Flex>
 
           <ProgressBarContainer>

@@ -213,7 +213,7 @@ app.post('/add-spotify-review', async (req, res) => {
 
     // Send push notifications
     const notificationPayload = JSON.stringify({
-      title: 'New Spotify Review!',
+      title: 'New Beanify rating!',
       body: `${username} rated "${trackName}" by ${artistName} - ${rating} stars`,
       url: `/spotify/track/${spotifyId}`
     });
@@ -245,7 +245,7 @@ app.post('/add-spotify-review', async (req, res) => {
 
 // --- ENDPOINT: ADD SPOTIFY COMMENT WITH NOTIFICATIONS ---
 app.post('/add-spotify-comment', async (req, res) => {
-  const { userId, spotifyId, content, trackName, username } = req.body;
+  const { userId, spotifyId, content, trackName, username,type } = req.body;
 
   // Validation
   if (!userId || !spotifyId || !content?.trim()) {
@@ -258,18 +258,15 @@ app.post('/add-spotify-comment', async (req, res) => {
       userId: userId,
       spotifyId: spotifyId,
       dateAdded: admin.firestore.Timestamp.now(),
-      type: "track",
+      type: type,
     };
     const database = db.collection("anniAppSpotifyReviewComment");
-    console.log("Collection reference created");
-    
     const docRef = await database.add(commentData);
-    console.log("Document written successfully:", docRef.id);
 
 
     // Send push notifications
     const notificationPayload = JSON.stringify({
-      title: 'New Comment on Spotify Review!',
+      title: `New Beanify comment on ${trackName}`,
       body: `${username} commented: "${content.substring(0, 50)}..."`,
       url: `/spotify/track/${spotifyId}`
     });

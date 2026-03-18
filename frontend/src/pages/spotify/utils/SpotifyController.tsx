@@ -1,12 +1,14 @@
 import { message } from "antd";
 import { useCallback, useState } from "react";
 
+type SpotifyType = "artist" | "track" | "album" | "playlist";
 interface AddCommentParams {
   userId: string;
   spotifyId: string;
   content: string;
   trackName?: string;
   username: string;
+  type: SpotifyType;
 }
 
 interface AddReviewParams {
@@ -16,6 +18,7 @@ interface AddReviewParams {
   trackName?: string;
   artistName?: string;
   username?: string;
+  type: SpotifyType;
 }
 
 interface UseSpotifyReviewCommentsProps {

@@ -14,6 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
+import { CustomSpin } from "../../components/loading/LoadingStates";
 import SpotifyDropdownComponent from "../../components/spotifyDropdown/SpotifyDropdown";
 import { useUser } from "../../contexts/UserContext";
 import { auth, db } from "../../firebase/firebase";
@@ -64,7 +65,6 @@ import {
 } from "./SpotifyStyles";
 import { useSpotifyReviewComments } from "./utils/SpotifyController";
 import { useCurrentTrack } from "./utils/useCurrentTrack";
-import { SpinnerIcon } from "../../components/loading/LoadingStates";
 
 interface ReviewObj extends SpotifyReview {
   username: string;
@@ -234,6 +234,7 @@ const SpotifyTrackPage = () => {
       content: newComment,
       trackName: trackDetails?.name,
       username: user.name || "Anonymous",
+      type: "track",
     });
   };
 
@@ -247,6 +248,7 @@ const SpotifyTrackPage = () => {
       trackName: trackDetails?.name,
       artistName: trackDetails?.artists[0]?.name || "Unknown Artist",
       username: user.name,
+      type: "track",
     });
   };
   const handleCopyToClipboard = () => {
@@ -355,14 +357,14 @@ const SpotifyTrackPage = () => {
               navigate(-1);
             }}
           >
-            <ArrowLeftOutlined />
+            <ArrowLeftOutlined color={token.borderColor} />
           </SpotifyBackButton>
           <SpotifyShareButton
             onClick={() => {
               handleCopyToClipboard();
             }}
           >
-            <ShareAltOutlined />
+            <ShareAltOutlined color={token.borderColor} />
           </SpotifyShareButton>
           <SpoitfyTrackTitle> {trackDetails?.name}</SpoitfyTrackTitle>
           <SpoitfyTrackSubTitle>
@@ -502,12 +504,16 @@ const SpotifyTrackPage = () => {
               }}
             />
             <CommentButton
-              //
+              disabled={isReviewAddLoading}
               onClick={() => {
                 handleAddComment();
               }}
             >
-              {isReviewAddLoading ? <SpinnerIcon /> : <CommentOutlined />}
+              {isReviewAddLoading ? (
+                <CustomSpin color={token.text} />
+              ) : (
+                <CommentOutlined color={token.borderColor} />
+              )}
             </CommentButton>
           </Flex>
 

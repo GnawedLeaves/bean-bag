@@ -1,9 +1,8 @@
-import styled, { ThemeProvider } from "styled-components";
-import { token } from "../../theme";
-import { useEffect, useRef, useState } from "react";
 import { SmileOutlined } from "@ant-design/icons";
 import { BaseOptionType } from "antd/es/select";
-import { SpotifyButtonSmallText } from "../../pages/spotify/SpotifyStyles";
+import { useEffect, useRef, useState } from "react";
+import styled, { ThemeProvider } from "styled-components";
+import { token } from "../../theme";
 
 interface SpotifyDropdownProps {
   onItemClick: (option: BaseOptionType) => void;
@@ -105,6 +104,7 @@ const SpotifyDropdownComponent = ({
               opacity: dropdownOpen ? 0 : 1,
               transition: "0.3s",
             }}
+            color={token.borderColor}
           />
         </DropdownButton>
 
