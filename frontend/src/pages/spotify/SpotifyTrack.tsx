@@ -111,20 +111,24 @@ const SpotifyTrackPage = () => {
     return currentlyPlayingDetails?.item.id === trackId;
   }, [currentlyPlayingDetails, trackId]);
 
-  const handleGetTrackDetails = async () => {
-    if (currentPlaying && trackId === currentPlaying.item.id) {
+  const handleSetCurrentTrack = async () => {
+
+    if (isPlayingThisTrack && currentPlaying) {
       setTrackDetails(currentPlaying.item);
       setCurrentlyPlayingDetails(currentPlaying);
       setLocalSongCounter(currentPlaying.progress_ms);
-    } else {
-      if (!trackId || !spotifyToken?.accessToken) return;
-      const response = await getSpotifyTrack(
-        trackId,
-        spotifyToken?.accessToken,
-      );
-      setTrackDetails(response);
-      setLocalSongCounter(0);
     }
+  };
+
+  const handleGetTrackDetails = async () => {
+
+    if (!trackId || !spotifyToken?.accessToken || isPlayingThisTrack) return;
+    const response = await getSpotifyTrack(
+      trackId,
+      spotifyToken?.accessToken,
+    );
+    setTrackDetails(response);
+    setLocalSongCounter(0);
   };
 
   const handleGetReviewsAndComments = async (spotifyId: string) => {
@@ -311,10 +315,13 @@ const SpotifyTrackPage = () => {
   }, [loading]);
 
   useEffect(() => {
-    if (currentPlaying) {
-      handleGetTrackDetails();
+    if (isPlayingThisTrack && currentPlaying) {
+      handleSetCurrentTrack();
+    } else {
+      handleGetTrackDetails()
     }
-  }, [currentPlaying]);
+  }, [isPlayingThisTrack, currentPlaying]);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (!currentUser) {
