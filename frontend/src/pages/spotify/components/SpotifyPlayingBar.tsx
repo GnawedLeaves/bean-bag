@@ -37,6 +37,7 @@ const ProgressBarContainer = styled.div`
   z-index: 1;
   width: 110%;
   height: 5px;
+  padding: 0 10%;
 `;
 
 const ProgressBar = styled.div<{

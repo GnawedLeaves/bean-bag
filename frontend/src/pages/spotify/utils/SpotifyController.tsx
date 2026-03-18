@@ -1,5 +1,5 @@
 import { message } from "antd";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 interface AddCommentParams {
   userId: string;
@@ -30,8 +30,11 @@ export const useSpotifyReviewComments = ({
   const API_BASE_URL =
     process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const addComment = useCallback(
     async (params: AddCommentParams) => {
+      setIsLoading(true);
       const { userId, spotifyId, content, trackName, username } = params;
 
       if (!content.trim() || !spotifyId || !userId || !username) {
@@ -58,10 +61,12 @@ export const useSpotifyReviewComments = ({
         }
 
         message.success("Comment added!");
+        setIsLoading(false);
         onCommentAdded();
       } catch (error) {
         console.error("Failed to add comment:", error);
         message.error("Failed to add comment");
+        setIsLoading(false);
       }
     },
     [API_BASE_URL, onCommentAdded],
@@ -69,6 +74,7 @@ export const useSpotifyReviewComments = ({
 
   const addReview = useCallback(
     async (params: AddReviewParams) => {
+      setIsLoading(true);
       const { userId, spotifyId, rating, trackName, artistName, username } =
         params;
 
@@ -98,9 +104,11 @@ export const useSpotifyReviewComments = ({
 
         message.success("Review added!");
         onReviewAdded();
+        setIsLoading(false);
       } catch (error) {
         console.error("Failed to add review:", error);
         message.error("Failed to add review");
+        setIsLoading(false);
       }
     },
     [API_BASE_URL, onReviewAdded],
@@ -109,5 +117,6 @@ export const useSpotifyReviewComments = ({
   return {
     addComment,
     addReview,
+    isLoading,
   };
 };

@@ -1,4 +1,8 @@
 require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
 const express = require('express');
 const webpush = require('web-push');
 const cors = require('cors');
@@ -256,8 +260,12 @@ app.post('/add-spotify-comment', async (req, res) => {
       dateAdded: admin.firestore.Timestamp.now(),
       type: "track",
     };
+    const database = db.collection("anniAppSpotifyReviewComment");
+    console.log("Collection reference created");
+    
+    const docRef = await database.add(commentData);
+    console.log("Document written successfully:", docRef.id);
 
-    const docRef = await db.collection("anniAppSpotifyReviewComment").add(commentData);
 
     // Send push notifications
     const notificationPayload = JSON.stringify({

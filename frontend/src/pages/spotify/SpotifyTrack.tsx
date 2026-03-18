@@ -64,6 +64,7 @@ import {
 } from "./SpotifyStyles";
 import { useSpotifyReviewComments } from "./utils/SpotifyController";
 import { useCurrentTrack } from "./utils/useCurrentTrack";
+import { SpinnerIcon } from "../../components/loading/LoadingStates";
 
 interface ReviewObj extends SpotifyReview {
   username: string;
@@ -92,7 +93,11 @@ const SpotifyTrackPage = () => {
   const [newComment, setNewComment] = useState<string>("");
 
   const [localSongCounter, setLocalSongCounter] = useState<number>(0);
-  const { addComment, addReview } = useSpotifyReviewComments({
+  const {
+    addComment,
+    addReview,
+    isLoading: isReviewAddLoading,
+  } = useSpotifyReviewComments({
     onCommentAdded: () => {
       setNewComment("");
       handleGetReviewsAndComments(trackId ?? "");
@@ -497,11 +502,12 @@ const SpotifyTrackPage = () => {
               }}
             />
             <CommentButton
+              //
               onClick={() => {
                 handleAddComment();
               }}
             >
-              <CommentOutlined />
+              {isReviewAddLoading ? <SpinnerIcon /> : <CommentOutlined />}
             </CommentButton>
           </Flex>
 
