@@ -185,5 +185,111 @@ app.post('/test-send-notification', async (req, res) => {
   }
 });
 
+
+// --- ENDPOINT: ADD SPOTIFY REVIEW WITH NOTIFICATIONS ---
+app.post('/add-spotify-review', async (req, res) => {
+  const { userId, username, spotifyId, rating, trackName, artistName } = req.body;
+
+  // Validation
+  if (!userId || !spotifyId || rating === undefined) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    const reviewData = {
+      rating: rating,
+      userId: userId,
+      spotifyId: spotifyId,
+      dateAdded: admin.firestore.Timestamp.now(),
+      type: "track",
+    };
+
+       const docRef = await db.collection("anniAppSpotifyReview").add(reviewData);
+      docId = docRef.id;
+
+    // Send push notifications
+    const notificationPayload = JSON.stringify({
+      title: 'New Spotify Review!',
+      body: `${username} rated "${trackName}" by ${artistName} - ${rating} stars`,
+      url: `/spotify/track/${spotifyId}`
+    });
+
+    const snapshot = await db.collection('anniAppPushSubscriptions').get();
+
+    const notifications = snapshot.docs.map(doc => {
+      const sub = doc.data();
+      return webpush.sendNotification(sub, notificationPayload)
+        .catch(async (err) => {
+          console.error('Error sending notification:', err);
+          if (err.statusCode === 404 || err.statusCode === 410) {
+            await db.collection('anniAppPushSubscriptions').doc(doc.id).delete();
+          }
+        });
+    });
+
+    await Promise.all(notifications);
+
+    res.status(201).json({ 
+      message: 'Review added successfully',
+      docId: docId 
+    });
+  } catch (error) {
+    console.error('Error adding review:', error);
+    res.status(500).json({ error: 'Failed to add review', details: error.message });
+  }
+});
+
+// --- ENDPOINT: ADD SPOTIFY COMMENT WITH NOTIFICATIONS ---
+app.post('/add-spotify-comment', async (req, res) => {
+  const { userId, spotifyId, content, trackName, username } = req.body;
+
+  // Validation
+  if (!userId || !spotifyId || !content?.trim()) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    const commentData = {
+      content: content.trim(),
+      userId: userId,
+      spotifyId: spotifyId,
+      dateAdded: admin.firestore.Timestamp.now(),
+      type: "track",
+    };
+
+    const docRef = await db.collection("anniAppSpotifyReviewComment").add(commentData);
+
+    // Send push notifications
+    const notificationPayload = JSON.stringify({
+      title: 'New Comment on Spotify Review!',
+      body: `${username} commented: "${content.substring(0, 50)}..."`,
+      url: `/spotify/track/${spotifyId}`
+    });
+
+    const snapshot = await db.collection('anniAppPushSubscriptions').get();
+
+    const notifications = snapshot.docs.map(doc => {
+      const sub = doc.data();
+      return webpush.sendNotification(sub, notificationPayload)
+        .catch(async (err) => {
+          console.error('Error sending notification:', err);
+          if (err.statusCode === 404 || err.statusCode === 410) {
+            await db.collection('anniAppPushSubscriptions').doc(doc.id).delete();
+          }
+        });
+    });
+
+    await Promise.all(notifications);
+
+    res.status(201).json({ 
+      message: 'Comment added successfully',
+      docId: docRef.id 
+    });
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ error: 'Failed to add comment', details: error.message });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

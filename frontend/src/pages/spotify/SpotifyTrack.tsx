@@ -9,15 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Flex, Input, message, Rate } from "antd";
 import { BaseOptionType } from "antd/es/select";
 import { onAuthStateChanged } from "firebase/auth";
-import {
-  addDoc,
-  collection,
-  getDocs,
-  query,
-  Timestamp,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
@@ -70,6 +62,7 @@ import {
   SpotifyShareButton,
   SpotifyTrackPlayButton,
 } from "./SpotifyStyles";
+import { useSpotifyReviewComments } from "./utils/SpotifyController";
 import { useCurrentTrack } from "./utils/useCurrentTrack";
 
 interface ReviewObj extends SpotifyReview {
@@ -99,6 +92,15 @@ const SpotifyTrackPage = () => {
   const [newComment, setNewComment] = useState<string>("");
 
   const [localSongCounter, setLocalSongCounter] = useState<number>(0);
+  const { addComment, addReview } = useSpotifyReviewComments({
+    onCommentAdded: () => {
+      setNewComment("");
+      handleGetReviewsAndComments(trackId ?? "");
+    },
+    onReviewAdded: () => {
+      handleGetReviewsAndComments(trackId ?? "");
+    },
+  });
 
   const isPlayingThisTrack = useMemo(() => {
     return currentlyPlayingDetails?.item.id === trackId;
@@ -221,59 +223,27 @@ const SpotifyTrackPage = () => {
   const handleAddComment = async () => {
     if (!newComment.trim() || !trackId || !user?.id) return;
 
-    const commentData: SpotifyComment = {
-      content: newComment.trim(),
+    addComment({
       userId: user.id,
       spotifyId: trackId,
-      dateAdded: Timestamp.now(),
-      type: "track",
-    };
-
-    try {
-      await addDoc(collection(db, "anniAppSpotifyReviewComment"), commentData);
-      setNewComment("");
-      handleGetReviewsAndComments(trackId);
-    } catch (error) {
-      console.error("Failed to add comment:", error);
-    }
+      content: newComment,
+      trackName: trackDetails?.name,
+      username: user.name || "Anonymous",
+    });
   };
 
   const handleAddReview = async (rating: number) => {
     if (!trackId || !user?.id) return;
 
-    try {
-      const reviewQuery = query(
-        collection(db, "anniAppSpotifyReview"),
-        where("spotifyId", "==", trackId),
-        where("userId", "==", user.id),
-      );
-
-      const querySnapshot = await getDocs(reviewQuery);
-
-      const reviewData: SpotifyReview = {
-        rating: rating,
-        userId: user.id,
-        spotifyId: trackId,
-        dateAdded: Timestamp.now(),
-        type: "track",
-      };
-
-      if (querySnapshot.empty) {
-        await addDoc(collection(db, "anniAppSpotifyReview"), reviewData);
-      } else {
-        const docRef = querySnapshot.docs[0].ref;
-        await updateDoc(docRef, {
-          rating: rating,
-          dateAdded: Timestamp.now(),
-        });
-      }
-
-      handleGetReviewsAndComments(trackId);
-    } catch (error) {
-      console.error("Failed to add/update review:", error);
-    }
+    addReview({
+      userId: user.id,
+      spotifyId: trackId,
+      rating,
+      trackName: trackDetails?.name,
+      artistName: trackDetails?.artists[0]?.name || "Unknown Artist",
+      username: user.name,
+    });
   };
-
   const handleCopyToClipboard = () => {
     navigator.clipboard
       .writeText(window.location.href)
