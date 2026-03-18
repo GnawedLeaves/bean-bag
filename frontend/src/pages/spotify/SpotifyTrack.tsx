@@ -86,8 +86,7 @@ const SpotifyTrackPage = () => {
   );
   const navigate = useNavigate();
   const [trackDetails, setTrackDetails] = useState<SpotifyTrack | null>();
-  const [currentlyPlayingDetails, setCurrentlyPlayingDetails] =
-    useState<SpotifyCurrentPlaying | null>();
+
   const [reviews, setReviews] = useState<ReviewObj[]>([]);
   const [comments, setComments] = useState<CommentObj[]>([]);
   const [newComment, setNewComment] = useState<string>("");
@@ -106,15 +105,24 @@ const SpotifyTrackPage = () => {
       handleGetReviewsAndComments(trackId ?? "");
     },
   });
-
   const isPlayingThisTrack = useMemo(() => {
-    return currentlyPlayingDetails?.item.id === trackId;
-  }, [currentlyPlayingDetails, trackId]);
+    return currentPlaying?.item.id === trackId;
+  }, [currentPlaying, trackId]);
+
+
+  useEffect(() => {
+    console.log({ isPlayingThisTrack, currentPlaying })
+    if (isPlayingThisTrack && currentPlaying) {
+      handleSetCurrentTrack();
+    } else if (trackId) {
+      handleGetTrackDetails()
+    }
+  }, [isPlayingThisTrack, currentPlaying, trackId]);
+
 
   const handleSetCurrentTrack = async () => {
-    if (isPlayingThisTrack && currentPlaying) {
+    if (currentPlaying) {
       setTrackDetails(currentPlaying.item);
-      setCurrentlyPlayingDetails(currentPlaying);
       setLocalSongCounter(currentPlaying.progress_ms);
     }
   };
@@ -127,7 +135,6 @@ const SpotifyTrackPage = () => {
       spotifyToken?.accessToken,
     );
     setTrackDetails(response);
-    setLocalSongCounter(0);
   };
 
   const handleGetReviewsAndComments = async (spotifyId: string) => {
@@ -313,13 +320,7 @@ const SpotifyTrackPage = () => {
     }
   }, [loading]);
 
-  useEffect(() => {
-    if (isPlayingThisTrack && currentPlaying) {
-      handleSetCurrentTrack();
-    } else if (trackId) {
-      handleGetTrackDetails()
-    }
-  }, [isPlayingThisTrack, currentPlaying, trackId]);
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -339,11 +340,11 @@ const SpotifyTrackPage = () => {
   };
 
   useEffect(() => {
-    if (!isPlayingThisTrack || !currentlyPlayingDetails) return;
+    if (!isPlayingThisTrack || !currentPlaying) return;
     const interval = setInterval(() => {
       setLocalSongCounter((prev) => {
         const next = prev + 1000;
-        if (next > currentlyPlayingDetails?.item.duration_ms) {
+        if (next > currentPlaying?.item.duration_ms) {
           return prev;
         }
         return next;
@@ -351,7 +352,7 @@ const SpotifyTrackPage = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [currentlyPlayingDetails]);
+  }, [currentPlaying]);
 
   return (
     <ThemeProvider theme={token}>
