@@ -211,7 +211,10 @@ export const getMultipleSpotifyAlbums = async (
 
 // Add this to your services/spotify/spotify.ts
 const REDIRECT_URI = "https://beaniebag.netlify.app/spotify";
-const SCOPES = ["user-read-currently-playing", "user-read-playback-state"];
+const SCOPES = [
+  "user-read-currently-playing",
+  "user-read-playback-state",
+];
 
 export const getSpotifyAuthUrl = () => {
   const queryParams = new URLSearchParams({

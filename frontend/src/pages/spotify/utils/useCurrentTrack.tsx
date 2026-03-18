@@ -292,36 +292,42 @@ const mock: SpotifyCurrentPlaying = {
 const useCurrentTrack = (accessToken: string | null) => {
   const [currentPlaying, setCurrentPlaying] =
     useState<SpotifyCurrentPlaying | null>(null);
-
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log({ accessToken })
+    console.log({ accessToken });
     if (!accessToken) return;
 
     const fetchNowPlaying = async () => {
       try {
         setIsLoading(true);
+        setError(null);
 
         const token = await getValidAccessToken();
-        console.log({ token })
+        console.log("Using token:", token);
+
         const data = await getCurrentlyPlaying(token);
-        console.log({ data })
+        console.log("Currently playing data:", data);
 
         if (data?.item) {
           setCurrentPlaying(data);
-          setError(null);
         } else {
           setCurrentPlaying(null);
         }
       } catch (err: any) {
+        console.error("Error fetching playback:", err);
+
         if (err.response?.status === 401) {
-          // Token refresh itself failed — user needs to re-authenticate
+          // Token expired or invalid
           localStorage.removeItem("spotify_access_token");
           localStorage.removeItem("spotify_refresh_token");
           localStorage.removeItem("spotify_token_expiry");
-          setError("Authentication failed. Please reconnect Spotify.");
+          setError("Spotify token expired. Please reconnect Spotify.");
+        } else if (err.response?.status === 403) {
+          // Permission denied or no active device
+          setError("No active Spotify device or insufficient permissions. Make sure Spotify is playing and you've authorized playback access.");
+          console.log("403 Error - check if user has granted playback permissions and has an active device");
         } else {
           setError("Failed to fetch current track");
         }
