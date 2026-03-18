@@ -41,7 +41,6 @@ const BlogController = ({ onAddBeanComment }: BlogControllerProps) => {
           window.alert("Error adding comment from controller");
           throw new Error("Failed to add comment");
         }
-        window.alert("Comment added successfully");
         onAddBeanComment(entryId);
       } catch (e) {
         window.alert("Error adding comment from controller: " + e);
