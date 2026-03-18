@@ -14,8 +14,7 @@ interface BlogControllerProps {
 
 const BlogController = ({ onAddBeanComment }: BlogControllerProps) => {
   const API_BASE_URL =
-    // process.env.REACT_APP_BACKEND_URL ||
-    "http://localhost:5000";
+    process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
   const addBeanComment = useCallback(
     async ({ entryId, newComment, userId }: AddBeanCommentProps) => {
       if (!newComment[entryId] || !userId) return;

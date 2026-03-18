@@ -263,59 +263,7 @@ app.post("/add-spotify-review", async (req, res) => {
       .json({ error: "Failed to add review", details: error.message });
   }
 });
-app.post("/add-bean-comment", async (req, res) => {
-  const { blogEntryId, userId, content, isDelete, blogTitle } = req.body;
-  console.log(req.body);
-  if (!req.body) {
-    return res.status(400).json({ error: "Missing required fields" });
-  }
-  const commentBody = {
-    blogEntryId,
-    userId,
-    content,
-    dateAdded: admin.firestore.Timestamp.now(),
-    isDelete,
-  };
-  try {
-    const database = db.collection("anniAppBeansComments");
-    const docRef = await database.add(commentBody);
 
-    const notificationPayload = JSON.stringify({
-      title: `New Bean comment on ${blogTitle}`,
-      body: `"${content.substring(0, 50)}"`,
-      url: `/blogs`,
-    });
-
-    const snapshot = await db.collection("anniAppPushSubscriptions").get();
-
-    const notifications = snapshot.docs.map((doc) => {
-      const sub = doc.data();
-      return webpush
-        .sendNotification(sub, notificationPayload)
-        .catch(async (err) => {
-          console.error("Error sending notification:", err);
-          if (err.statusCode === 404 || err.statusCode === 410) {
-            await db
-              .collection("anniAppPushSubscriptions")
-              .doc(doc.id)
-              .delete();
-          }
-        });
-    });
-
-    await Promise.all(notifications);
-
-    res.status(201).json({
-      message: "Bean Comment added successfully",
-      docId: docRef.id,
-    });
-  } catch (error) {
-    console.error("Error adding bean comment:", error);
-    res
-      .status(500)
-      .json({ error: "Failed to add bean comment", details: error.message });
-  }
-});
 // --- ENDPOINT: ADD SPOTIFY COMMENT WITH NOTIFICATIONS ---
 app.post("/add-spotify-comment", async (req, res) => {
   const { userId, spotifyId, content, trackName, username, type } = req.body;
@@ -371,6 +319,61 @@ app.post("/add-spotify-comment", async (req, res) => {
     res
       .status(500)
       .json({ error: "Failed to add comment", details: error.message });
+  }
+});
+
+app.post("/add-bean-comment", async (req, res) => {
+  const { blogEntryId, userId, content, isDelete, blogTitle } = req.body;
+  console.log(req.body);
+  if (!req.body) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  const commentBody = {
+    blogEntryId,
+    userId,
+    content,
+    dateAdded: admin.firestore.Timestamp.now(),
+    isDelete,
+  };
+  try {
+    const database = db.collection("anniAppBeansComments");
+    const docRef = await database.add(commentBody);
+
+    const notificationPayload = JSON.stringify({
+      title: `New Bean comment on ${blogTitle}`,
+      body: `"${content.substring(0, 50)}"`,
+      url: `/blogs`,
+    });
+
+    const snapshot = await db.collection("anniAppPushSubscriptions").get();
+
+    const notifications = snapshot.docs.map((doc) => {
+      const sub = doc.data();
+      return webpush
+        .sendNotification(sub, notificationPayload)
+        .catch(async (err) => {
+          console.error("Error sending notification:", err);
+          if (err.statusCode === 404 || err.statusCode === 410) {
+            await db
+              .collection("anniAppPushSubscriptions")
+              .doc(doc.id)
+              .delete();
+          }
+        });
+    });
+
+    await Promise.all(notifications);
+
+    console.log("hygraph notifs sent!!", blogTitle);
+    res.status(201).json({
+      message: "Bean Comment added successfully",
+      docId: docRef.id,
+    });
+  } catch (error) {
+    console.error("Error adding bean comment:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to add bean comment", details: error.message });
   }
 });
 
