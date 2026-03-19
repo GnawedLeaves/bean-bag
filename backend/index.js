@@ -231,7 +231,7 @@ app.post("/add-spotify-review", async (req, res) => {
     req.body;
 
   // Validation
-  if (!userId || !spotifyId || rating === undefined) {
+  if (!userId || !spotifyId || !type || rating === undefined) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
@@ -244,13 +244,37 @@ app.post("/add-spotify-review", async (req, res) => {
       type: type,
     };
 
+    let body = "";
+    switch (type) {
+      case "track":
+        body = `${username} rated track: "${trackName}" by ${artistName} - ${rating} ${rating > 1 ? "stars" : "star"}`;
+        break;
+      case "artist":
+        body = `${username} rated artist: "${trackName}" - ${rating} ${rating > 1 ? "stars" : "star"}`;
+        break;
+
+      case "album":
+        body = `${username} rated album: "${trackName}" by ${artistName} - ${rating} ${rating > 1 ? "stars" : "star"}`;
+        break;
+
+      case "playlist":
+        body = `${username} rated playlist: "${trackName}"  - ${rating} ${rating > 1 ? "stars" : "star"}`;
+        break;
+
+      default:
+        body = ``;
+        break;
+    }
+
+    console.log({ body });
+
     const docRef = await db.collection("anniAppSpotifyReview").add(reviewData);
     docId = docRef.id;
 
     await sendGlobalNotification(
       {
         title: "New Beanify rating!",
-        body: `${username} rated "${trackName}" by ${artistName} - ${rating} stars`,
+        body: body,
         url: `/spotify/track/${spotifyId}`,
       },
       userId,
@@ -273,7 +297,7 @@ app.post("/add-spotify-comment", async (req, res) => {
   const { userId, spotifyId, content, trackName, username, type } = req.body;
 
   // Validation
-  if (!userId || !spotifyId || !content?.trim()) {
+  if (!userId || !spotifyId || !type || !content?.trim()) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
@@ -288,14 +312,48 @@ app.post("/add-spotify-comment", async (req, res) => {
     const database = db.collection("anniAppSpotifyReviewComment");
     const docRef = await database.add(commentData);
 
-    await sendGlobalNotification(
-      {
-        title: `New Beanify comment on ${trackName}`,
-        body: `${username} commented: "${content.substring(0, 50)}..."`,
-        url: `/spotify/track/${spotifyId}`,
-      },
-      userId,
-    );
+    let notifObj = {
+      title: `New Beanify comment`,
+      body: `${username} commented: "${content.substring(0, 50)}..."`,
+      url: `/spotify`,
+    };
+    switch (type) {
+      case "track":
+        notifObj = {
+          title: `New comment on track: ${trackName}`,
+          body: `${username} commented: "${content.substring(0, 50)}..."`,
+          url: `/spotify/${type}/${spotifyId}`,
+        };
+        break;
+      case "artist":
+        notifObj = {
+          title: `New comment on artist: ${trackName}`,
+          body: `${username} commented: "${content.substring(0, 50)}..."`,
+          url: `/spotify/${type}/${spotifyId}`,
+        };
+        break;
+
+      case "album":
+        notifObj = {
+          title: `New comment on album: ${trackName}`,
+          body: `${username} commented: "${content.substring(0, 50)}..."`,
+          url: `/spotify/${type}/${spotifyId}`,
+        };
+        break;
+
+      case "playlist":
+        notifObj = {
+          title: `New comment on playlist: ${trackName}`,
+          body: `${username} commented: "${content.substring(0, 50)}..."`,
+          url: `/spotify/${type}/${spotifyId}`,
+        };
+        break;
+
+      default:
+        break;
+    }
+
+    await sendGlobalNotification(notifObj, userId);
 
     res.status(201).json({
       message: "Comment added successfully",
