@@ -308,7 +308,7 @@ const SpotifyPlaylistDetailsPage = () => {
       content: newComment,
       trackName: playlistDetails?.name,
       username: user.name || "Anonymous",
-      type: "track",
+      type: "playlist",
     });
   };
 
@@ -321,7 +321,7 @@ const SpotifyPlaylistDetailsPage = () => {
       rating,
       trackName: playlistDetails?.name,
       username: user.name,
-      type: "track",
+      type: "playlist",
     });
   };
 

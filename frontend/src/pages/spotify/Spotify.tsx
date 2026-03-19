@@ -425,7 +425,7 @@ const SpotifyPage = () => {
 
         switch (activity.type) {
           case "track":
-            details = trackDetails.find((t) => t.id === activity.spotifyId);
+            details = trackDetails.find((t) => t?.id === activity.spotifyId);
             if (details as SpotifyTrack) {
               displayName = (details as SpotifyTrack).name;
               imageUrl = (details as SpotifyTrack).album.images[0]?.url;
@@ -576,7 +576,7 @@ const SpotifyPage = () => {
                   {isTrackLoading ? (
                     <Spin size="default" />
                   ) : (
-                    <SearchOutlined style={{color: token.text}}/>
+                    <SearchOutlined style={{ color: token.text }} />
                   )}
                 </SpotifySearchButton>
               </Flex>

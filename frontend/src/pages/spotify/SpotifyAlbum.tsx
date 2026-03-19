@@ -275,7 +275,7 @@ const SpotifyAlbumPage = () => {
       trackName: albumDetails?.name,
       artistName: albumDetails?.artists[0]?.name || "Unknown Artist",
       username: user.name,
-      type: "track",
+      type: "album",
     });
   };
 
