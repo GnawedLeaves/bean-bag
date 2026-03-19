@@ -1,7 +1,7 @@
 import { useGSAP } from "@gsap/react";
 import { Flex } from "antd";
 import gsap from "gsap";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import { token } from "../../../theme";
@@ -115,7 +115,7 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
   });
 
   // Track progress
-  useState(() => {
+  useEffect(() => {
     if (currentPlaying) {
       setLocalCount(currentPlaying.progress_ms);
     } else {
@@ -123,7 +123,7 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
     }
   });
 
-  useState(() => {
+  useEffect(() => {
     if (!currentPlaying?.is_playing) return;
     const interval = setInterval(() => {
       setLocalCount((prev) => {
