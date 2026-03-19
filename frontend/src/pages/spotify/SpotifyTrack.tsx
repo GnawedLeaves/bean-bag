@@ -108,7 +108,7 @@ const SpotifyTrackPage = () => {
   }, [currentPlaying, trackId]);
 
   useEffect(() => {
-    console.log({ isPlayingThisTrack, currentPlaying });
+    console.log({ isPlayingThisTrack, currentPlaying, trackId });
     if (isPlayingThisTrack && currentPlaying) {
       handleSetCurrentTrack();
     } else if (trackId) {
@@ -124,8 +124,12 @@ const SpotifyTrackPage = () => {
   };
 
   const handleGetTrackDetails = async () => {
+    console.log("getting song", { isPlayingThisTrack, trackId });
     if (!trackId || !spotifyToken?.accessToken || isPlayingThisTrack) return;
+
     const response = await getSpotifyTrack(trackId, spotifyToken?.accessToken);
+    console.log("getting song response", { response });
+
     setTrackDetails(response);
   };
 
