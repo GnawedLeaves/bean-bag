@@ -1,7 +1,7 @@
 import { useGSAP } from "@gsap/react";
 import { Flex } from "antd";
 import gsap from "gsap";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import { token } from "../../../theme";
@@ -84,26 +84,36 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
   const [localCount, setLocalCount] = useState<number>(0);
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
+  const currentUrl = window.location.href;
 
-  useGSAP(() => {
-    if (containerRef.current) {
-      if (currentPlaying) {
-        gsap.to(containerRef.current, {
-          y: 0,
-          // opacity: 1,
-          duration:0.5,
-          ease: "power2.out",
-        });
-      } else {
-        gsap.to(containerRef.current, {
-          y: 100,
-          // opacity: 0,
-          duration: 0.5,
-          ease: "power2.in",
-        });
+  const showBar = useMemo(() => {
+    if (currentUrl.includes("spotify/track/")) return false;
+    if (currentPlaying) return true;
+    else return false;
+  }, [currentPlaying, currentUrl]);
+
+  useGSAP(
+    () => {
+      if (containerRef.current) {
+        if (showBar) {
+          gsap.to(containerRef.current, {
+            y: 0,
+            // opacity: 1,
+            duration: 0.5,
+            ease: "power2.out",
+          });
+        } else {
+          gsap.to(containerRef.current, {
+            y: 100,
+            // opacity: 0,
+            duration: 0.3,
+            ease: "power2.in",
+          });
+        }
       }
-    }
-  }, { dependencies: [currentPlaying] });
+    },
+    { dependencies: [showBar] },
+  );
 
   useGSAP(() => {
     if (containerRef.current) {
@@ -196,8 +206,6 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
                 </SongAlbumDetails>
               </Flex>
             </Flex>
-
-         
           </Flex>
 
           <ProgressBarContainer>

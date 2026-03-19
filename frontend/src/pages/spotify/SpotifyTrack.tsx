@@ -354,14 +354,14 @@ const SpotifyTrackPage = () => {
               navigate(-1);
             }}
           >
-            <ArrowLeftOutlined style={{color: token.text}} />
+            <ArrowLeftOutlined style={{ color: token.text }} />
           </SpotifyBackButton>
           <SpotifyShareButton
             onClick={() => {
               handleCopyToClipboard();
             }}
           >
-            <ShareAltOutlined style={{color: token.text}} />
+            <ShareAltOutlined style={{ color: token.text }} />
           </SpotifyShareButton>
           <SpoitfyTrackTitle> {trackDetails?.name}</SpoitfyTrackTitle>
           <SpoitfyTrackSubTitle>
@@ -416,7 +416,7 @@ const SpotifyTrackPage = () => {
                 ) : (
                   <FontAwesomeIcon
                     icon={faPlay}
-                    style={{color: token.text}}
+                    style={{ color: token.text }}
                     fontSize={32}
                   />
                 )}
@@ -509,7 +509,7 @@ const SpotifyTrackPage = () => {
               {isReviewAddLoading ? (
                 <CustomSpin color={token.text} />
               ) : (
-                <CommentOutlined style={{color: token.text}} />
+                <CommentOutlined style={{ color: token.text }} />
               )}
             </CommentButton>
           </Flex>

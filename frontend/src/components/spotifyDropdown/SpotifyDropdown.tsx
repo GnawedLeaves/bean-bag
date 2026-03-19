@@ -103,6 +103,7 @@ const SpotifyDropdownComponent = ({
             style={{
               opacity: dropdownOpen ? 0 : 1,
               transition: "0.3s",
+              color: token.text
             }}
             color={token.borderColor}
           />
