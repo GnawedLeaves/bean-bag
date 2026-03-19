@@ -88,9 +88,9 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
   const currentUrl = window.location.href;
 
   const showBar = useMemo(() => {
-    if (currentUrl.includes("spotify/track/")) return false;
-    if (currentPlaying) return true;
-    else return false;
+    if (currentPlaying) {
+      if (!currentUrl.includes(currentPlaying.item.id)) return true;
+    } else return false;
   }, [currentPlaying, currentUrl]);
 
   useGSAP(
@@ -176,7 +176,11 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
         }}
       >
         <SpotifyPlayingBarContainer onClick={handleNavigateToTrack}>
-          <Flex align="center" justify="space-between" style={{paddingRight: 12}}>
+          <Flex
+            align="center"
+            justify="space-between"
+            style={{ paddingRight: 12 }}
+          >
             <Flex>
               <SpotifyPlayingBarTrackImg
                 src={currentPlaying?.item?.album.images[0].url}
@@ -207,7 +211,7 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
                 </SongAlbumDetails>
               </Flex>
             </Flex>
-            <SpotifyAnimatedPlayingIcon isPlaying={true}/>
+            <SpotifyAnimatedPlayingIcon isPlaying={true} />
           </Flex>
 
           <ProgressBarContainer>
