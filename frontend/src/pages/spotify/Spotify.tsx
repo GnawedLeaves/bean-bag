@@ -47,7 +47,6 @@ import {
   SpotifyTrack,
 } from "../../types/spotifyTypes";
 import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
-import SpotifyPlayingBar from "./components/SpotifyPlayingBar";
 import { ItemSubtitle } from "./SpotifyArtist";
 import {
   LoadingCardContainer,
@@ -523,8 +522,6 @@ const SpotifyPage = () => {
     >
       <ThemeProvider theme={token}>
         <SpotifyMain>
-          <SpotifyPlayingBar currentPlaying={currentPlaying} />
-
           <SpotifyHeroContainer>
             <SpotifyHeroTitle>MUSIC</SpotifyHeroTitle>
             <SpotifyHeroSubtitle>
@@ -533,7 +530,6 @@ const SpotifyPage = () => {
           </SpotifyHeroContainer>
 
           <SpotifyMainBodyContainer>
-
             <Flex>
               {!spotifyToken?.accessToken ? (
                 <SpotifySearchButton
@@ -640,23 +636,23 @@ const SpotifyPage = () => {
                         const route =
                           activity.type === "track"
                             ? ROUTES.SPOTIFY_TRACK.path.replace(
-                              ":trackId",
-                              activity.spotifyId,
-                            )
-                            : activity.type === "album"
-                              ? ROUTES.SPOTIFY_ALBUM.path.replace(
-                                ":albumId",
+                                ":trackId",
                                 activity.spotifyId,
                               )
-                              : activity.type === "artist"
-                                ? ROUTES.SPOTIFY_ARTIST.path.replace(
-                                  ":artistId",
+                            : activity.type === "album"
+                              ? ROUTES.SPOTIFY_ALBUM.path.replace(
+                                  ":albumId",
                                   activity.spotifyId,
                                 )
+                              : activity.type === "artist"
+                                ? ROUTES.SPOTIFY_ARTIST.path.replace(
+                                    ":artistId",
+                                    activity.spotifyId,
+                                  )
                                 : ROUTES.SPOTIFY_PLAYLIST.path.replace(
-                                  ":playlistId",
-                                  activity.spotifyId,
-                                );
+                                    ":playlistId",
+                                    activity.spotifyId,
+                                  );
                         navigate(route);
                       }}
                     >
@@ -722,23 +718,23 @@ const SpotifyPage = () => {
                         const route =
                           item.type === "track"
                             ? ROUTES.SPOTIFY_TRACK.path.replace(
-                              ":trackId",
-                              item.spotifyId,
-                            )
-                            : item.type === "album"
-                              ? ROUTES.SPOTIFY_ALBUM.path.replace(
-                                ":albumId",
+                                ":trackId",
                                 item.spotifyId,
                               )
-                              : item.type === "artist"
-                                ? ROUTES.SPOTIFY_ARTIST.path.replace(
-                                  ":artistId",
+                            : item.type === "album"
+                              ? ROUTES.SPOTIFY_ALBUM.path.replace(
+                                  ":albumId",
                                   item.spotifyId,
                                 )
+                              : item.type === "artist"
+                                ? ROUTES.SPOTIFY_ARTIST.path.replace(
+                                    ":artistId",
+                                    item.spotifyId,
+                                  )
                                 : ROUTES.SPOTIFY_PLAYLIST.path.replace(
-                                  ":playlistId",
-                                  item.spotifyId,
-                                );
+                                    ":playlistId",
+                                    item.spotifyId,
+                                  );
                         navigate(route);
                       }}
                     >

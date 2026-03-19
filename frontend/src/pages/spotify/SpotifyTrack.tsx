@@ -36,7 +36,6 @@ import {
   formatMilliseconds,
   scrollToTop,
 } from "../../utils/utils";
-import SpotifyPlayingBar from "./components/SpotifyPlayingBar";
 import { TrackListHeader } from "./SpotifyPlaylist";
 import {
   BarBigContainer,
@@ -349,7 +348,6 @@ const SpotifyTrackPage = () => {
   return (
     <ThemeProvider theme={token}>
       <SpotifyBigContainer>
-        <SpotifyPlayingBar currentPlaying={currentPlaying} />
         <SpotifyFeaturedContainer>
           <SpotifyBackButton
             onClick={() => {

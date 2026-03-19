@@ -54,9 +54,7 @@ import {
   SpotifyShareButton,
   SpotifyTrackPlayButton,
 } from "./SpotifyStyles";
-import SpotifyPlayingBar from "./components/SpotifyPlayingBar";
 import { useSpotifyReviewComments } from "./utils/SpotifyController";
-import { useCurrentTrack } from "./utils/useCurrentTrack";
 
 const PlaylistInfoContainer = styled.div`
   display: flex;
@@ -176,7 +174,6 @@ const SpotifyPlaylistDetailsPage = () => {
   const [comments, setComments] = useState<CommentObj[]>([]);
   const [newComment, setNewComment] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
-  const { currentPlaying } = useCurrentTrack(spotifyToken?.accessToken || null);
 
   const {
     addComment,
@@ -392,7 +389,6 @@ const SpotifyPlaylistDetailsPage = () => {
   return (
     <ThemeProvider theme={token}>
       <SpotifyBigContainer>
-        <SpotifyPlayingBar currentPlaying={currentPlaying} />
         <SpotifyFeaturedContainer>
           <SpotifyBackButton
             onClick={() => {

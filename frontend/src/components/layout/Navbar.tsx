@@ -4,12 +4,15 @@ import {
   HomeOutlined,
   MehOutlined,
 } from "@ant-design/icons";
-import { Layout } from "antd";
+import { Flex, Layout } from "antd";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { useUser } from "../../contexts/UserContext";
+import { useCurrentTrack } from "../../pages/spotify/utils/useCurrentTrack";
 import { ROUTES } from "../../routes";
 import useNavbarController from "./NavbarController";
+import SpotifyPlayingBar from "../../pages/spotify/components/SpotifyPlayingBar";
 
 const { Header: AntHeader } = Layout;
 
@@ -77,6 +80,10 @@ const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, userPartner, spotifyToken, loading } = useUser();
+  const { currentPlaying, isLoading, error } = useCurrentTrack(
+    spotifyToken?.accessToken || null,
+  );
 
   const { wakeUpServer } = useNavbarController();
 
@@ -146,7 +153,8 @@ const Navbar: React.FC = () => {
   }, []);
 
   return (
-    <>
+    <Flex vertical gap={8}>
+      <SpotifyPlayingBar currentPlaying={currentPlaying} />
       <MobileBottomNav>
         <NavContainer>
           {navigationItems.map((item) => (
@@ -162,7 +170,7 @@ const Navbar: React.FC = () => {
           ))}
         </NavContainer>
       </MobileBottomNav>
-    </>
+    </Flex>
   );
 };
 

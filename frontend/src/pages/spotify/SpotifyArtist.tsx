@@ -27,7 +27,6 @@ import {
   SpotifyTrack,
 } from "../../types/spotifyTypes";
 import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
-import SpotifyPlayingBar from "./components/SpotifyPlayingBar";
 import { TrackListHeader } from "./SpotifyPlaylist";
 import {
   CommentButton,
@@ -50,7 +49,6 @@ import {
   SpotifyShareButton,
 } from "./SpotifyStyles";
 import { useSpotifyReviewComments } from "./utils/SpotifyController";
-import { useCurrentTrack } from "./utils/useCurrentTrack";
 
 const ScrollableSection = styled.div`
   max-height: 300px;
@@ -138,7 +136,6 @@ const SpotifyArtistPage = () => {
   const [reviews, setReviews] = useState<ReviewObj[]>([]);
   const [comments, setComments] = useState<CommentObj[]>([]);
   const [newComment, setNewComment] = useState<string>("");
-  const { currentPlaying } = useCurrentTrack(spotifyToken?.accessToken || null);
   const handleGetArtistDetails = async () => {
     if (!artistId || !spotifyToken?.accessToken) return;
     const response = await getSpotifyArtist(
@@ -350,7 +347,6 @@ const SpotifyArtistPage = () => {
   return (
     <ThemeProvider theme={token}>
       <SpotifyBigContainer>
-        <SpotifyPlayingBar currentPlaying={currentPlaying} />
         <SpotifyFeaturedContainer>
           <SpotifyBackButton
             onClick={() => {
