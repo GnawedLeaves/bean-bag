@@ -400,6 +400,7 @@ export const SpotifyRecentlyImg = styled.img`
   height: 50px;
   border-radius: 50%;
   border: 2px solid ${(props) => props.theme.borderColor};
+   object-fit: cover;
 `;
 export const SpotifyRecentlyTitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeMed}px;

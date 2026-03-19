@@ -54,6 +54,7 @@ import {
 import { useUser } from "../../contexts/UserContext";
 import { db } from "../../firebase/firebase";
 import { getLocationFromCoords } from "../../services/location";
+import { token } from "../../theme";
 import { BlogComment } from "../../types/blogTypes";
 import BlogController from "./BlogController";
 
@@ -368,7 +369,7 @@ const BlogPage: React.FC = () => {
                                       handleDeleteComment(comment.id!)
                                     }
                                   >
-                                    <DeleteOutlined />
+                                    <DeleteOutlined style={{color: token.text}}/>
                                   </BlogCommentDeleteButton>
                                 )}
                               </BlogCommentBox>
@@ -398,7 +399,7 @@ const BlogPage: React.FC = () => {
                           {isAddingBeanCommentLoading ? (
                             <CustomSpin />
                           ) : (
-                            <CommentOutlined />
+                            <CommentOutlined style={{color: token.text}}/>
                           )}
                         </BlogCommentButton>
                       </Flex>

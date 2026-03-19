@@ -576,7 +576,7 @@ const SpotifyPage = () => {
                   {isTrackLoading ? (
                     <Spin size="default" />
                   ) : (
-                    <SearchOutlined />
+                    <SearchOutlined style={{color: token.text}}/>
                   )}
                 </SpotifySearchButton>
               </Flex>

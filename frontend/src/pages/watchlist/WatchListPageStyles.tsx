@@ -1,6 +1,5 @@
-import styled, { css, keyframes } from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { AppTheme } from "../../theme";
-import e from "express";
 declare module "styled-components" {
   export interface DefaultTheme extends AppTheme {}
 }
@@ -33,6 +32,7 @@ export const WatchlistSearchButton = styled.button<{
   justify-content: center;
   display: flex;
   width: ${(props) => props.width};
+  color: ${props => props.theme.text};
 `;
 
 export const WatchListBigSearchContainer = styled.div`
