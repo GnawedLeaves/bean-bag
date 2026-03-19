@@ -7,7 +7,7 @@ import { Flex, Input, message, Rate } from "antd";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import { CustomSpin } from "../../components/loading/LoadingStates";
 import { useUser } from "../../contexts/UserContext";
@@ -26,7 +26,11 @@ import {
   SpotifyReview,
   SpotifyTrack,
 } from "../../types/spotifyTypes";
-import { formatFirebaseDate, scrollToTop } from "../../utils/utils";
+import {
+  formatFirebaseDate,
+  navigateBack,
+  scrollToTop,
+} from "../../utils/utils";
 import { TrackListHeader } from "./SpotifyPlaylist";
 import {
   CommentButton,
@@ -130,6 +134,8 @@ const SpotifyArtistPage = () => {
   const { artistId } = useParams();
   const { user, userPartner, spotifyToken, loading } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [artistDetails, setArtistDetails] = useState<SpotifyArtist>();
   const [artistAlbums, setArtistAlbums] = useState<SpotifyAlbum[]>([]);
   const [artistTopTracks, setArtistTopTracks] = useState<SpotifyTrack[]>([]);
@@ -350,7 +356,7 @@ const SpotifyArtistPage = () => {
         <SpotifyFeaturedContainer>
           <SpotifyBackButton
             onClick={() => {
-              navigate(-1);
+              navigateBack(location, navigate, "spotify");
             }}
           >
             <ArrowLeftOutlined />

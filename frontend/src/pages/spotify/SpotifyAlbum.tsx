@@ -10,7 +10,7 @@ import { Flex, Input, message, Rate } from "antd";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
 import { CustomSpin } from "../../components/loading/LoadingStates";
@@ -31,6 +31,7 @@ import {
   formatFirebaseDate,
   formatMilliseconds,
   formatReleaseDate,
+  navigateBack,
   scrollToTop,
 } from "../../utils/utils";
 import {
@@ -133,6 +134,7 @@ const SpotifyAlbumPage = () => {
   const { albumId } = useParams();
   const { user, userPartner, spotifyToken, loading } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
   const [albumDetails, setAlbumDetails] = useState<SpotifyAlbum>();
   const [reviews, setReviews] = useState<ReviewObj[]>([]);
   const [comments, setComments] = useState<CommentObj[]>([]);
@@ -329,7 +331,7 @@ const SpotifyAlbumPage = () => {
         <SpotifyFeaturedContainer>
           <SpotifyBackButton
             onClick={() => {
-              navigate(-1);
+              navigateBack(location, navigate, "spotify");
             }}
           >
             <ArrowLeftOutlined />

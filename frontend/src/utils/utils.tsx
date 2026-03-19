@@ -1,5 +1,5 @@
-import { Timestamp, GeoPoint } from "firebase/firestore";
 import dayjs from "dayjs";
+import { GeoPoint, Timestamp } from "firebase/firestore";
 export function firebaseDateToJS(date: Timestamp | null): Date | null {
   if (!date) return null;
   return date.toDate();
@@ -30,7 +30,7 @@ export const formatMilliseconds = (ms?: number): string => {
 
   if (hours > 0) {
     return `${hours}:${String(minutes).padStart(2, "0")}:${String(
-      seconds
+      seconds,
     ).padStart(2, "0")}`;
   } else {
     return `${minutes}:${String(seconds).padStart(2, "0")}`;
@@ -72,7 +72,7 @@ export const convertISOToDDMMYYY = (isoString: string): string => {
 
 export const calculateDistance = (
   point1: GeoPoint,
-  point2: GeoPoint
+  point2: GeoPoint,
 ): string => {
   const R = 6371e3; // Earth's radius in meters
   const φ1 = (point1.latitude * Math.PI) / 180; // φ, λ in radians
@@ -114,4 +114,20 @@ export const addLineBreaksAfterSentences = (text: string): string => {
   });
 
   return processedText;
+};
+
+export const navigateBack = (
+  location: any,
+  navigate: any,
+  defaultPath?: string,
+) => {
+  if (location.key !== "default") {
+    navigate(-1);
+  } else {
+    if (defaultPath) {
+      navigate(`/${defaultPath}`, { replace: true });
+    } else {
+      navigate("/home", { replace: true });
+    }
+  }
 };

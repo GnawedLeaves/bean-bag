@@ -10,7 +10,7 @@ import { BaseOptionType } from "antd/es/select";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
 import { CustomSpin } from "../../components/loading/LoadingStates";
@@ -27,6 +27,7 @@ import {
 import {
   formatFirebaseDate,
   formatMilliseconds,
+  navigateBack,
   scrollToTop,
 } from "../../utils/utils";
 import {
@@ -169,6 +170,8 @@ const SpotifyPlaylistDetailsPage = () => {
   const { playlistId } = useParams();
   const { user, userPartner, spotifyToken, loading } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [playlistDetails, setPlaylistDetails] = useState<SpotifyPlaylist>();
   const [reviews, setReviews] = useState<ReviewObj[]>([]);
   const [comments, setComments] = useState<CommentObj[]>([]);
@@ -392,7 +395,7 @@ const SpotifyPlaylistDetailsPage = () => {
         <SpotifyFeaturedContainer>
           <SpotifyBackButton
             onClick={() => {
-              navigate(-1);
+              navigateBack(location, navigate, "spotify");
             }}
           >
             <ArrowLeftOutlined />

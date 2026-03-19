@@ -11,7 +11,7 @@ import { BaseOptionType } from "antd/es/select";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
 import { CustomSpin } from "../../components/loading/LoadingStates";
@@ -34,6 +34,7 @@ import {
   convertMsToSeconds,
   formatFirebaseDate,
   formatMilliseconds,
+  navigateBack,
   scrollToTop,
 } from "../../utils/utils";
 import { TrackListHeader } from "./SpotifyPlaylist";
@@ -83,6 +84,7 @@ const SpotifyTrackPage = () => {
     spotifyToken?.accessToken || null,
   );
   const navigate = useNavigate();
+  const location = useLocation();
   const [trackDetails, setTrackDetails] = useState<SpotifyTrack | null>();
 
   const [reviews, setReviews] = useState<ReviewObj[]>([]);
@@ -114,7 +116,7 @@ const SpotifyTrackPage = () => {
     } else if (trackId) {
       handleGetTrackDetails();
     }
-  }, [isPlayingThisTrack, currentPlaying, trackId]);
+  }, [isPlayingThisTrack, currentPlaying, trackId, spotifyToken?.accessToken]);
 
   const handleSetCurrentTrack = async () => {
     if (currentPlaying) {
@@ -355,7 +357,7 @@ const SpotifyTrackPage = () => {
         <SpotifyFeaturedContainer>
           <SpotifyBackButton
             onClick={() => {
-              navigate(-1);
+              navigateBack(location, navigate, "spotify");
             }}
           >
             <ArrowLeftOutlined style={{ color: token.text }} />
@@ -388,18 +390,20 @@ const SpotifyTrackPage = () => {
             </Flex>
 
             <SpotifyBarContainer>
-              <SpotifyBarInnerContainer
-                trackDuration={
-                  convertMsToSeconds(trackDetails?.duration_ms) || 60
-                }
-                progressPercentage={
-                  calculateProgressPercentage(
-                    localSongCounter,
-                    trackDetails?.duration_ms,
-                  ) ?? 8
-                }
-                isPlaying={currentPlaying?.is_playing ?? false}
-              />
+              {isPlayingThisTrack && (
+                <SpotifyBarInnerContainer
+                  trackDuration={
+                    convertMsToSeconds(trackDetails?.duration_ms) || 60
+                  }
+                  progressPercentage={
+                    calculateProgressPercentage(
+                      localSongCounter,
+                      trackDetails?.duration_ms,
+                    ) ?? 8
+                  }
+                  isPlaying={currentPlaying?.is_playing ?? false}
+                />
+              )}
             </SpotifyBarContainer>
           </BarBigContainer>
           <SpotifyButtonsContainer>
