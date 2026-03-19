@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import { token } from "../../../theme";
 import { SpotifyCurrentPlaying } from "../../../types/spotifyTypes";
+import SpotifyAnimatedPlayingIcon from "./SpotifyAnimatedPlayingIcon";
 
 interface SpotifyPlayingBarProps {
   currentPlaying?: SpotifyCurrentPlaying | null;
@@ -175,7 +176,7 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
         }}
       >
         <SpotifyPlayingBarContainer onClick={handleNavigateToTrack}>
-          <Flex align="center" justify="space-between">
+          <Flex align="center" justify="space-between" style={{paddingRight: 12}}>
             <Flex>
               <SpotifyPlayingBarTrackImg
                 src={currentPlaying?.item?.album.images[0].url}
@@ -206,6 +207,7 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
                 </SongAlbumDetails>
               </Flex>
             </Flex>
+            <SpotifyAnimatedPlayingIcon isPlaying={true}/>
           </Flex>
 
           <ProgressBarContainer>
