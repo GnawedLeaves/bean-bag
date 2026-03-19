@@ -1,9 +1,12 @@
+import { useGSAP } from "@gsap/react";
 import { Flex } from "antd";
-import { useEffect, useState } from "react";
+import gsap from "gsap";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import { token } from "../../../theme";
 import { SpotifyCurrentPlaying } from "../../../types/spotifyTypes";
+
 interface SpotifyPlayingBarProps {
   currentPlaying?: SpotifyCurrentPlaying | null;
 }
@@ -80,15 +83,47 @@ const GotoSongContainer = styled.div`
 const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
   const [localCount, setLocalCount] = useState<number>(0);
   const navigate = useNavigate();
-  useEffect(() => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    if (containerRef.current) {
+      if (currentPlaying) {
+        gsap.to(containerRef.current, {
+          y: 0,
+          // opacity: 1,
+          duration:0.5,
+          ease: "power2.out",
+        });
+      } else {
+        gsap.to(containerRef.current, {
+          y: 100,
+          // opacity: 0,
+          duration: 0.5,
+          ease: "power2.in",
+        });
+      }
+    }
+  }, { dependencies: [currentPlaying] });
+
+  useGSAP(() => {
+    if (containerRef.current) {
+      gsap.set(containerRef.current, {
+        y: currentPlaying ? 0 : 100,
+        // opacity: currentPlaying ? 1 : 0,
+      });
+    }
+  });
+
+  // Track progress
+  useState(() => {
     if (currentPlaying) {
       setLocalCount(currentPlaying.progress_ms);
     } else {
       setLocalCount(0);
     }
-  }, [currentPlaying]);
+  });
 
-  useEffect(() => {
+  useState(() => {
     if (!currentPlaying?.is_playing) return;
     const interval = setInterval(() => {
       setLocalCount((prev) => {
@@ -101,7 +136,7 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [currentPlaying]);
+  });
 
   const caluclatePercentagePlayed = (current?: number, total?: number) => {
     const minPercent = 0;
@@ -119,6 +154,7 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
   return (
     <ThemeProvider theme={token}>
       <Flex
+        ref={containerRef}
         style={{
           position: "fixed",
           bottom: 70,
@@ -126,7 +162,6 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
           width: "100%",
           zIndex: 1000,
           padding: token.paddingSmall,
-          display: currentPlaying ? "" : "none",
         }}
       >
         <SpotifyPlayingBarContainer onClick={handleNavigateToTrack}>
@@ -162,9 +197,7 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
               </Flex>
             </Flex>
 
-            {/* <GotoSongContainer onClick={handleNavigateToTrack}>
-              <ArrowRightOutlined />
-            </GotoSongContainer> */}
+         
           </Flex>
 
           <ProgressBarContainer>
