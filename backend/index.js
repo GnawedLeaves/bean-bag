@@ -21,6 +21,59 @@ webpush.setVapidDetails(
   process.env.PRIVATE_VAPID_KEY,
 );
 
+/**
+ * Sends a push notification to all subscribers EXCEPT the sender.
+ * @param {Object} payload - { title, body, url, icon }
+ * @param {string} senderId - The ID of the user performing the action.
+ */
+const sendGlobalNotification = async (payload, senderId = null) => {
+  try {
+    const notificationPayload = JSON.stringify({
+      title: payload.title || "New Update!",
+      body: payload.body || "Check out what's new in the app.",
+      icon: payload.icon || "/icon-192x192.png",
+      badge: payload.badge || "/badge-72x72.png",
+      url: payload.url || "/",
+    });
+
+    const snapshot = await db.collection("anniAppPushSubscriptions").get();
+
+    if (snapshot.empty) return;
+
+    const notifications = snapshot.docs
+      .map((doc) => {
+        const sub = doc.data();
+
+        if (senderId && sub.userId === senderId) {
+          return null;
+        }
+
+        return webpush
+          .sendNotification(sub, notificationPayload)
+          .catch(async (err) => {
+            console.error(
+              "Error sending to endpoint:",
+              sub.endpoint,
+              err.statusCode,
+            );
+            // Clean up expired subscriptions
+            if (err.statusCode === 404 || err.statusCode === 410) {
+              await db
+                .collection("anniAppPushSubscriptions")
+                .doc(doc.id)
+                .delete();
+            }
+          });
+      })
+      .filter((p) => p !== null); // Remove the nulls from the array
+
+    await Promise.all(notifications);
+    console.log(`Notifications sent! (Excluded sender: ${senderId || "None"})`);
+  } catch (err) {
+    console.error("Global Notification Helper Error:", err);
+  }
+};
+
 const HYGRAPH_API_KEY = process.env.HYGRAPH_API_KEY || "";
 const HYGRAPH_API_URL = process.env.HYGRAPH_API_URL || "";
 
@@ -115,46 +168,13 @@ app.post("/hygraph-webhook", async (req, res) => {
       return res.status(404).json({ message: "Blog entry not found" });
     }
 
-    console.log({ blogEntry });
-
-    // Get the first image URL if available
-    const iconUrl =
-      blogEntry.images && blogEntry.images.length > 0
-        ? blogEntry.images[0].url
-        : undefined;
-
-    const notificationPayload = JSON.stringify({
+    await sendGlobalNotification({
       title: "New Bean!",
-      body: blogEntry.title || "Someone just added a new bean entry!",
-      icon: iconUrl,
-      badge: iconUrl,
+      body: blogEntry.title,
+      icon: blogEntry.images?.[0]?.url,
       url: `/blogs`,
     });
 
-    const snapshot = await db.collection("anniAppPushSubscriptions").get();
-
-    if (snapshot.empty) {
-      return res
-        .status(200)
-        .json({ message: "No subscribers found in database." });
-    }
-
-    const notifications = snapshot.docs.map((doc) => {
-      const sub = doc.data();
-      return webpush
-        .sendNotification(sub, notificationPayload)
-        .catch(async (err) => {
-          console.error("Error sending notification:", err);
-          if (err.statusCode === 404 || err.statusCode === 410) {
-            await db
-              .collection("anniAppPushSubscriptions")
-              .doc(doc.id)
-              .delete();
-          }
-        });
-    });
-
-    await Promise.all(notifications);
     console.log("hygraph notifs sent!!", blogEntry.title);
     res.status(200).json({ message: "hygraph notifications processed" });
   } catch (err) {
@@ -227,31 +247,14 @@ app.post("/add-spotify-review", async (req, res) => {
     const docRef = await db.collection("anniAppSpotifyReview").add(reviewData);
     docId = docRef.id;
 
-    // Send push notifications
-    const notificationPayload = JSON.stringify({
-      title: "New Beanify rating!",
-      body: `${username} rated "${trackName}" by ${artistName} - ${rating} stars`,
-      url: `/spotify/track/${spotifyId}`,
-    });
-
-    const snapshot = await db.collection("anniAppPushSubscriptions").get();
-
-    const notifications = snapshot.docs.map((doc) => {
-      const sub = doc.data();
-      return webpush
-        .sendNotification(sub, notificationPayload)
-        .catch(async (err) => {
-          console.error("Error sending notification:", err);
-          if (err.statusCode === 404 || err.statusCode === 410) {
-            await db
-              .collection("anniAppPushSubscriptions")
-              .doc(doc.id)
-              .delete();
-          }
-        });
-    });
-
-    await Promise.all(notifications);
+    await sendGlobalNotification(
+      {
+        title: "New Beanify rating!",
+        body: `${username} rated "${trackName}" by ${artistName} - ${rating} stars`,
+        url: `/spotify/track/${spotifyId}`,
+      },
+      userId,
+    );
 
     res.status(201).json({
       message: "Review added successfully",
@@ -285,31 +288,14 @@ app.post("/add-spotify-comment", async (req, res) => {
     const database = db.collection("anniAppSpotifyReviewComment");
     const docRef = await database.add(commentData);
 
-    // Send push notifications
-    const notificationPayload = JSON.stringify({
-      title: `New Beanify comment on ${trackName}`,
-      body: `${username} commented: "${content.substring(0, 50)}..."`,
-      url: `/spotify/track/${spotifyId}`,
-    });
-
-    const snapshot = await db.collection("anniAppPushSubscriptions").get();
-
-    const notifications = snapshot.docs.map((doc) => {
-      const sub = doc.data();
-      return webpush
-        .sendNotification(sub, notificationPayload)
-        .catch(async (err) => {
-          console.error("Error sending notification:", err);
-          if (err.statusCode === 404 || err.statusCode === 410) {
-            await db
-              .collection("anniAppPushSubscriptions")
-              .doc(doc.id)
-              .delete();
-          }
-        });
-    });
-
-    await Promise.all(notifications);
+    await sendGlobalNotification(
+      {
+        title: `New Beanify comment on ${trackName}`,
+        body: `${username} commented: "${content.substring(0, 50)}..."`,
+        url: `/spotify/track/${spotifyId}`,
+      },
+      userId,
+    );
 
     res.status(201).json({
       message: "Comment added successfully",
@@ -340,30 +326,14 @@ app.post("/add-bean-comment", async (req, res) => {
     const database = db.collection("anniAppBeansComments");
     const docRef = await database.add(commentBody);
 
-    const notificationPayload = JSON.stringify({
-      title: `New Bean comment on ${blogTitle}`,
-      body: `"${content.substring(0, 50)}"`,
-      url: `/blogs`,
-    });
-
-    const snapshot = await db.collection("anniAppPushSubscriptions").get();
-
-    const notifications = snapshot.docs.map((doc) => {
-      const sub = doc.data();
-      return webpush
-        .sendNotification(sub, notificationPayload)
-        .catch(async (err) => {
-          console.error("Error sending notification:", err);
-          if (err.statusCode === 404 || err.statusCode === 410) {
-            await db
-              .collection("anniAppPushSubscriptions")
-              .doc(doc.id)
-              .delete();
-          }
-        });
-    });
-
-    await Promise.all(notifications);
+    await sendGlobalNotification(
+      {
+        title: `New Bean comment on ${blogTitle}`,
+        body: `"${content.substring(0, 50)}"`,
+        url: `/blogs`,
+      },
+      userId,
+    );
 
     console.log("hygraph notifs sent!!", blogTitle);
     res.status(201).json({

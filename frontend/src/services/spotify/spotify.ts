@@ -151,7 +151,7 @@ export const getSpotifyArtistTopTracks = async (
   if (!token) throw new Error("Authentication token is required");
   const res = await fetch(
     fullUrl ||
-    `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
+      `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -211,10 +211,7 @@ export const getMultipleSpotifyAlbums = async (
 
 // Add this to your services/spotify/spotify.ts
 const REDIRECT_URI = "https://beaniebag.netlify.app/spotify";
-const SCOPES = [
-  "user-read-currently-playing",
-  "user-read-playback-state",
-];
+const SCOPES = ["user-read-currently-playing", "user-read-playback-state"];
 
 export const getSpotifyAuthUrl = () => {
   const queryParams = new URLSearchParams({
@@ -230,7 +227,9 @@ export const getSpotifyAuthUrl = () => {
 // In services/spotify/spotify.ts
 export const exchangeCodeForToken = async (code: string) => {
   if (!clientId || !clientSecret) {
-    throw new Error("Spotify credentials (client ID/secret) are not configured");
+    throw new Error(
+      "Spotify credentials (client ID/secret) are not configured",
+    );
   }
 
   const params = new URLSearchParams();
@@ -241,7 +240,6 @@ export const exchangeCodeForToken = async (code: string) => {
   const basicAuth = btoa(`${clientId}:${clientSecret}`);
 
   try {
-    console.log("Exchanging code for token with redirect URI:", REDIRECT_URI);
     const response = await axios.post(
       "https://accounts.spotify.com/api/token",
       params,
@@ -253,7 +251,6 @@ export const exchangeCodeForToken = async (code: string) => {
       },
     );
 
-    console.log("Spotify token response:", response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -261,7 +258,9 @@ export const exchangeCodeForToken = async (code: string) => {
         status: error.response?.status,
         message: error.response?.data,
       });
-      throw new Error(`Spotify API error: ${error.response?.status} - ${JSON.stringify(error.response?.data)}`);
+      throw new Error(
+        `Spotify API error: ${error.response?.status} - ${JSON.stringify(error.response?.data)}`,
+      );
     }
     throw error;
   }
@@ -312,7 +311,6 @@ export const refreshAccessToken = async () => {
 
 export const getValidAccessToken = async (): Promise<string> => {
   const token = localStorage.getItem("spotify_access_token");
-  console.log("local storage token:", token);
   const expiry = Number(localStorage.getItem("spotify_token_expiry"));
 
   // Refresh 60 seconds early so a token never expires mid-request
