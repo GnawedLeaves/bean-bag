@@ -5,10 +5,11 @@ import {
   MehOutlined,
 } from "@ant-design/icons";
 import { Layout } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { ROUTES } from "../../routes";
+import useNavbarController from "./NavbarController";
 
 const { Header: AntHeader } = Layout;
 
@@ -77,6 +78,8 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { wakeUpServer } = useNavbarController();
+
   const navigationItems = [
     {
       key: ROUTES.HOME.path,
@@ -137,6 +140,10 @@ const Navbar: React.FC = () => {
       </Link>
     ),
   }));
+
+  useEffect(() => {
+    wakeUpServer();
+  }, []);
 
   return (
     <>

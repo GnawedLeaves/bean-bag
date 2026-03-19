@@ -61,13 +61,14 @@ const getBlogEntryById = async (blogId) => {
   }
 };
 
-app.get("/", async (req, res) => {
+app.get("/health", async (req, res) => {
   res.status(200).json({
     status: "success",
     message: "Server is very healthy",
     timestamp: new Date().toISOString(),
     uptime: process.uptime() + "s",
   });
+  console.log("server is healthy!!!");
 });
 
 // --- ENDPOINT: SAVE SUBSCRIPTION TO FIRESTORE ---
