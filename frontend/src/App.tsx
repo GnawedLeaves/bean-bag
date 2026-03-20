@@ -25,6 +25,7 @@ import WatchListPage from "./pages/watchlist/WatchListPage";
 import { ROUTES } from "./routes";
 import { client } from "./services/hygraph";
 import { token } from "./theme";
+import SpotifyViewAllReviews from "./pages/spotify/SpotifyViewAllReviews";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -103,6 +104,10 @@ const App: React.FC = () => {
                 <Route
                   path={ROUTES.SPOTIFY_PLAYLIST.path}
                   element={<SpotifyPlaylistDetailsPage />}
+                />
+                <Route
+                  path={ROUTES.SPOTIFY_VIEW_ALL_REVIEWS.path}
+                  element={<SpotifyViewAllReviews />}
                 />
                 <Route path={ROUTES.AGENDA.path} element={<AgendaPage />} />
                 <Route path={ROUTES.HABITS.path} element={<HabitsHomePage />} />

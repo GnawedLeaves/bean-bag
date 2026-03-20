@@ -9,7 +9,10 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
-import { CustomSpin } from "../../components/loading/LoadingStates";
+import {
+  CustomSpin,
+  PageLoading,
+} from "../../components/loading/LoadingStates";
 import { useUser } from "../../contexts/UserContext";
 import { auth, db } from "../../firebase/firebase";
 import { ROUTES } from "../../routes";
@@ -352,183 +355,194 @@ const SpotifyArtistPage = () => {
 
   return (
     <ThemeProvider theme={token}>
-      <SpotifyBigContainer>
-        <SpotifyFeaturedContainer>
-          <SpotifyBackButton
-            onClick={() => {
-              navigateBack(location, navigate, "spotify");
-            }}
-          >
-            <ArrowLeftOutlined />
-          </SpotifyBackButton>
-          <SpotifyShareButton
-            onClick={() => {
-              handleCopyToClipboard();
-            }}
-          >
-            <ShareAltOutlined />
-          </SpotifyShareButton>
-          <SpoitfyTrackTitle>{artistDetails?.name}</SpoitfyTrackTitle>
-          <SpoitfyTrackSubTitle>
-            {artistDetails?.followers.total.toLocaleString()} followers
-          </SpoitfyTrackSubTitle>
-
-          <SpotifyArtistImg src={artistDetails?.images?.[0]?.url} />
-
-          <SectionTitle>Albums</SectionTitle>
-          <Flex style={{ width: "100%" }} gap={16} wrap="wrap" justify="center">
-            {artistAlbums.map((album, index) => (
-              <SpotifyAlbumContainer
-                key={album.id}
-                onClick={() => handleGoToAlbum(album.id)}
-              >
-                <SpotifyAlbumPicture
-                  src={album.images?.[0]?.url}
-                  alt={album.name}
-                />
-                <ItemInfo>
-                  <ItemTitle>{album.name}</ItemTitle>
-                  <ItemSubtitle>
-                    {album.release_date} • {album.total_tracks} tracks
-                  </ItemSubtitle>
-                </ItemInfo>
-              </SpotifyAlbumContainer>
-            ))}
-          </Flex>
-
-          {/* Top Tracks Section */}
-          <SectionTitle>Top Tracks</SectionTitle>
-          <Flex vertical gap={8}>
-            {artistTopTracks.map((track) => (
-              <ItemCard
-                key={track.id}
-                onClick={() => handleGoToTrack(track.id)}
-              >
-                <ItemImage
-                  src={track.album.images?.[0]?.url}
-                  alt={track.name}
-                />
-                <ItemInfo>
-                  <ItemTitle>{track.name}</ItemTitle>
-                  <ItemSubtitle>
-                    {track.album.name} • {Math.floor(track.duration_ms / 60000)}
-                    :
-                    {Math.floor((track.duration_ms % 60000) / 1000)
-                      .toString()
-                      .padStart(2, "0")}
-                  </ItemSubtitle>
-                </ItemInfo>
-              </ItemCard>
-            ))}
-          </Flex>
-
-          {/* Rating Section */}
-          <Flex gap={8} vertical style={{ marginTop: 16 }}>
-            <TrackListHeader>Rating</TrackListHeader>
-            <SpotifyRatingContainer>
-              <SpotifyRatingDisplay src={user?.displayPicture} />
-              <Flex vertical gap={4}>
-                Me
-                <Rate
-                  onChange={handleAddReview}
-                  value={
-                    reviews.find((r) => r.userId === user?.id)?.rating || 0
-                  }
-                  style={{ color: token.text }}
-                />
-              </Flex>
-            </SpotifyRatingContainer>
-
-            {userPartner && (
-              <SpotifyRatingContainer>
-                {reviews.some((r) => r.userId === userPartner.id) ? (
-                  <>
-                    <SpotifyRatingDisplay src={userPartner.displayPicture} />
-                    <Flex vertical gap={4}>
-                      {userPartner.name}
-                      <Rate
-                        disabled
-                        value={
-                          reviews.find((r) => r.userId === userPartner.id)
-                            ?.rating || 0
-                        }
-                        style={{ color: token.text }}
-                      />
-                    </Flex>
-                  </>
-                ) : (
-                  <Flex vertical gap={4} style={{ width: "100%" }}>
-                    <div style={{ textAlign: "center" }}>
-                      {userPartner.name} has not rated yet
-                    </div>
-                  </Flex>
-                )}
-              </SpotifyRatingContainer>
-            )}
-          </Flex>
-        </SpotifyFeaturedContainer>
-
-        <SpotifyBodyContainer>
-          <div
-            style={{
-              fontSize: token.fontSizeLg,
-              fontWeight: "bold",
-            }}
-          >
-            Comments
-          </div>
-          <Flex
-            justify="space-between"
-            style={{ padding: token.paddingSmall }}
-            gap={16}
-          >
-            <Input
-              value={newComment}
-              placeholder="Write comment"
-              onChange={(e) => {
-                setNewComment(e.target.value);
-              }}
-              style={{
-                border: `1px solid ${token.borderColor}`,
-                borderRadius: token.borderRadius,
-                background: token.colorBg,
-                fontFamily: token.fontFamily,
-              }}
-            />
-            <CommentButton
-              disabled={isReviewAddLoading}
+      {!artistDetails ? (
+        <PageLoading color={token.colorBgTeal} background={token.colorBg} />
+      ) : (
+        <SpotifyBigContainer>
+          <SpotifyFeaturedContainer>
+            <SpotifyBackButton
               onClick={() => {
-                handleAddComment();
+                navigateBack(location, navigate, "spotify");
               }}
             >
-              {isReviewAddLoading ? (
-                <CustomSpin color={token.text} />
-              ) : (
-                <CommentOutlined color={token.borderColor} />
-              )}
-            </CommentButton>
-          </Flex>
+              <ArrowLeftOutlined />
+            </SpotifyBackButton>
+            <SpotifyShareButton
+              onClick={() => {
+                handleCopyToClipboard();
+              }}
+            >
+              <ShareAltOutlined />
+            </SpotifyShareButton>
+            <SpoitfyTrackTitle>{artistDetails?.name}</SpoitfyTrackTitle>
+            <SpoitfyTrackSubTitle>
+              {artistDetails?.followers.total.toLocaleString()} followers
+            </SpoitfyTrackSubTitle>
 
-          <Flex vertical gap={16} style={{ padding: 8, width: "100%" }}>
-            {comments.length > 0 ? (
-              comments.map((comment, index) => {
-                return (
-                  <CommentCard key={index}>
-                    <CommentCardDisplayPic src={comment.displayPicture} />
-                    <Flex vertical>
-                      <CommentCardName>{comment.username}</CommentCardName>
-                      <CommentCardContent>{comment.content}</CommentCardContent>
+            <SpotifyArtistImg src={artistDetails?.images?.[0]?.url} />
+
+            <SectionTitle>Albums</SectionTitle>
+            <Flex
+              style={{ width: "100%" }}
+              gap={16}
+              wrap="wrap"
+              justify="center"
+            >
+              {artistAlbums.map((album, index) => (
+                <SpotifyAlbumContainer
+                  key={album.id}
+                  onClick={() => handleGoToAlbum(album.id)}
+                >
+                  <SpotifyAlbumPicture
+                    src={album.images?.[0]?.url}
+                    alt={album.name}
+                  />
+                  <ItemInfo>
+                    <ItemTitle>{album.name}</ItemTitle>
+                    <ItemSubtitle>
+                      {album.release_date} • {album.total_tracks} tracks
+                    </ItemSubtitle>
+                  </ItemInfo>
+                </SpotifyAlbumContainer>
+              ))}
+            </Flex>
+
+            {/* Top Tracks Section */}
+            <SectionTitle>Top Tracks</SectionTitle>
+            <Flex vertical gap={8}>
+              {artistTopTracks.map((track) => (
+                <ItemCard
+                  key={track.id}
+                  onClick={() => handleGoToTrack(track.id)}
+                >
+                  <ItemImage
+                    src={track.album.images?.[0]?.url}
+                    alt={track.name}
+                  />
+                  <ItemInfo>
+                    <ItemTitle>{track.name}</ItemTitle>
+                    <ItemSubtitle>
+                      {track.album.name} •{" "}
+                      {Math.floor(track.duration_ms / 60000)}:
+                      {Math.floor((track.duration_ms % 60000) / 1000)
+                        .toString()
+                        .padStart(2, "0")}
+                    </ItemSubtitle>
+                  </ItemInfo>
+                </ItemCard>
+              ))}
+            </Flex>
+
+            {/* Rating Section */}
+            <Flex gap={8} vertical style={{ marginTop: 16 }}>
+              <TrackListHeader>Rating</TrackListHeader>
+              <SpotifyRatingContainer>
+                <SpotifyRatingDisplay src={user?.displayPicture} />
+                <Flex vertical gap={4}>
+                  Me
+                  <Rate
+                    onChange={handleAddReview}
+                    value={
+                      reviews.find((r) => r.userId === user?.id)?.rating || 0
+                    }
+                    style={{ color: token.text }}
+                  />
+                </Flex>
+              </SpotifyRatingContainer>
+
+              {userPartner && (
+                <SpotifyRatingContainer>
+                  {reviews.some((r) => r.userId === userPartner.id) ? (
+                    <>
+                      <SpotifyRatingDisplay src={userPartner.displayPicture} />
+                      <Flex vertical gap={4}>
+                        {userPartner.name}
+                        <Rate
+                          disabled
+                          value={
+                            reviews.find((r) => r.userId === userPartner.id)
+                              ?.rating || 0
+                          }
+                          style={{ color: token.text }}
+                        />
+                      </Flex>
+                    </>
+                  ) : (
+                    <Flex vertical gap={4} style={{ width: "100%" }}>
+                      <div style={{ textAlign: "center" }}>
+                        {userPartner.name} has not rated yet
+                      </div>
                     </Flex>
-                    <CommentCardDate>{comment.dateAddedJs}</CommentCardDate>
-                  </CommentCard>
-                );
-              })
-            ) : (
-              <div style={{ textAlign: "center" }}>~No comments yet~</div>
-            )}
-          </Flex>
-        </SpotifyBodyContainer>
-      </SpotifyBigContainer>
+                  )}
+                </SpotifyRatingContainer>
+              )}
+            </Flex>
+          </SpotifyFeaturedContainer>
+
+          <SpotifyBodyContainer>
+            <div
+              style={{
+                fontSize: token.fontSizeLg,
+                fontWeight: "bold",
+              }}
+            >
+              Comments
+            </div>
+            <Flex
+              justify="space-between"
+              style={{ padding: token.paddingSmall }}
+              gap={16}
+            >
+              <Input
+                value={newComment}
+                placeholder="Write comment"
+                onChange={(e) => {
+                  setNewComment(e.target.value);
+                }}
+                style={{
+                  border: `1px solid ${token.borderColor}`,
+                  borderRadius: token.borderRadius,
+                  background: token.colorBg,
+                  fontFamily: token.fontFamily,
+                }}
+              />
+              <CommentButton
+                disabled={isReviewAddLoading}
+                onClick={() => {
+                  handleAddComment();
+                }}
+              >
+                {isReviewAddLoading ? (
+                  <CustomSpin color={token.text} />
+                ) : (
+                  <CommentOutlined color={token.borderColor} />
+                )}
+              </CommentButton>
+            </Flex>
+
+            <Flex vertical gap={16} style={{ padding: 8, width: "100%" }}>
+              {comments.length > 0 ? (
+                comments.map((comment, index) => {
+                  return (
+                    <CommentCard key={index}>
+                      <CommentCardDisplayPic src={comment.displayPicture} />
+                      <Flex vertical>
+                        <CommentCardName>{comment.username}</CommentCardName>
+                        <CommentCardContent>
+                          {comment.content}
+                        </CommentCardContent>
+                      </Flex>
+                      <CommentCardDate>{comment.dateAddedJs}</CommentCardDate>
+                    </CommentCard>
+                  );
+                })
+              ) : (
+                <div style={{ textAlign: "center" }}>~No comments yet~</div>
+              )}
+            </Flex>
+          </SpotifyBodyContainer>
+        </SpotifyBigContainer>
+      )}
     </ThemeProvider>
   );
 };

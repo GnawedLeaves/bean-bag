@@ -1,7 +1,6 @@
-import React from "react";
-import styled, { keyframes } from "styled-components";
-import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import { Spin } from "antd";
+import styled, { keyframes } from "styled-components";
 
 const spinAnimation = keyframes`
   from {
@@ -12,12 +11,14 @@ const spinAnimation = keyframes`
   }
 `;
 
-const LoadingContainer = styled.div`
+const LoadingContainer = styled.div<{
+  background?: string;
+}>`
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: ${(props) => props.theme.colorBgVoliet};
+  background: ${(props) => props.background ?? props.theme.colorBgVoliet};
 `;
 
 const ImageLoadingContainer = styled.div`
@@ -54,10 +55,11 @@ const BlogEntryLoadingContainer = styled.div`
 
 interface SpinnerProps {
   color?: string;
+  background?: string;
 }
 
-export const PageLoading = ({ color }: SpinnerProps) => (
-  <LoadingContainer>
+export const PageLoading = ({ color, background }: SpinnerProps) => (
+  <LoadingContainer background={background}>
     <StyledSpinner size="large" color={color} />
   </LoadingContainer>
 );

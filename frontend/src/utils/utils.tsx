@@ -123,11 +123,14 @@ export const navigateBack = (
 ) => {
   if (location.key !== "default") {
     navigate(-1);
+    scrollToTop();
   } else {
     if (defaultPath) {
       navigate(`/${defaultPath}`, { replace: true });
+      scrollToTop();
     } else {
       navigate("/home", { replace: true });
+      scrollToTop();
     }
   }
 };

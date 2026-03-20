@@ -56,6 +56,10 @@ export const ROUTES: Record<string, RouteConfig> = {
     path: "/spotify/playlist/:playlistId",
     name: "Spotify Playlist",
   },
+  SPOTIFY_VIEW_ALL_REVIEWS: {
+    path: "/spotify/allReviews",
+    name: "Spotify Reviews",
+  },
   AGENDA: {
     path: "/agenda",
     name: "Agenda",

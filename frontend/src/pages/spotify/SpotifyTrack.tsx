@@ -14,7 +14,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import Draggable3DImage from "../../components/Draggable3DImage/Draggable3DImage";
-import { CustomSpin } from "../../components/loading/LoadingStates";
+import {
+  CustomSpin,
+  PageLoading,
+} from "../../components/loading/LoadingStates";
 import SpotifyDropdownComponent from "../../components/spotifyDropdown/SpotifyDropdown";
 import { useUser } from "../../contexts/UserContext";
 import { auth, db } from "../../firebase/firebase";
@@ -126,7 +129,7 @@ const SpotifyTrackPage = () => {
   };
 
   const handleGetTrackDetails = async () => {
-    console.log("getting song", { isPlayingThisTrack, trackId });
+    console.log("getting song", { isPlayingThisTrack, trackId, spotifyToken });
     if (!trackId || !spotifyToken?.accessToken || isPlayingThisTrack) return;
 
     const response = await getSpotifyTrack(trackId, spotifyToken?.accessToken);
@@ -353,195 +356,201 @@ const SpotifyTrackPage = () => {
 
   return (
     <ThemeProvider theme={token}>
-      <SpotifyBigContainer>
-        <SpotifyFeaturedContainer>
-          <SpotifyBackButton
-            onClick={() => {
-              navigateBack(location, navigate, "spotify");
-            }}
-          >
-            <ArrowLeftOutlined style={{ color: token.text }} />
-          </SpotifyBackButton>
-          <SpotifyShareButton
-            onClick={() => {
-              handleCopyToClipboard();
-            }}
-          >
-            <ShareAltOutlined style={{ color: token.text }} />
-          </SpotifyShareButton>
-          <SpoitfyTrackTitle> {trackDetails?.name}</SpoitfyTrackTitle>
-          <SpoitfyTrackSubTitle>
-            {trackDetails?.artists.map((artist, index) => {
-              return index === 0 ? artist.name : "," + artist.name;
-            })}
-          </SpoitfyTrackSubTitle>
+      {!trackDetails ? (
+        <PageLoading color={token.colorBgTeal} background={token.colorBg} />
+      ) : (
+        <SpotifyBigContainer>
+          <SpotifyFeaturedContainer>
+            <SpotifyBackButton
+              onClick={() => {
+                navigateBack(location, navigate, "spotify");
+              }}
+            >
+              <ArrowLeftOutlined style={{ color: token.text }} />
+            </SpotifyBackButton>
+            <SpotifyShareButton
+              onClick={() => {
+                handleCopyToClipboard();
+              }}
+            >
+              <ShareAltOutlined style={{ color: token.text }} />
+            </SpotifyShareButton>
+            <SpoitfyTrackTitle> {trackDetails?.name}</SpoitfyTrackTitle>
+            <SpoitfyTrackSubTitle>
+              {trackDetails?.artists.map((artist, index) => {
+                return index === 0 ? artist.name : "," + artist.name;
+              })}
+            </SpoitfyTrackSubTitle>
 
-          <Draggable3DImage url={trackDetails?.album.images[0].url ?? ""} />
-          <BarBigContainer>
-            <Flex justify="space-between">
-              <SpotifyBarInnerContainerText>
-                {isPlayingThisTrack
-                  ? formatMilliseconds(localSongCounter)
-                  : "0:00"}
-              </SpotifyBarInnerContainerText>
-              <SpotifyBarInnerContainerText>
-                {formatMilliseconds(trackDetails?.duration_ms)}
-              </SpotifyBarInnerContainerText>
+            <Draggable3DImage url={trackDetails?.album.images[0].url ?? ""} />
+            <BarBigContainer>
+              <Flex justify="space-between">
+                <SpotifyBarInnerContainerText>
+                  {isPlayingThisTrack
+                    ? formatMilliseconds(localSongCounter)
+                    : "0:00"}
+                </SpotifyBarInnerContainerText>
+                <SpotifyBarInnerContainerText>
+                  {formatMilliseconds(trackDetails?.duration_ms)}
+                </SpotifyBarInnerContainerText>
+              </Flex>
+
+              <SpotifyBarContainer>
+                {isPlayingThisTrack && (
+                  <SpotifyBarInnerContainer
+                    trackDuration={
+                      convertMsToSeconds(trackDetails?.duration_ms) || 60
+                    }
+                    progressPercentage={
+                      calculateProgressPercentage(
+                        localSongCounter,
+                        trackDetails?.duration_ms,
+                      ) ?? 8
+                    }
+                    isPlaying={currentPlaying?.is_playing ?? false}
+                  />
+                )}
+              </SpotifyBarContainer>
+            </BarBigContainer>
+            <SpotifyButtonsContainer>
+              <SpotifyButtonSmall
+                onClick={() => {
+                  handleGoToAlbum();
+                }}
+              >
+                <FontAwesomeIcon icon={faCompactDisc} color={token.text} />
+              </SpotifyButtonSmall>
+
+              <a target="_blank" href={trackDetails?.external_urls.spotify}>
+                <SpotifyTrackPlayButton>
+                  {isPlayingThisTrack ? (
+                    <SpotifyOutlined
+                      style={{ fontSize: 32, color: token.borderColor }}
+                    />
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faPlay}
+                      style={{ color: token.text }}
+                      fontSize={32}
+                    />
+                  )}
+                </SpotifyTrackPlayButton>
+              </a>
+              <SpotifyDropdownComponent
+                onItemClick={(option) => handleGoToArtist(option.value)}
+                dropdownOptions={createArtistOptions() || []}
+              />
+            </SpotifyButtonsContainer>
+
+            <Flex gap={8} vertical style={{ marginTop: 16 }}>
+              <TrackListHeader>Rating</TrackListHeader>
+              <SpotifyRatingContainer>
+                <SpotifyRatingDisplay src={user?.displayPicture} />
+                <Flex vertical gap={4}>
+                  Me
+                  <Rate
+                    onChange={handleAddReview}
+                    value={
+                      reviews.find((r) => r.userId === user?.id)?.rating || 0
+                    }
+                    style={{ color: token.text }}
+                  />
+                </Flex>
+              </SpotifyRatingContainer>
+
+              {userPartner && (
+                <SpotifyRatingContainer>
+                  {reviews.some((r) => r.userId === userPartner.id) ? (
+                    <>
+                      <SpotifyRatingDisplay src={userPartner.displayPicture} />
+                      <Flex vertical gap={4}>
+                        {userPartner.name}
+                        <Rate
+                          disabled
+                          value={
+                            reviews.find((r) => r.userId === userPartner.id)
+                              ?.rating || 0
+                          }
+                          style={{ color: token.text }}
+                        />
+                      </Flex>
+                    </>
+                  ) : (
+                    <Flex vertical gap={4} style={{ width: "100%" }}>
+                      <div style={{ textAlign: "center" }}>
+                        {userPartner.name} has not rated yet
+                      </div>
+                    </Flex>
+                  )}
+                </SpotifyRatingContainer>
+              )}
+            </Flex>
+          </SpotifyFeaturedContainer>
+          <SpotifyBodyContainer>
+            <div
+              style={{
+                fontSize: token.fontSizeLg,
+                fontWeight: "bold",
+              }}
+            >
+              Comments
+            </div>
+            <Flex
+              justify="space-between"
+              style={{ padding: token.paddingSmall }}
+              gap={16}
+            >
+              <Input
+                value={newComment}
+                placeholder="Write comment"
+                onChange={(e) => {
+                  setNewComment(e.target.value);
+                }}
+                style={{
+                  border: `1px solid ${token.borderColor}`,
+                  borderRadius: token.borderRadius,
+                  background: token.colorBg,
+                  fontFamily: token.fontFamily,
+                  width: "250px",
+                }}
+              />
+              <CommentButton
+                disabled={isReviewAddLoading}
+                onClick={() => {
+                  handleAddComment();
+                }}
+              >
+                {isReviewAddLoading ? (
+                  <CustomSpin color={token.text} />
+                ) : (
+                  <CommentOutlined style={{ color: token.text }} />
+                )}
+              </CommentButton>
             </Flex>
 
-            <SpotifyBarContainer>
-              {isPlayingThisTrack && (
-                <SpotifyBarInnerContainer
-                  trackDuration={
-                    convertMsToSeconds(trackDetails?.duration_ms) || 60
-                  }
-                  progressPercentage={
-                    calculateProgressPercentage(
-                      localSongCounter,
-                      trackDetails?.duration_ms,
-                    ) ?? 8
-                  }
-                  isPlaying={currentPlaying?.is_playing ?? false}
-                />
-              )}
-            </SpotifyBarContainer>
-          </BarBigContainer>
-          <SpotifyButtonsContainer>
-            <SpotifyButtonSmall
-              onClick={() => {
-                handleGoToAlbum();
-              }}
-            >
-              <FontAwesomeIcon icon={faCompactDisc} color={token.text} />
-            </SpotifyButtonSmall>
-
-            <a target="_blank" href={trackDetails?.external_urls.spotify}>
-              <SpotifyTrackPlayButton>
-                {isPlayingThisTrack ? (
-                  <SpotifyOutlined
-                    style={{ fontSize: 32, color: token.borderColor }}
-                  />
-                ) : (
-                  <FontAwesomeIcon
-                    icon={faPlay}
-                    style={{ color: token.text }}
-                    fontSize={32}
-                  />
-                )}
-              </SpotifyTrackPlayButton>
-            </a>
-            <SpotifyDropdownComponent
-              onItemClick={(option) => handleGoToArtist(option.value)}
-              dropdownOptions={createArtistOptions() || []}
-            />
-          </SpotifyButtonsContainer>
-
-          <Flex gap={8} vertical style={{ marginTop: 16 }}>
-            <TrackListHeader>Rating</TrackListHeader>
-            <SpotifyRatingContainer>
-              <SpotifyRatingDisplay src={user?.displayPicture} />
-              <Flex vertical gap={4}>
-                Me
-                <Rate
-                  onChange={handleAddReview}
-                  value={
-                    reviews.find((r) => r.userId === user?.id)?.rating || 0
-                  }
-                  style={{ color: token.text }}
-                />
-              </Flex>
-            </SpotifyRatingContainer>
-
-            {userPartner && (
-              <SpotifyRatingContainer>
-                {reviews.some((r) => r.userId === userPartner.id) ? (
-                  <>
-                    <SpotifyRatingDisplay src={userPartner.displayPicture} />
-                    <Flex vertical gap={4}>
-                      {userPartner.name}
-                      <Rate
-                        disabled
-                        value={
-                          reviews.find((r) => r.userId === userPartner.id)
-                            ?.rating || 0
-                        }
-                        style={{ color: token.text }}
-                      />
-                    </Flex>
-                  </>
-                ) : (
-                  <Flex vertical gap={4} style={{ width: "100%" }}>
-                    <div style={{ textAlign: "center" }}>
-                      {userPartner.name} has not rated yet
-                    </div>
-                  </Flex>
-                )}
-              </SpotifyRatingContainer>
-            )}
-          </Flex>
-        </SpotifyFeaturedContainer>
-        <SpotifyBodyContainer>
-          <div
-            style={{
-              fontSize: token.fontSizeLg,
-              fontWeight: "bold",
-            }}
-          >
-            Comments
-          </div>
-          <Flex
-            justify="space-between"
-            style={{ padding: token.paddingSmall }}
-            gap={16}
-          >
-            <Input
-              value={newComment}
-              placeholder="Write comment"
-              onChange={(e) => {
-                setNewComment(e.target.value);
-              }}
-              style={{
-                border: `1px solid ${token.borderColor}`,
-                borderRadius: token.borderRadius,
-                background: token.colorBg,
-                fontFamily: token.fontFamily,
-                width: "250px",
-              }}
-            />
-            <CommentButton
-              disabled={isReviewAddLoading}
-              onClick={() => {
-                handleAddComment();
-              }}
-            >
-              {isReviewAddLoading ? (
-                <CustomSpin color={token.text} />
+            <Flex vertical gap={16} style={{ padding: 8, width: "100%" }}>
+              {comments.length > 0 ? (
+                comments.map((comment, index) => {
+                  return (
+                    <CommentCard key={index}>
+                      <CommentCardDisplayPic src={comment.displayPicture} />
+                      <Flex vertical>
+                        <CommentCardName>{comment.username}</CommentCardName>
+                        <CommentCardContent>
+                          {comment.content}
+                        </CommentCardContent>
+                      </Flex>
+                      <CommentCardDate>{comment.dateAddedJs}</CommentCardDate>
+                    </CommentCard>
+                  );
+                })
               ) : (
-                <CommentOutlined style={{ color: token.text }} />
+                <div style={{ textAlign: "center" }}>~No comments yet~</div>
               )}
-            </CommentButton>
-          </Flex>
-
-          <Flex vertical gap={16} style={{ padding: 8, width: "100%" }}>
-            {comments.length > 0 ? (
-              comments.map((comment, index) => {
-                return (
-                  <CommentCard key={index}>
-                    <CommentCardDisplayPic src={comment.displayPicture} />
-                    <Flex vertical>
-                      <CommentCardName>{comment.username}</CommentCardName>
-                      <CommentCardContent>{comment.content}</CommentCardContent>
-                    </Flex>
-                    <CommentCardDate>{comment.dateAddedJs}</CommentCardDate>
-                  </CommentCard>
-                );
-              })
-            ) : (
-              <div style={{ textAlign: "center" }}>~No comments yet~</div>
-            )}
-          </Flex>
-        </SpotifyBodyContainer>
-      </SpotifyBigContainer>
+            </Flex>
+          </SpotifyBodyContainer>
+        </SpotifyBigContainer>
+      )}
     </ThemeProvider>
   );
 };

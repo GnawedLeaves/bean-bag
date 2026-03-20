@@ -378,6 +378,8 @@ export const RecentReviewedTitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeLg}px;
   font-weight: bold;
   margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
 `;
 
 export const SpotifyRecentlyContainer = styled.div`
@@ -400,7 +402,7 @@ export const SpotifyRecentlyImg = styled.img`
   height: 50px;
   border-radius: 50%;
   border: 2px solid ${(props) => props.theme.borderColor};
-   object-fit: cover;
+  object-fit: cover;
 `;
 export const SpotifyRecentlyTitle = styled.div`
   font-size: ${(props) => props.theme.fontSizeMed}px;

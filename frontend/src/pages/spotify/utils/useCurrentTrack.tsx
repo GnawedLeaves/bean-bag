@@ -299,6 +299,7 @@ const useCurrentTrack = (accessToken: string | null) => {
     if (!accessToken) return;
 
     const fetchNowPlaying = async () => {
+      setCurrentPlaying(mock)
       try {
         setIsLoading(true);
         setError(null);
@@ -308,9 +309,9 @@ const useCurrentTrack = (accessToken: string | null) => {
         const data = await getCurrentlyPlaying(token);
 
         if (data?.item) {
-          setCurrentPlaying(data);
+          // setCurrentPlaying(data);
         } else {
-          setCurrentPlaying(null);
+          // setCurrentPlaying(null);
         }
       } catch (err: any) {
         console.error("Error fetching playback:", err);
@@ -346,3 +347,4 @@ const useCurrentTrack = (accessToken: string | null) => {
 };
 
 export { useCurrentTrack };
+

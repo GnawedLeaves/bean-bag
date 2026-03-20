@@ -617,7 +617,8 @@ const SpotifyPage = () => {
 
             <RecentReviewedContainer>
               <RecentReviewedTitle>
-                Recently Reviewed / Commented
+                <div>Recently Commented</div>
+                <a href={ROUTES.SPOTIFY_VIEW_ALL_REVIEWS.path}>View All</a>
               </RecentReviewedTitle>
               {recentsLoading ? (
                 <Flex vertical gap={8} justify="center">
