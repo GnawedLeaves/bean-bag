@@ -351,6 +351,10 @@ const SpotifyViewAllReviews = () => {
     if (r.type === "album") return r.details?.images[0]?.url;
     //@ts-expect-error
     if (r.type === "artist") return r.details?.images[0]?.url;
+    //@ts-expect-error
+
+    if (r.type === "playlist") return r.details?.images[0]?.url;
+
     return "";
   };
 
