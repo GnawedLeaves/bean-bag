@@ -618,7 +618,20 @@ const SpotifyPage = () => {
             <RecentReviewedContainer>
               <RecentReviewedTitle>
                 <div>Recently Commented</div>
-                <a href={ROUTES.SPOTIFY_VIEW_ALL_REVIEWS.path}>View All</a>
+                <Flex
+                  align="center"
+                  style={{
+                    padding: `${token.paddingSmall}px ${token.paddingMed}px`,
+                    border: `2px solid ${token.borderColor}`,
+                    borderRadius: token.borderRadius + "px",
+                    fontWeight: "normal",
+                  }}
+                  onClick={() => {
+                    navigate(ROUTES.SPOTIFY_VIEW_ALL_REVIEWS.path);
+                  }}
+                >
+                  View all
+                </Flex>
               </RecentReviewedTitle>
               {recentsLoading ? (
                 <Flex vertical gap={8} justify="center">
