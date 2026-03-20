@@ -1,4 +1,8 @@
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import {
+  ArrowDownOutlined,
+  ArrowLeftOutlined,
+  ArrowUpOutlined,
+} from "@ant-design/icons";
 import { ConfigProvider, Flex, Tabs, TabsProps } from "antd";
 import {
   QueryDocumentSnapshot,
@@ -75,8 +79,8 @@ export const SpotifyAllReviewsHeader = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  border-bottom-left-radius: ${(props) => props.theme.borderRadius}px;
-  border-bottom-right-radius: ${(props) => props.theme.borderRadius}px;
+  //   border-bottom-left-radius: ${(props) => props.theme.borderRadius}px;
+  //   border-bottom-right-radius: ${(props) => props.theme.borderRadius}px;
 `;
 const StyledTabsWrapper = styled.div`
   width: 100%;
@@ -130,6 +134,14 @@ const SpotifyReviewsSortButton = styled(Flex)`
   background: ${(props) => props.theme.colorBg};
   width: 100px;
   text-transform: capitalize;
+  font-size: ${(props) => props.theme.fontSizeMed}px;
+`;
+
+const SpotifyReviewUserPic = styled.img`
+  object-fit: cover;
+  width: 15px;
+  height: 15px;
+  border-radius: 100%;
 `;
 
 const SpotifyViewAllReviewsContentContainer = styled.div``;
@@ -154,13 +166,13 @@ const SpotifyViewAllReviews = () => {
 
   const tabItems: TabsProps["items"] = [
     {
-      key: "rating",
-      label: "Ratings",
+      key: "review",
+      label: "Reviews",
       children: "",
     },
     {
-      key: "review",
-      label: "Reviews",
+      key: "rating",
+      label: "Ratings",
       children: "",
     },
   ];
@@ -365,6 +377,8 @@ const SpotifyViewAllReviews = () => {
         <Flex style={{ fontSize: token.fontSizeLg }} gap={8} align="center">
           <div>Sort:</div>
           <SpotifyReviewsSortButton
+            gap={8}
+            align="center"
             justify="center"
             onClick={() => {
               setCurrentReviewsSort((prev) => {
@@ -377,7 +391,12 @@ const SpotifyViewAllReviews = () => {
               });
             }}
           >
-            {currentReviewsSort}
+            {currentReviewsSort}{" "}
+            {currentReviewsSort === "desc" ? (
+              <ArrowDownOutlined />
+            ) : (
+              <ArrowUpOutlined />
+            )}
           </SpotifyReviewsSortButton>
         </Flex>
 
@@ -419,6 +438,7 @@ const SpotifyViewAllReviews = () => {
                       color: token.textSecondary,
                     }}
                   >
+                    <SpotifyReviewUserPic src={review.userDisplayImg} />{" "}
                     {review.username}:{" "}
                   </span>
                   {review.content}
@@ -451,12 +471,13 @@ const SpotifyViewAllReviews = () => {
         components: {
           Tabs: {
             itemHoverColor: token.colorBg,
-            itemActiveColor: token.colorBg,
-            inkBarColor: token.colorBg,
-            itemSelectedColor: token.colorBg,
+            itemActiveColor: token.text,
+            inkBarColor: token.text,
+            itemSelectedColor: token.text,
             colorBorderSecondary: "transparent",
             horizontalMargin: "0px",
             horizontalItemPadding: "0px",
+            itemColor: token.colorBg,
           },
         },
       }}
