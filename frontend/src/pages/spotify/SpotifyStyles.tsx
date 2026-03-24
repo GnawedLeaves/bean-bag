@@ -85,6 +85,7 @@ export const SpotifyBodyContainer = styled.div`
   align-items: center;
   gap: 8px;
   padding-top: ${(props) => props.theme.paddingLg}px;
+  padding-bottom: ${(props) => props.theme.paddingLggg}px;
 `;
 
 export const SpotifyBigContainer = styled.div`

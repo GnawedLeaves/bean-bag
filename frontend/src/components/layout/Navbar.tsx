@@ -9,10 +9,10 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useUser } from "../../contexts/UserContext";
+import SpotifyPlayingBar from "../../pages/spotify/components/SpotifyPlayingBar";
 import { useCurrentTrack } from "../../pages/spotify/utils/useCurrentTrack";
 import { ROUTES } from "../../routes";
 import useNavbarController from "./NavbarController";
-import SpotifyPlayingBar from "../../pages/spotify/components/SpotifyPlayingBar";
 
 const { Header: AntHeader } = Layout;
 
@@ -25,9 +25,9 @@ const MobileBottomNav = styled.div`
   border-top: 2px solid #352a24;
   z-index: 1000;
   padding: 8px 0;
-  padding-bottom: 42px;
+  padding-bottom: ${(props) => props.theme.paddingLg}px;
   display: block;
-  height: 70px;
+  maxheight: 100px;
 `;
 
 const NavContainer = styled.div`
