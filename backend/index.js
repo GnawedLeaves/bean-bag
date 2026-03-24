@@ -369,7 +369,6 @@ app.post("/add-spotify-comment", async (req, res) => {
 
 app.post("/add-bean-comment", async (req, res) => {
   const { blogEntryId, userId, content, isDelete, blogTitle } = req.body;
-  console.log(req.body);
   if (!req.body) {
     return res.status(400).json({ error: "Missing required fields" });
   }
@@ -403,6 +402,48 @@ app.post("/add-bean-comment", async (req, res) => {
     res
       .status(500)
       .json({ error: "Failed to add bean comment", details: error.message });
+  }
+});
+
+app.post("/reset-streak", async (req, res) => {
+  const { streak, userId } = req.body;
+  console.log({ streak });
+  if (!req.body || !streak) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  try {
+    const table = db.collection("anniAppStreak");
+    const docRef = table.doc(streak.id);
+
+    console.log("trying to update doc");
+    await docRef.update({
+      prevDate: new Date(),
+      prevPrevDate: streak.prevDate,
+    });
+
+    console.log("updated doc");
+
+    await sendGlobalNotification(
+      {
+        title: `${streak.streakName} has been reset!`,
+        body: `uh oh someone lost their ${streak.timeDifference} day(s) streak!`,
+        url: `/home`,
+      },
+      userId,
+    );
+    console.log("sent notif");
+
+    console.log("successfully reset streak", streak.streakName);
+    return res.status(201).json({
+      success: true,
+      message: `Successfully reset streak: ${streak.streakName}`,
+    });
+  } catch (e) {
+    console.error("Error resetting streak", e);
+    res.status(500).json({
+      error: "Failed to reset streak",
+      details: e.message,
+    });
   }
 });
 

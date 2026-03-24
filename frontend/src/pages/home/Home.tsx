@@ -71,6 +71,7 @@ import {
   StreakButton,
   StreakContainer,
 } from "./HomeStyles";
+import useHomeController from "./useHomeController";
 
 const Home: React.FC = () => {
   const { user, userPartner, spotifyToken, loading, getUserContextData } =
@@ -210,6 +211,7 @@ const Home: React.FC = () => {
         prevPrevDate: new Date(),
         userId: user.id,
         isDelete: false,
+        dateAdded: new Date(),
       };
       await addDoc(collection(db, "anniAppStreak"), newStreak);
       handleGetAllStreaks();
@@ -248,15 +250,16 @@ const Home: React.FC = () => {
     }
   };
 
+  const { resetStreak } = useHomeController({
+    onResetStreak: () => {
+      handleGetAllStreaks();
+    },
+  });
+
   const handleResetStreak = async (streak: StreakModel) => {
     if (!window.confirm(`Reset streak "${streak.streakName}"?`)) return;
     try {
-      const streakRef = doc(db, "anniAppStreak", streak.id!);
-      await updateDoc(streakRef, {
-        prevDate: new Date(),
-        prevPrevDate: streak.prevDate,
-      });
-      handleGetAllStreaks();
+      resetStreak({ streak, userId: user?.id });
     } catch (e) {
       console.error("Error resetting streak", e);
     }
