@@ -168,7 +168,7 @@ const SpotifyPlayingBar = ({ currentPlaying }: SpotifyPlayingBarProps) => {
         ref={containerRef}
         style={{
           position: "fixed",
-          bottom: 70,
+          bottom: 85,
           left: 0,
           width: "100%",
           zIndex: 1000,
