@@ -1,0 +1,17 @@
+name: Scheduled Keep Alive (Singapore Time)
+on:
+  schedule:
+    # '*/14' means every 14 minutes
+    # '1-16' means from 01:00 UTC (9am SGT) to 16:59 UTC (12:59am SGT)
+    # The server will sleep after 01:00 AM SGT (17:00 UTC)
+    - cron: "*/14 1-16 * * *"
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Poke Render Server
+        run: |
+          URL="https://bean-bag.onrender.com/health"
+          echo "Pinging $URL at $(date)"
+          curl -s $URL

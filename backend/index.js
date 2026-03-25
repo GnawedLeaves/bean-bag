@@ -114,16 +114,9 @@ const getBlogEntryById = async (blogId) => {
   }
 };
 
-app.get("/health", async (req, res) => {
-  res.status(200).json({
-    status: "success",
-    message: "Server is very healthy",
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime() + "s",
-  });
-  console.log("server is healthy!!!");
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
 });
-
 // --- ENDPOINT: SAVE SUBSCRIPTION TO FIRESTORE ---
 app.post("/subscribe", async (req, res) => {
   const { subscription, userId } = req.body;
